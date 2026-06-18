@@ -25,12 +25,12 @@ jobs:
     - name: 4. Compilar Frontend con Memoria Expandida de 8GB
       run: npm run buildProd # Llama a tu script de alta capacidad de tu package.json
 
-    - name: 5. Desplegar Activos Estaticos al VPS de Contabo via SFTP
+   - name: 5. Desplegar Activos Estaticos al VPS
       uses: easingthemes/ssh-deploy@main
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-        ARGS: "-rlgoDzsub --delete" # Mantiene la carpeta del servidor limpia y libre de basura
+        ARGS: "-rlgoDzsub --delete"
         REMOTE_HOST: "144.126.156.149"
         REMOTE_USER: "root"
-        SOURCE: "dist/imperio-global/" # La carpeta que genera tu VS Code (de image_d1db80.png)
-        TARGET: "/var/www/imperio_global_front/dist/imperio-global-front/" # 🌟 CORREGIDO: Ruta exacta que dictamina tu Nginx
+        SOURCE: "dist/imperio-global/" 
+        TARGET: "/var/www/imperio_global_front/dist/imperio-global-front/"
