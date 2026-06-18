@@ -3,34 +3,34 @@ name: Deploy Angular 18 Imperio Global
 on:
   push:
     branches:
-      - main # Se activa automáticamente al hacer Merge del Pull Request en la web
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 1. Descargar Codigo desde GitHub
-      uses: actions/checkout@v4
+      - name: 1. Descargar Codigo desde GitHub
+        uses: actions/checkout@v4
 
-    - name: 2. Configurar Entorno Node.js (Version 20)
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'npm'
+      - name: 2. Configurar Entorno Node.js (Version 20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
 
-    - name: 3. Instalar Dependencias Limpias
-      run: npm ci
+      - name: 3. Instalar Dependencias Limpias
+        run: npm ci
 
-    - name: 4. Compilar Frontend con Memoria Expandida de 8GB
-      run: npm run buildProd # Llama a tu script de alta capacidad de tu package.json
+      - name: 4. Compilar Frontend con Memoria Expandida de 8GB
+        run: npm run buildProd
 
-   - name: 5. Desplegar Activos Estaticos al VPS
-      uses: easingthemes/ssh-deploy@main
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-        ARGS: "-rlgoDzsub --delete"
-        REMOTE_HOST: "144.126.156.149"
-        REMOTE_USER: "root"
-        SOURCE: "dist/imperio-global/" 
-        TARGET: "/var/www/imperio_global_front/dist/imperio-global-front/"
+      - name: 5. Desplegar Activos Estaticos al VPS de Contabo via SFTP
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          ARGS: "-rlgoDzsub --delete"
+          REMOTE_HOST: "144.126.156.149"
+          REMOTE_USER: "root"
+          SOURCE: "dist/imperio-global/"
+          TARGET: "/var/www/imperio_global_front/dist/imperio-global-front/"
