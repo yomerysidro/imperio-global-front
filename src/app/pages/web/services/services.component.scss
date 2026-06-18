@@ -1,0 +1,33 @@
+.filter-section{
+  border-radius: 6px;
+  border: 1px solid var(--gray-300, #DEE2E7);
+  background: #FFF;
+  padding: 7px 15px;
+  font-size: 12px;
+}
+
+hr{
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+:host{
+  padding: 15px;
+    display: block;
+}
+@media (max-width: 768px){
+  .filter-section{
+    padding: 4px 7px;
+
+    p{
+      font-size: 12px;
+    }
+  }
+  :host{
+    padding: 0;
+  }
+}
+
+.pe-4{
+  padding-right: .2rem !important;
+}
+

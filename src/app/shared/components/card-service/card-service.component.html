@@ -1,0 +1,29 @@
+<div class="row mb-3">
+    <div class="col-md-5 col-9">
+        <section class="d-flex align-items-center position-relative p-2 rounded" style="z-index: 4;background: #FFF;border: 1px solid rgba(196, 196, 196, 0.70);">
+            <img nz-image [nzSrc]="service.file?.path ?? ''" [nzFallback]="fallback" class="img-fluid-service">
+            <div class="ps-4">
+                <p class="mb-1"><b>{{ service.name }}</b></p>
+                <p class="mb-0">{{ service.type_service?.description ?? '' }}</p>
+            </div>
+
+        </section>
+
+    </div>
+    <div class="col-5 px-4 d-none d-md-block">
+        <p class="text-blue ff-inter" style="color: #215EE9 !important;">
+          {{ service.description }}
+        </p>
+    </div>
+    <div class="col-md-2 col-3">
+      <div class="row justify-content-end" style="height: 100%;">
+        <div class="col-md-12 col-12">
+            <div class="d-flex align-items-end" style="height: 100%;" >
+                <button class="rounded p-2 service-btn" [ngClass]="{'service-btn-active': serviceActive}" (click)="onActive()">
+                    <span class="text-white fs-14">S/. {{ service.price  }}</span>
+                </button>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>

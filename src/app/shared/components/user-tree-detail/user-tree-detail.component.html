@@ -1,0 +1,80 @@
+<div class="profile-card">
+  <div class="banner-header">
+    <div class="header-content">
+      <div class="avatar-container">
+        <div class="main-photo-wrapper">
+          <img *ngIf="avatarUrl" [src]="avatarUrl" alt="avatar" class="main-photo" (error)="avatarUrl = null">
+          <div *ngIf="!avatarUrl" class="main-photo-placeholder">
+            <i nz-icon nzType="user"></i>
+          </div>
+          <div class="status-overlay"
+            [class.active]="isNodeActive"
+            [class.inactive]="!isNodeActive">
+            <div class="icon-avatar-bg">
+              <i nz-icon nzType="user"></i>
+            </div>
+            <div class="status-dot"></div>
+          </div>
+        </div>
+      </div>
+      <div class="name-container">
+        <h2 class="display-name">{{ userModel?.name || userModel?.user_name || 'Usuario' }}</h2>
+        <p class="uuid-text">ID: {{ userModel?.uuid }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-body text-center">
+    <div class="paquetes-row d-flex justify-content-center flex-wrap">
+      <ng-container *ngFor="let item of paquetes">
+        <span class="custom-badge active-badge">
+          {{ item.paquete || item.product_title || item.title }}
+        </span>
+      </ng-container>
+      <div *ngIf="paquetes.length === 0" class="no-packs">Sin paquetes registrados</div>
+    </div>
+
+    <div class="puntos-box">
+      <span class="total-points-text">{{ granTotalPuntos | number:'1.0-0' }} P. Totales</span>
+      <p class="helper-text">Suma Total Acumulada</p>
+    </div>
+
+    <hr class="soft-divider">
+
+    <nz-row class="points-breakdown-card">
+        <nz-col [nzSpan]="12" class="breakdown-item border-right">
+            <div class="breakdown-val blue">{{ pointTotal || 0 }}</div>
+            <div class="breakdown-lbl">Puntos Personales</div>
+        </nz-col>
+        <nz-col [nzSpan]="12" class="breakdown-item">
+            <div class="breakdown-val green">{{ pointRed || 0 }}</div>
+            <div class="breakdown-lbl">Puntos de Red</div>
+        </nz-col>
+    </nz-row>
+
+    <nz-row class="stats-grid">
+      <nz-col [nzSpan]="8" class="stat-col">
+        <div class="val">{{ usuarioTotal }}</div>
+        <div class="lbl">Red Total</div>
+      </nz-col>
+      <nz-col [nzSpan]="8" class="stat-col border-lr">
+        <div class="val">{{ usuarioDirectos }}</div>
+        <div class="lbl">Directos</div>
+      </nz-col>
+      <nz-col [nzSpan]="8" class="stat-col">
+        <div class="val green-text">{{ usuarioActivos }}</div>
+        <div class="lbl">Activos</div>
+      </nz-col>
+    </nz-row>
+
+    <div class="range-footer">
+      <div class="range-pill">
+        <span class="r-title">RANGO ACTUAL:</span>
+        <span class="r-name" [style.color]="userModel?.range ? '#1890ff' : '#8c8c8c'">
+          {{ userModel?.range == null ? 'SIN RANGO' : (userModel?.range.range.title) }}
+        </span>
+        <img *ngIf="userModel?.range != null" [src]="env.hostUrl + '/storage/' + userModel?.range.range.file.path" class="r-icon">
+      </div>
+    </div>
+  </div>
+</div>

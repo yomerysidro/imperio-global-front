@@ -1,0 +1,179 @@
+<ng-container *ngIf="paymentSection == 0">
+  <nz-spin nzTip="Verificando..." [nzSpinning]="isSpinning">
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-gray-6">Nombre del plan de afiliación :</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <p class="m-0 fs-15 text-gray-6">{{ planSelected.title }}</p>
+      </nz-col>
+    </nz-row>
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-gray-6">Puntos por plan :</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <p class="m-0 fs-15 text-gray-6">{{ planSelected.points }} puntos</p>
+      </nz-col>
+    </nz-row>
+
+    <hr style="border-color: #E4E4E4; border-width: 3px;">
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-black-6">Precio del plan de afiliación:</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <p class="m-0 fs-15 text-black-6">S/ {{ planSelected.price | number : '1.2-2' }}</p>
+      </nz-col>
+    </nz-row>
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-black-6">Comisión e impuestos de venta:</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <p class="m-0 fs-15 text-black-6">{{ comitionTotal }}%</p>
+      </nz-col>
+    </nz-row>
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-black-6">Precio final:</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <p class="m-0 fs-15 text-black-6"><b>S/ {{ this.totalPayment | number : '1.2-2' }}</b></p>
+      </nz-col>
+    </nz-row>
+
+    <nz-row class="m-b-30">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-black-6"><b>Escribir ID de patrocinador</b></p>
+        <p class="m-0 fs-15 text-black-6"><b>(información obligatorio)</b></p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <nz-input-group [nzSuffix]="suffixTemplateClean" >
+          <input nz-input placeholder="Codigo Patrocinador" [(ngModel)]="codeUser" [disabled]="codeDisabled" [nzStatus]="codeUserStatus" (input)="onChangeCode($event)" style="text-transform: uppercase;"/>
+        </nz-input-group>
+        <ng-template #suffixTemplateClean>
+          <ng-container *ngIf="sponsorInvited != ''">
+            <div class="d-inline-flex rounded-circle" style="padding: 6px;background-color: #6E7D96A6;color: #FFF; cursor: pointer;" (click)="onRemoveReferido()">
+              <i nz-icon nzType="clear" nzTheme="outline" nz-tooltip nzTooltipTitle="Eliminar referido" ></i>
+            </div>
+          </ng-container>
+        </ng-template>
+
+      </nz-col>
+    </nz-row>
+
+    <ng-container *ngIf="!isReactivePlan">
+      <div class="m-b-20">
+        <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentFlow()" [nzLoading]="isLoadingFlow">
+          <p class="mb-0 text-white">PAGAR</p>
+          <p class="mb-0 text-white">(PagoEfectivo exclusivo para Perú)</p>
+        </button>
+      </div>
+
+      <div class="m-b-20 position-relative" >
+        <hr style="border-color: #E4E4E4; border-width: 2px;"><span>OR</span>
+      </div>
+
+      <div class="m-b-20">
+        <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentIzipay()" [nzLoading]="isLoadingIzipay">
+          <p class="mb-0 text-white">PAGAR</p>
+          <p class="mb-0 text-white">(Credit/débit Card para todo Latam)</p>
+        </button>
+      </div>
+
+      <ng-container *ngIf="sponsorInvited != ''">
+        <div class="m-b-20 position-relative" >
+          <hr style="border-color: #E4E4E4; border-width: 2px;"><span>OR</span>
+        </div>
+
+        <div class="m-b-20" >
+          <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentOffline()" [nzLoading]="isLoadingOffline">
+            <p class="mb-0 text-white">CONFIRMAR PAGO</p>
+            <p class="mb-0 text-white">Pagué en efectivo a agente de Imperio</p>
+          </button>
+        </div>
+      </ng-container>
+    </ng-container>
+    
+
+    <ng-container *ngIf="isReactivePlan">
+        <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentMakerplace()" >
+          <p class="mb-0 text-white">PAGAR</p>
+          <p class="mb-0 text-white">Para renovar compra productos en la tienda</p>
+        </button>
+    </ng-container>
+    
+    
+
+
+  </nz-spin>
+
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 1">
+  <nz-row class="m-b-20">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-20 text-center" >
+      <p class="m-0 fs-15 text-gray-6"><b>¡ Listo, se genero un link de pago!. </b></p>
+      <p class="m-0 fs-15 text-gray-6">Ingresar al link para poder realizar el pago de su plan.</p>
+
+    </nz-col>
+    <nz-col [nzSm]="24" [nzXs]="24" class="text-center">
+      <a [href]="linkPayment" target="_blank" class="btn btn-info text-white ">Ir a pagar</a>
+    </nz-col>
+  </nz-row>
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 2">
+  <div class="form">
+
+    <div class="container-form">
+      <div class="text-center m-b-10">
+        <img alt="Vue logo" src="assets/images/Logo-161x66.png" />
+      </div>
+      <div id="myPaymentForm"></div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 3">
+  <nz-row class="m-b-20">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-20 text-center" >
+      <ng-container *ngIf="!isPaymentError">
+        <p style="font-size: 18px;">
+          <i nz-icon nzType="check" nzTheme="outline" style="color: #00B517; font-size: 20px;"></i>
+        <b>¡ Listo, tu compra se realizó con éxito
+          Compraste tu plan de afiliación!</b></p>
+          <p style="font-size: 18px;">Bienvenido a ImperioGlobal.net, compraste
+            correctamente tu plan de afiliación.
+            Invita a tu amigos y gana puntos.</p>
+        <button nz-button nzType="primary" class="btn-payment" nzSize="large" (click)="onCloseModal()">Listo</button>
+      </ng-container>
+      <ng-container *ngIf="isPaymentError">
+        <p class="text-rojo" style="font-size: 18px;">
+          <i nz-icon nzType="close" nzTheme="outline" style="color: #FF3A44; font-size: 20px;"></i>
+        <b>¡ Un error en tu compra!</b></p>
+          <p style="font-size: 18px;">{{ messageError }}</p>
+        <button nz-button nzType="primary" class="btn-payment" nzSize="large" (click)="onCloseModal()">Listo</button>
+      </ng-container>
+
+
+    </nz-col>
+  </nz-row>
+</ng-container>
+
+
+<ng-container *ngIf="paymentSection == 4">
+  <nz-row class="m-b-20">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-20 text-center" >
+      <p class="m-0 fs-15 text-gray-6"><b>¡ Listo, pago offline!. </b></p>
+      <p class="m-0 fs-15 text-gray-6">Ingresar al link para poder realizar el pago de su plan.</p>
+
+    </nz-col>
+
+  </nz-row>
+</ng-container>

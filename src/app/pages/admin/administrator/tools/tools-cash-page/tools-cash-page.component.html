@@ -1,0 +1,47 @@
+<nz-card  style="border: 0;">
+  <nz-row class="m-b-20">
+    <nz-col [nzXs]="24" class="m-b-20">
+      <div class="d-flex align-items-center ">
+        <a routerLink="/admin/tools" class="text-black-2" ><i nz-icon nzType="arrow-left" nzTheme="outline" class="font-size-26"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 class="m-0 text-black-2">Resumen de Ingresos - <span>{{ currentDate | date: 'MMMM' : '' : "es-ES" }}</span></h3>
+      </div>
+    </nz-col>
+
+    
+  </nz-row>
+  <nz-row class="m-b-20">
+    <nz-col [nzLg]="8" [nzMd]="12" [nzXs]="24" class="m-b-20 text-center">
+        <nz-date-picker nzInline nzMode="month" [(ngModel)]="currentDate" (ngModelChange)="onChangeDate($event)"></nz-date-picker>
+    </nz-col>
+    <nz-col [nzLg]="16" [nzMd]="12" [nzXs]="24" class="m-b-20">
+      <div class="d-flex align-items-center card--cash m-b-30">
+        <div>
+          <p class="fs-20 fw-500 text-black-general m-0" >Flujo de caja de ingresos</p>
+          <p class="fs-15 text-black-general m-0">Aquí solo se ve el resumen de los ingresos generados por ventas en los  canales oficiales (Pagoefectivo / Tarjetas)</p>
+        </div>
+        <div style="padding: 5px;">
+          <img src="assets/images/523f06182f48b2df26878e57a23aa193d8337b20-cropped.png" alt="" style="width: 60px;">
+        </div>
+        <div>
+          <i nz-icon nzType="arrow-right" nzTheme="outline" class="text-black-general fs-15" ></i>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center card--cash card--cash--min m-b-30">
+        <div>
+          <img src="assets/images/db81e052cded511188b59264468e751cda4d782d-cropper.png" alt="" style="width: 30px;">
+          <p class="fs-22 fw-700 text-black-general m-0">S/ {{ amountProduct | number : '1.2' }}</p>
+          <p class="fs-15 text-black-general m-0">Ingresos por venta de productos en tienda</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center card--cash card--cash--min m-b-30">
+        <div>
+          <img src="assets/images/db81e052cded511188b59264468e751cda4d782d-cropper.png" alt="" style="width: 30px;">
+          <p class="fs-22 fw-700 text-black-general m-0">S/ {{ amountStore | number : '1.2' }}</p>
+          <p class="fs-15 text-black-general m-0">Ingresos por venta de paquetes de afiliación (Nuevos)</p>
+        </div>
+      </div>
+    </nz-col>
+  </nz-row>
+</nz-card>

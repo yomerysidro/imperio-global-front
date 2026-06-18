@@ -1,0 +1,86 @@
+<nz-card  style="border: 0;">
+  <nz-row class="m-b-20">
+    <nz-col [nzXs]="24" class="m-b-20">
+      <div class="d-flex align-items-center ">
+        <a routerLink="/admin/tools" class="text-black-2" ><i nz-icon nzType="arrow-left" nzTheme="outline" class="font-size-26"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 class="m-0 text-black-2">Solicitudes de cobro de Bonos Patrocinio</h3>
+      </div>
+    </nz-col>
+    <nz-col [nzXs]="24" class="m-b-20">
+      <div class="d-flex align-items-center card--shadow p-20">
+        <h4 class="m-0 p-r-20 m-b-10">All ({{ totalRecord }})</h4>
+        <nz-input-group [nzPrefix]="suffixTemplateInfo" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px; margin-bottom: 10px;" >
+          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar usuario por ID" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
+        </nz-input-group>
+        <ng-template #suffixTemplateInfo><i nz-icon nzType="search"></i></ng-template>
+
+        <nz-input-group [nzPrefix]="suffixTemplateInfoName" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px; margin-bottom: 10px;" >
+          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por Nombre" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
+        </nz-input-group>
+        <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
+
+      </div>
+    </nz-col>
+  </nz-row>
+  <nz-row>
+    <nz-col [nzXs]="24" class="m-b-20">
+      <nz-table
+        nzSize="small"
+        [nzFrontPagination]="false"
+        [nzLoading]="tableProductLoading"
+        [nzData]="tableProducts"
+        [nzTotal]="totalRecord"
+        [(nzPageIndex)]="pageIndex"
+        [(nzPageSize)]="pageSize"
+        (nzQueryParams)="onQueryParamsChange($event)"
+      >
+        <thead>
+          <tr>
+            <th [nzAlign]="'center'">Image</th>
+            <th [nzAlign]="'center'">Nombre y Apellidos</th>
+            <th [nzAlign]="'center'">Código ID</th>
+            <th [nzAlign]="'center'">Correo electrónico</th>
+            <th [nzAlign]="'center'">Número de Contacto</th>
+            <th [nzAlign]="'center'">Descargar documento</th>
+            <th [nzAlign]="'center'">Estado Solcitud</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of tableProducts">
+            <td nzAlign="center">
+              <img [src]="item.user.file != null ? environment.hostUrl + '/storage/' + item.user.file.path  :CONSTANTS.IMAGE.FALLBACK" alt="" class="rounded-circle" style="width: 50px;">
+            </td>
+            <td nzAlign="center">{{ item.user.name }}</td>
+            <td nzAlign="center">
+              <span class="text-uppercase">{{ item.user.uuid }}</span>
+            </td>
+            <td nzAlign="center">
+              {{ item?.user.email }}
+            </td>
+            <td nzAlign="center">
+              {{ item?.user.phone }}
+            </td>
+            <td nzAlign="center">
+              <ng-container *ngIf="item.file_model != null">
+                <button nz-button nzType="primary" nzShape="circle" (click)="onDownload(item.file)"><i nz-icon nzType="cloud-download" nzTheme="outline"></i></button>
+              </ng-container>
+              
+            </td>
+            <td nzAlign="center">
+                <ng-container *ngIf="item.state == 1">
+                    <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" (click)="onApproved( item )">PENDIENTE</nz-tag>
+                </ng-container>
+                <ng-container *ngIf="item.state == 2">
+                    <nz-tag [nzColor]="'#00B517'" class="pointer m-0" >PAGADO</nz-tag>
+                </ng-container>
+                <ng-container *ngIf="item.state == 3">
+                    <nz-tag [nzColor]="'#FF3A44'" class="pointer m-0" >ANULADO</nz-tag>
+                </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-col>
+  </nz-row>
+</nz-card>
+

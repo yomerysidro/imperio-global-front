@@ -1,0 +1,21 @@
+.shadow--product{
+  -webkit-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
+box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.75);
+}
+.product--image{
+  height: 315px;
+    overflow: hidden;
+    position: relative;
+    border: 10px solid #FFF;
+}
+
+@media (max-width: 960px){
+  .product--image{
+    height: 250px;
+  }
+}
+
+.product--image img{
+  height: 100%;
+}

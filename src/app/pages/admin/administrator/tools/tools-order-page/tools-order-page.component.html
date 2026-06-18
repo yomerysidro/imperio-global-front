@@ -1,0 +1,31 @@
+<nz-card  style="border: 0;">
+  <nz-row class="m-b-20">
+    <nz-col [nzXs]="24" class="m-b-20">
+      <div class="d-flex align-items-center ">
+        <a routerLink="/admin/tools" class="text-black-2" ><i nz-icon nzType="arrow-left" nzTheme="outline" class="font-size-26"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <h3 class="m-0 text-black-2">Pedidos Registrados en tu plataforma </h3>
+      </div>
+    </nz-col>
+
+    <nz-col [nzXs]="24" class="m-b-20">
+      <div class="d-flex align-items-center card--shadow p-20">
+        <!-- <h4 class="m-0 p-r-20">All ({{ totalRecord }})</h4> -->
+        <nz-input-group [nzPrefix]="suffixTemplateInfo" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px;" >
+          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar usuario por ID" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
+        </nz-input-group>
+        <ng-template #suffixTemplateInfo><i nz-icon nzType="search"></i></ng-template>
+
+        <nz-input-group [nzPrefix]="suffixTemplateInfoName" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px;" >
+          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por Nombre" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
+        </nz-input-group>
+        <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
+
+      </div>
+    </nz-col>
+
+
+    <nz-col [nzXs]="24" class="m-b-20">
+      <app-table-payment-product-order [searchLoader]="eventSearch" [queryParams]="queryParams"></app-table-payment-product-order>
+    </nz-col>
+  </nz-row>
+</nz-card>

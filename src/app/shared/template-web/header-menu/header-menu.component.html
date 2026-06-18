@@ -1,0 +1,105 @@
+<nav class="navbar navbar-expand-lg pb-0" id="navbar-example2">
+    <div class="container-xxl align-items-center">
+      <a class="navbar-brand pt-1" [routerLink]="'/home'">
+        <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid" width="169px">
+      </a>
+      <div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="19" viewBox="0 0 24 19" fill="none">
+            <rect width="24" height="3" rx="1.5" fill="#423838"/>
+            <rect y="8" width="24" height="3" rx="1.5" fill="#423838"/>
+            <rect x="10" y="16" width="13.8947" height="3" rx="1.5" fill="#423838"/>
+          </svg>
+        </button>
+        <a [routerLink]="'/admin/profile'">
+          <img nz-image *ngIf="isAuth" width="40px" height="40px" [nzSrc]="avatarUrl" [nzDisablePreview]="true" class="d-md-none rounded-circle ml-1 border border-3"/>
+        </a>
+
+
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        <ul class="navbar-nav mx-auto mb-lg-0">
+          <li class="nav-item" >
+            <a class="nav-link"  href="javascript: void(0)" [ngClass]="{'active': menuSection === 'inicio-section'}" (click)="goTo('inicio-section')">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript: void(0)" [ngClass]="{'active': menuSection === 'productos-section'}" (click)="goTo('productos-section')">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript: void(0)" [ngClass]="{'active': menuSection === 'planes-section'}" (click)="goTo('planes-section')">Planes y rangos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript: void(0)" [ngClass]="{'active': menuSection === 'contact-section'}" (click)="goTo('contact-section')">Contacto</a>
+          </li>
+          <li class="nav-item d-block d-md-none" *ngIf="!isAuth">
+            <a class="nav-link" [routerLink]="'/auth/login'" [routerLinkActive]="'active'">Inicio Sesión</a>
+          </li>
+          <!-- <li class="nav-item d-block d-md-none" *ngIf="!isAuth">
+            <a class="nav-link" [routerLink]="'/auth/register'" [routerLinkActive]="'active'">Registro</a>
+          </li> -->
+
+          <li class="nav-item d-block d-md-none" *ngIf="isAuth">
+            <a class="nav-link" [routerLink]="'/admin/profile'" [routerLinkActive]="'active'">Mi Perfil</a>
+          </li>
+          <li class="nav-item d-block d-md-none" *ngIf="isAuth">
+            <a class="nav-link" [routerLink]="'/admin/tree-users'" [routerLinkActive]="'active'">Árbol de afiliados</a>
+          </li>
+          <!-- <li class="nav-item d-block d-md-none" *ngIf="isAuth">
+            <a class="nav-link" [routerLink]="'/auth/login'" [routerLinkActive]="'active'">Mis puntos</a>
+          </li> -->
+          <li class="nav-item d-block d-md-none" *ngIf="isAuth">
+            <a class="nav-link" href="javascript: void(0)" (click)="onLogout()">Cerrar sesión</a>
+          </li>
+        </ul>
+        <div class="d-md-flex d-none" *ngIf="!isAuth">
+
+          <a [routerLink]="'/auth/login'" class="btn btn-sm btn-primary btn-black">
+            Inicio Sesión
+          </a>
+        </div>
+
+        <div class="d-md-flex d-none" *ngIf="isAuth">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- <li class="nav-item">
+              <a [routerLink]="'/auth/login'" class="nav-link text-center text-gris-1 px-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="18" viewBox="0 0 19 18" fill="none">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.2107 17.1337C10.527 17.8238 9.47441 17.8238 8.79068 17.1237L8.69171 17.0236C3.96853 12.2728 0.882718 9.16226 0.999673 5.28158C1.05365 3.58128 1.83635 1.951 3.10486 0.990828C5.47995 -0.809487 8.41282 0.0306596 9.99621 2.09102C11.5796 0.0306596 14.5125 -0.819489 16.8876 0.990828C18.1561 1.951 18.9388 3.58128 18.9928 5.28158C19.1187 9.16226 16.0239 12.2728 11.3007 17.0436L11.2107 17.1337Z" fill="#8E9FB9"/>
+                </svg><br>
+                <span>Mis puntos</span>
+              </a>
+            </li> -->
+            <!-- <li class="nav-item">
+              <a [routerLink]="'/my-reservations'" class="nav-link text-center text-gris-1 px-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.69789 15.2C4.65327 15.2 3.80809 16.055 3.80809 17.1C3.80809 18.145 4.65327 19 5.69789 19C6.7425 19 7.59718 18.145 7.59718 17.1C7.59718 16.055 6.7425 15.2 5.69789 15.2ZM0 0.95C0 1.4725 0.427341 1.9 0.949647 1.9H1.89929L5.31803 9.1105L4.036 11.4285C3.34276 12.7015 4.25442 14.25 5.69788 14.25H16.144C16.6663 14.25 17.0937 13.8225 17.0937 13.3C17.0937 12.7775 16.6663 12.35 16.144 12.35H5.69788L6.7425 10.45H13.8174C14.5296 10.45 15.1564 10.0605 15.4793 9.4715L18.879 3.306C19.2304 2.679 18.7745 1.9 18.0528 1.9H3.99802L3.36175 0.5415C3.20981 0.209 2.86794 0 2.50707 0H0.949647C0.427341 0 0 0.4275 0 0.95ZM15.1944 15.2C14.1497 15.2 13.3046 16.055 13.3046 17.1C13.3046 18.145 14.1497 19 15.1944 19C16.239 19 17.0937 18.145 17.0937 17.1C17.0937 16.055 16.239 15.2 15.1944 15.2Z" fill="#8E9FB9"/>
+                </svg><br>
+                <span>Mis reservas</span>
+              </a>
+            </li> -->
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle text-center text-gris-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
+
+                <img nz-image width="45px" height="45px" [nzSrc]="avatarUrl" [nzFallback]="fallback" [nzDisablePreview]="true" class="rounded-circle  border border-3"/>
+                <br>
+                <span>Mi perfil</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" [routerLink]="'/admin/profile'">Mi Cuenta</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" (click)="onLogout()">Salir</a>
+                </li>
+              </ul>
+            </li>
+
+          </ul>
+
+
+
+        </div>
+      </div>
+    </div>
+</nav>

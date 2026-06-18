@@ -1,0 +1,9 @@
+.card--cash{
+    border-radius: 16px;
+    padding: 8px 12px;
+    border: 1px solid #1C1B1F;
+    max-width: 500px;
+    &.card--cash--min{
+        max-width: 300px;
+    }
+}

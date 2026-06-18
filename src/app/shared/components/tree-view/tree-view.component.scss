@@ -1,0 +1,46 @@
+/* --- Líneas del árbol --- */
+.treeLink {
+  /* CAMBIA ESTE COLOR POR EL GRIS QUE PREFIERAS */
+  stroke: #d1d9e2; 
+  stroke-width: 1.5px;
+  fill: transparent;
+  overflow: visible;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; /* Detrás de los nodos */
+  pointer-events: none;
+}
+
+/* --- Contenedor principal --- */
+.tree {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow: visible;
+  background: transparent;
+}
+
+/* --- Wrapper interno --- */
+.wrapper {
+  position: relative;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+/* --- Item (Nodo de la librería) --- */
+.item {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* IMPORTANTE: Transparente para que no tape tu diseño blanco */
+  background-color: transparent !important; 
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none !important;
+}

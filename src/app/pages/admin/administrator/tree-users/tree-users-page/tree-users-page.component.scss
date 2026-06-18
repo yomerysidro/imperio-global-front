@@ -1,0 +1,194 @@
+/* --- VARIABLES --- */
+$primary-blue: #4379EE;
+$active-green: #00B517;   /* VERDE ORIGINAL */
+$inactive-red: #FF4D4F;    /* ROJO ORIGINAL */
+$text-main: #1a1a1a;
+$text-muted: #8c8c8c;
+
+/* ── 1. STATS CARD ─────────────────────────────────────── */
+.stats-card {
+  border: 0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+  margin-bottom: 20px;
+  background: #fff;
+
+  .stat-item {
+    padding: 15px;
+    text-align: center;
+    .stat-number {
+      font-size: 32px; font-weight: 900; margin: 0; color: $text-main;
+      &.active-color { color: $active-green; }
+    }
+    .stat-label { color: $text-muted; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
+    @media (min-width: 992px) { &.border-left { border-left: 1px solid #f0f0f0; } }
+  }
+}
+
+/* ── 2. TREE CARD & VIEWPORT ──────────────────────────── */
+.tree-main-card {
+  border: 0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+  background: #fff !important;
+  overflow: hidden;
+
+  .tree-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #f8fafc;
+    z-index: 100;
+    position: relative;
+
+    .sponsor-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+
+      .sponsor-info {
+        .label { font-size: 12px; color: $text-muted; }
+        .name { font-size: 15px; font-weight: 700; color: $text-main; margin-left: 5px; }
+        .id-tag { color: $primary-blue; font-size: 12px; font-weight: 700; margin-left: 5px; }
+      }
+
+      .tree-legend {
+        display: flex; gap: 15px;
+        .legend-item {
+          display: flex; align-items: center; gap: 6px;
+          .dot { width: 10px; height: 10px; border-radius: 50%; 
+            &.active { background: $active-green; box-shadow: 0 0 5px $active-green; }
+            &.inactive { background: $inactive-red; box-shadow: 0 0 5px $inactive-red; }
+          }
+          small { font-weight: 600; color: $text-muted; }
+        }
+      }
+    }
+  }
+
+  .tree-viewport {
+    padding: 40px 20px;
+    width: 100%;
+    overflow: auto; 
+    min-height: 550px;
+    background: #ffffff;
+
+    &::-webkit-scrollbar { width: 6px; height: 6px; }
+    &::-webkit-scrollbar-thumb { background: #d1d9e2; border-radius: 10px; }
+
+    ::ng-deep app-tree-view { display: block; width: max-content; margin: 0 auto; }
+    ::ng-deep .tree { display: flex; justify-content: center; min-width: fit-content; }
+
+    /* LÍNEAS CONECTORES OSCURAS */
+    ::ng-deep .treeLink {
+      stroke: #333333 !important;
+      stroke-width: 1.5px !important;
+      fill: transparent !important;
+    }
+  }
+}
+
+/* ── 3. NODE WRAPPER (ALINEACIÓN PERFECTA) ─────────────── */
+.node-wrapper {
+  width: 50px; /* Área de colisión */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  margin: 0 auto;
+
+  &:hover .node-avatar {
+    transform: scale(1.15);
+  }
+}
+
+.node-avatar {
+  width: 34px; /* Tamaño pequeño solicitado */
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid $inactive-red; /* Color por defecto Inactivo */
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+  z-index: 2;
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .node-placeholder {
+    font-size: 18px;
+    color: $inactive-red; /* Muñequito Rojo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ESTADO ACTIVO */
+  &.is-active {
+    border-color: $active-green !important;
+    .node-placeholder { color: $active-green !important; } /* Muñequito Verde */
+  }
+
+  /* PUNTO DE ESTADO LATERAL */
+  .status-dot {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: $inactive-red;
+    &.active { background: $active-green; }
+  }
+}
+
+/* ── 4. ETIQUETAS E ID ─────────────────────────────────── */
+.node-label {
+  width: 100%;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+
+  .node-id { 
+    font-size: 10px; 
+    font-weight: 700; 
+    color: #333; 
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* BARRA DE ESTADO BAJO EL NOMBRE */
+  .node-status-bar {
+    width: 16px;
+    height: 3px;
+    border-radius: 10px;
+    background: #e2e8f0;
+    margin-top: 2px;
+    
+    .bar-fill {
+      height: 100%; width: 100%;
+      border-radius: 10px;
+      background: $inactive-red; /* Barra Roja */
+      &.active { background: $active-green; } /* Barra Verde */
+    }
+  }
+}
+
+/* ── 5. COMPATIBILIDAD CON LIBRERÍA ─────────────────────── */
+::ng-deep .wrapper > div {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}

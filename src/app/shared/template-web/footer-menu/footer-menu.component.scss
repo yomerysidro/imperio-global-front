@@ -1,0 +1,21 @@
+.svg{
+  fill: #F07D87;
+  stroke: #F07D87;
+}
+footer a.active p{
+  color: #F07D87 !important;
+}
+footer a.active svg path{
+  fill: #F07D87;
+  stroke-width: 0.5px;
+  stroke: #F07D87;
+}
+@media (max-width: 768px){
+  footer p{
+    font-size: 12px;
+  }
+  :host{
+    display: block;
+    max-height: 93px;
+  }
+}

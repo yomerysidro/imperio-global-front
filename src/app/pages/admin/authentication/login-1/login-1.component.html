@@ -1,0 +1,55 @@
+<div class="container-fluid p-h-0 p-v-20 h-100 bg" style="background-image: url('assets/images/others/login-3.png')">
+  <div class="d-flex flex-column justify-content-between h-100">
+      <div class="d-none d-md-block"></div>
+      <div class="container">
+          <div class="row align-items-center">
+              <div class="col-md-7 col-lg-5 m-h-auto">
+                  <nz-card class="m-b-100 shadow-lg">
+                      <div class="d-flex align-items-center justify-content-between m-b-30">
+
+                      </div>
+                      <form nz-form [formGroup]="frmLogin" nzLayout="vertical" class="login-form" (ngSubmit)="submitForm()">
+                          <nz-form-item>
+                              <nz-form-label nzRequired nzFor="email">Email</nz-form-label>
+                              <nz-form-control nzErrorTip="Please input your username!">
+                                  <nz-input-group [nzPrefix]="prefixUser">
+                                      <input type="text" nz-input formControlName="email" >
+                                  </nz-input-group>
+                              </nz-form-control>
+                          </nz-form-item>
+                          <nz-form-item class="relative">
+                              <nz-form-label nzRequired nzFor="password">Contraseña</nz-form-label>
+                              <nz-form-control nzErrorTip="Please input your Password!">
+                                  <nz-input-group [nzPrefix]="prefixLock">
+                                      <input type="password" nz-input formControlName="password" >
+                                  </nz-input-group>
+                              </nz-form-control>
+                          </nz-form-item>
+                          <nz-form-item>
+                              <nz-form-control>
+                                  <div class="d-flex align-items-center justify-content-between">
+
+                                      <button nz-button class="login-form-button" [nzType]="'primary'" [nzLoading]="isLoading">Ingresar</button>
+                                  </div>
+                              </nz-form-control>
+                          </nz-form-item>
+                      </form>
+                      <ng-template #prefixUser><i nz-icon nzType="user"></i></ng-template>
+                      <ng-template #prefixLock><i nz-icon nzType="lock"></i></ng-template>
+                  </nz-card>
+              </div>
+          </div>
+      </div>
+      <div class="d-none d-md-flex p-h-40 justify-content-between">
+          <span class="">© 2023 CoderGeeksPeru</span>
+          <ul class="list-inline">
+              <li class="list-inline-item">
+                  <a class="text-dark text-link" href="">Legal</a>
+              </li>
+              <li class="list-inline-item">
+                  <a class="text-dark text-link" href="">Privacy</a>
+              </li>
+          </ul>
+      </div>
+  </div>
+</div>

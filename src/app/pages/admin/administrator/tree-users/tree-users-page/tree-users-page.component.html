@@ -1,0 +1,69 @@
+<nz-card class="stats-card">
+  <nz-row>
+    <nz-col [nzLg]="8" [nzXs]="24" class="stat-item">
+      <h1 class="stat-number">{{ usuarioTotal }}</h1>
+      <p class="stat-label">Red Total</p>
+    </nz-col>
+    <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
+      <h1 class="stat-number">{{ usuarioDirectos }}</h1>
+      <p class="stat-label">Directos</p>
+    </nz-col>
+    <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
+      <h1 class="stat-number active-color">{{ usuarioActivos }}</h1>
+      <p class="stat-label">Activos</p>
+    </nz-col>
+  </nz-row>
+</nz-card>
+
+<nz-card class="tree-main-card">
+  <nz-row>
+    <nz-col [nzSpan]="24" class="tree-header">
+      <div class="sponsor-box">
+        <div class="sponsor-info">
+          <span class="label">Tu patrocinador es</span>
+          <strong class="name">{{ userSponsor }}</strong>
+          <span class="id-tag">ID: {{ codeSponsor }}</span>
+        </div>
+        <div class="tree-legend">
+          <div class="legend-item">
+            <span class="dot active"></span>
+            <small>Activo</small>
+          </div>
+          <div class="legend-item">
+            <span class="dot inactive"></span>
+            <small>Inactivo</small>
+          </div>
+        </div>
+      </div>
+    </nz-col>
+
+    <nz-col [nzSpan]="24" class="tree-content">
+      <div class="tree-viewport">
+        <ng-container *ngIf="isChart">
+          <app-tree-view #treeView [data]="data" [template]="treeTemplate"></app-tree-view>
+
+          <ng-template #treeTemplate let-node>
+            <div class="node-wrapper" [class.is-active]="node.isActive" (click)="onSeletedUser(node.data.id)">
+
+              <div class="node-avatar" [class.is-active]="node.isActive">
+                <img *ngIf="node.data.photo" [src]="node.data.photo" class="avatar-img" alt="avatar" (error)="node.data.photo = null" />
+                <div *ngIf="!node.data.photo" class="node-placeholder">
+                  <i nz-icon nzType="user"></i>
+                </div>
+                <div class="status-dot" [class.active]="node.isActive"></div>
+              </div>
+
+              <div class="node-label">
+                <span class="node-id">{{ node.data.id }}</span>
+                <div class="node-status-bar">
+                  <div class="bar-fill" [class.active]="node.isActive"></div>
+                </div>
+              </div>
+
+            </div>
+          </ng-template>
+        </ng-container>
+      </div>
+    </nz-col>
+  </nz-row>
+</nz-card>

@@ -1,0 +1,108 @@
+<nz-table
+    nzSize="small"
+    nzShowSizeChanger
+    [nzFrontPagination]="false"
+    [nzLoading]="tablePaymentProductLoading"
+    [nzData]="tablePaymentProducts"
+    [nzTotal]="totalRecord"
+    [(nzPageIndex)]="pageIndex"
+    [(nzPageSize)]="pageSize"
+    (nzQueryParams)="onQueryParamsChange($event)"
+  >
+    <thead>
+      <tr>
+        <th [nzAlign]="'center'"></th>
+        <th [nzAlign]="'center'">Image</th>
+        <th [nzAlign]="'center'">Nombre y Apellidos</th>
+        <th [nzAlign]="'center'">Código ID</th>
+        <th [nzAlign]="'center'">Correo electrónico</th>
+        <th [nzAlign]="'center'">Vaucher de Venta</th>
+        <th [nzAlign]="'center'">Número de contacto</th>
+        <th [nzAlign]="'center'">Comprobante</th>
+        <th [nzAlign]="'center'">Estado de envío</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of tablePaymentProducts">
+        <td nzAlign="center">
+          <ng-container *ngIf="item.plan == 1">
+            <i nz-icon nzType="credit-card" nzTheme="outline"></i>
+          </ng-container>
+          <ng-container *ngIf="item.plan == 0">
+            <i nz-icon nzType="home" nzTheme="outline"></i>
+          </ng-container>
+        </td>
+        <td nzAlign="center">
+          <img [src]="item?.user?.file != null ? environment.hostUrl + '/storage/' + item?.user?.file?.path : CONSTANTS.IMAGE.FALLBACK" alt="" class="rounded-circle" style="width: 50px;">
+        </td>
+        <td nzAlign="center">{{ item?.user?.name }}</td>
+        <td nzAlign="center">
+          <span class="text-uppercase">{{ item?.user?.uuid }}</span>
+        </td>
+        <td nzAlign="center">
+          {{ item?.user?.email }}
+        </td>
+        <td nzAlign="center">
+          <nz-tag [nzColor]="'#87d068'" class="pointer m-0" (click)="onSeletedVaucher(item)">VER</nz-tag>
+        </td>
+        <td nzAlign="center">
+          {{ item?.phone }}
+        </td>
+        <td nzAlign="center">
+          <ng-container *ngIf="item?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
+            <ng-container *ngIf="item.file_image != null">
+              <a nz-button [href]="pathServe + item.file_image?.path" download target="_blank" [nzSize]="'small'" nzShape="circle">
+                <i nz-icon nzType="download"></i>
+              </a>
+            </ng-container>
+          </ng-container>
+        </td>
+        <td nzAlign="center">
+          <ng-container *ngIf="item.plan == 1">
+            <nz-tag [nzColor]="'#87d068'" class="pointer m-0" >ENVIADO</nz-tag>
+          </ng-container>
+          <ng-container *ngIf="item.plan == 0">
+            <ng-container *ngIf="item.state == 1">
+              <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" >PENDIENTE DE PAGO</nz-tag>
+            </ng-container>
+            <ng-container *ngIf="item.state == 2">
+              <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" (click)="onChange( item.id )"  >PENDIENTE</nz-tag>
+            </ng-container>
+            <ng-container *ngIf="item.state == 3">
+              <nz-tag [nzColor]="'#87d068'" class="pointer m-0" >ENVIADO</nz-tag>
+            </ng-container>
+            <ng-container *ngIf="item.state == 4">
+              <nz-tag [nzColor]="'#FFBD00'" class="pointer m-0" >ANULADO</nz-tag>
+            </ng-container>
+            <ng-container *ngIf="item.state == 5">
+              <nz-tag [nzColor]="'#FFBD00'" class="pointer m-0" >ERROR</nz-tag>
+            </ng-container>
+            <ng-container *ngIf="item.state == 6">
+              <nz-tag [nzColor]="'#FFBD00'" class="pointer m-0" >TERMINADO</nz-tag>
+            </ng-container>
+
+            <ng-container *ngIf="item?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
+              <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" (click)="onConfirmCash(item.id)" >PENDIENTE CONFIRMAR</nz-tag>
+            </ng-container>
+            
+          </ng-container>
+          
+        </td>
+      </tr>
+    </tbody>
+</nz-table>
+
+<ng-template #templateChangeState>
+  <div class="row">
+    <div class="col-12 text-center m-b-30">
+      <h1>Modificar Estado de Envío</h1>
+    </div>
+    <div class="col-6">
+      <button nz-button nzType="primary" nzDanger (click)="onCancel()">Cancelar</button>
+    </div>
+    <div class="col-6 text-right ">
+      <!-- nzSize="small" -->
+      <button nz-button nzType="primary" (click)="onChangeState()" [nzLoading]="loadingState">Cambiar a "ENVIADO"</button>
+    </div>
+  </div>
+</ng-template>

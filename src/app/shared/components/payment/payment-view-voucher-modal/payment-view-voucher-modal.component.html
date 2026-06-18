@@ -1,0 +1,57 @@
+<nz-row class="m-b-10 p-t-30">
+  <nz-col [nzSm]="12" [nzXs]="12" >
+    <p class="m-0 fs-15 text-gray-6">Nombre del plan de afiliación :</p>
+  </nz-col>
+  <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+    <p class="m-0 fs-15 text-gray-6">{{ iProductPaymentOrder.pack == null ? 'Desactivado' : iProductPaymentOrder.pack.title }}</p>
+  </nz-col>
+</nz-row>
+
+<nz-row class="m-b-10">
+  <nz-col [nzSm]="12" [nzXs]="12" >
+    <p class="m-0 fs-15 text-gray-6">Puntos por plan :</p>
+  </nz-col>
+  <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+    <ng-container *ngIf="iProductPaymentOrder.plan == 0">
+      <p class="m-0 fs-15 text-gray-6"><b>{{ iProductPaymentOrder.points }} puntos</b></p>
+    </ng-container>
+    <ng-container *ngIf="iProductPaymentOrder.plan == 1">
+      <p class="m-0 fs-15 text-gray-6"><b>{{ iProductPaymentOrder.pack.points }} puntos</b></p>
+    </ng-container>
+    
+  </nz-col>
+</nz-row>
+
+<hr style="border-color: #E4E4E4; border-width: 3px; margin: 0; margin-bottom: 20px;">
+<ng-container *ngIf="iProductPaymentOrder.plan == 0">
+  <nz-row class="m-b-10">
+    <nz-col [nzSm]="24" [nzXs]="24" >
+      <h4>DETALLE DE COMPRA</h4>
+    </nz-col>
+  </nz-row>
+  <nz-row class="m-b-10">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-30">
+      <ng-container *ngFor="let product of iProductPaymentOrder.details; let i = index">
+        <div class="d-flex align-items-center justify-content-between">
+          <p class="m-0 fs-15 text-gray-6">{{ product.product_title }} - (<b>{{ product.quantity }}</b>)</p>
+          <p class="m-0 fs-15 text-gray-6"><b>S/{{ product.subtotal }}</b></p>
+        </div>
+      </ng-container>
+
+    </nz-col>
+    <nz-col [nzSm]="24" [nzXs]="24" >
+      <div class="d-flex align-items-center justify-content-between">
+        <p class="m-0 fs-15 text-gray-6"><b>ESCRIBIR NÚMERO DE CONTACTO:</b></p> <b>{{ iProductPaymentOrder.phone }}</b>
+      </div>
+    </nz-col>
+    <nz-col [nzSm]="24" [nzXs]="24" >
+      <div class="d-flex align-items-center justify-content-between">
+        <p class="m-0 fs-15 text-gray-6">Descuento por ser socio Distribuidor:</p> <b>{{ iProductPaymentOrder.discount }}% Desc</b>
+      </div>
+    </nz-col>
+  </nz-row>
+</ng-container>
+
+
+
+

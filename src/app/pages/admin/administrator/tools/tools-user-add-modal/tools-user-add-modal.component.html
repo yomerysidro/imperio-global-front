@@ -1,0 +1,140 @@
+<form
+    nz-form
+    [formGroup]="frmRegister"
+    nzLayout="vertical"
+    class="login-form container-form-mobile"
+    >
+    <nz-row>
+        <nz-col [nzSm]="24" [nzXs]="24">
+        <nz-form-item>
+            <nz-form-label nzRequired nzFor="userName"
+            >Nombre</nz-form-label
+            >
+            <nz-form-control nzErrorTip="Campo obligatorio.">
+            <input
+                type="text"
+                nz-input
+                formControlName="userName"
+            />
+            </nz-form-control>
+        </nz-form-item>
+        </nz-col>
+    </nz-row>
+    <nz-row>
+        <nz-col [nzSm]="24" [nzXs]="24">
+        <nz-form-item>
+            <nz-form-label nzRequired nzFor="email"
+            >Correo Electrónico</nz-form-label
+            >
+            <nz-form-control [nzErrorTip]="errorEmail">
+
+            <input type="text" nz-input placeholder="" formControlName="email" />
+            <ng-template #errorEmail let-control>
+                <ng-container *ngIf="control.hasError('required')">Campo obligatorio.</ng-container>
+                <ng-container *ngIf="control.hasError('email')">
+                Email incorrecto
+                </ng-container>
+            </ng-template>
+            </nz-form-control>
+        </nz-form-item>
+        </nz-col>
+    </nz-row>
+    <nz-row>
+        <nz-col [nzSm]="24" [nzXs]="24">
+        <nz-form-item>
+            <nz-form-label nzRequired nzFor="dni"
+            >DNI</nz-form-label
+            >
+            <nz-form-control [nzErrorTip]="errordni">
+
+            <input type="text" nz-input placeholder="" formControlName="dni" maxlength="8"/>
+            <ng-template #errordni let-control>
+                <ng-container *ngIf="control.hasError('required')">Campo obligatorio.</ng-container>
+                <!-- <ng-container *ngIf="control.hasError('dni')">
+                Email incorrecto
+                </ng-container> -->
+            </ng-template>
+            </nz-form-control>
+        </nz-form-item>
+        </nz-col>
+    </nz-row>
+    <nz-row>
+        <nz-col [nzSm]="24" [nzXs]="24">
+        <nz-form-item>
+            <nz-form-label nzRequired nzFor="password"
+            >Contraseña</nz-form-label
+            >
+            <nz-form-control [nzErrorTip]="errorPassword">
+            <input
+                type="text"
+                nz-input
+                formControlName="password"
+            />
+            <ng-template #errorPassword let-control>
+                <ng-container *ngIf="control.hasError('required')">Campo obligatorio.</ng-container>
+                <ng-container *ngIf="control.hasError('minlength')">
+                Colocar una contraseña de mínimo 8 carácteres
+                </ng-container>
+            </ng-template>
+
+            </nz-form-control>
+        </nz-form-item>
+        </nz-col>
+    </nz-row>
+
+    <nz-row>
+        <nz-col [nzSm]="24" [nzXs]="24">
+
+            
+            <nz-form-item>
+                <nz-form-label nzRequired nzFor="sponsor"
+                >ID de patrocinador</nz-form-label
+                >
+                <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
+                    <nz-input-group [nzSuffix]="suffixIconFileNew">
+                        <input nz-input formControlName="sponsor" placeholder="" class="text-uppercase" appDelayedInput (delayedInput)="onSearchSponsor()"/>
+                    </nz-input-group>
+                    <ng-template #suffixIconFileNew>
+                        <i nz-icon nzType="loading" nzTheme="outline" *ngIf="loadingSearch"></i>
+                        <img [src]="avatarUrlNewSponsor" alt="" *ngIf="isSponsorNew" class="rounded-circle img-fluid" style="max-width: 30px; height: 30px;">
+                    </ng-template>
+                </nz-form-control>
+            </nz-form-item>
+        </nz-col>
+    </nz-row>
+
+    <nz-row>
+        <nz-col [nzSm]="24" [nzXs]="24">
+            <nz-form-item>
+                <nz-form-label nzRequired nzFor="plan"
+                >Plan</nz-form-label
+                >
+                <nz-form-control nzErrorTip="Campo obligatorio.">
+                    <nz-select formControlName="plan" class="input__h-50 bg--input">
+                        <nz-option [nzValue]="item.id" [nzLabel]="item.title" *ngFor="let item of planList"></nz-option>
+                    </nz-select>
+                </nz-form-control>
+            </nz-form-item>
+        </nz-col>
+    </nz-row>
+
+    <nz-row class="pt-4">
+        <nz-col [nzSm]="24" [nzXs]="24">
+        <nz-form-control>
+            <div
+            class="d-flex align-items-center justify-content-between"
+            >
+            <button
+                nz-button
+                class="login-form-button w-100 bg-gray-2 border-0"
+                [nzType]="'primary'"
+                (click)="onSubmit()"
+                [nzLoading]="loadingSubmit"
+            >
+                Crear cuenta
+            </button>
+            </div>
+        </nz-form-control>
+        </nz-col>
+    </nz-row>
+</form>

@@ -1,0 +1,21 @@
+:host{
+    width: 100%;
+}
+.img-fluid-service{
+  width: 77px;
+  height: 77px;
+  border-radius: 10px;
+}
+.service-btn{
+  background: var(--gris-2, #8E9FB9);
+  border: 0;
+}
+.service-btn-active{
+  background: rgba(255, 58, 68, 0.85);
+}
+@media (max-width: 768px){
+  .img-fluid-service{
+    width: 48px;
+    height: 48px;
+  }
+}

@@ -1,0 +1,398 @@
+<nz-card style="border: 0; background: transparent;">
+
+  <!-- HEADER CON BOTÓN GUARDAR -->
+  <div class="dashboard-header-premium">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h1 class="dashboard-title-premium">
+          <i class="fa-solid fa-gauge-high text-electric"></i>
+          Panel de Control
+          <span class="dashboard-badge-premium">Resumen</span>
+        </h1>
+        <p class="dashboard-subtitle-premium">
+          <i class="fa-regular fa-calendar"></i>
+          {{ currentDate | date: 'dd/MM/yyyy' }} · Actualizado en tiempo real
+        </p>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="status-indicator">
+          <span class="status-dot active"></span>
+          <span class="status-text">Sistema en línea</span>
+        </div>
+        <button nz-button [nzType]="'primary'" [nzLoading]="isLoading" (click)="onSubmit()" class="btn-save-premium">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFIL Y DASHBOARD EN DOS COLUMNAS -->
+  <nz-row class="m-t-20" [nzGutter]="[24, 24]">
+
+    <!-- COLUMNA IZQUIERDA: PERFIL -->
+    <nz-col [nzLg]="7" [nzMd]="10" [nzSm]="24" [nzXs]="24">
+      <div class="profile-card-premium">
+        <div class="profile-header-premium text-center">
+          <div class="profile-avatar-wrapper">
+            <label for="fileupload" class="profile-avatar-label">
+              <img [src]="avatarUrl" alt="" class="profile-avatar">
+              <input type="file" name="fileupload" id="fileupload" (change)="fileChangeEvent($event)" class="d-none" accept=".png,.jpg,.jpeg" />
+              <div class="profile-avatar-overlay">
+                <i class="fa-solid fa-camera" style="font-size: 24px; color: rgb(242, 239, 239);"></i>
+              </div>
+            </label>
+          </div>
+
+          <h3 class="profile-name-premium">{{ userModel?.name }}</h3>
+
+          <div class="profile-id-premium">
+            <span>ID:</span>
+            <strong class="text-uppercase">{{ userModel?.uuid }}</strong>
+            <a href="javascript: void(0);" (click)="copyMessage(userModel?.uuid)" class="copy-btn">
+              <i class="fa-regular fa-copy"></i>
+            </a>
+          </div>
+
+          <div class="profile-date-premium">
+            <i class="fa-regular fa-calendar"></i>
+            Fecha de registro: {{ userModel?.creatxlssed | date: 'dd/MM/YYYY' }}
+          </div>
+        </div>
+
+        <!-- FORMULARIO DE PERFIL -->
+        <div class="profile-form-premium">
+          <form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
+
+            <nz-form-item>
+              <nz-form-label nzFor="address" class="form-label-premium">
+                <i class="fa-solid fa-house"></i>
+                Dirección de domicilio
+              </nz-form-label>
+              <nz-form-control>
+                <input formControlName="address" id="address" nz-input class="input-premium" placeholder="Ingresa tu dirección" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label nzFor="email" nzRequired class="form-label-premium">
+                <i class="fa-solid fa-envelope"></i>
+                Correo electrónico
+              </nz-form-label>
+              <nz-form-control>
+                <nz-input-group [nzSuffix]="emailSuffix" class="input-premium-group">
+                  <ng-template #emailSuffix>
+                  </ng-template>
+                  <input formControlName="email" id="email" nz-input placeholder="ejemplo@correo.com" />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-row [nzGutter]="[12, 0]">
+              <nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-label nzFor="city" class="form-label-premium">
+                    <i class="fa-solid fa-location-dot"></i>
+                    Ciudad
+                  </nz-form-label>
+                  <nz-form-control>
+                    <input formControlName="city" id="city" nz-input class="input-premium" placeholder="Tu ciudad" />
+                  </nz-form-control>
+                </nz-form-item>
+              </nz-col>
+              <nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-label nzFor="phoneNumber" class="form-label-premium">
+                    <i class="fa-solid fa-phone"></i>
+                    Teléfono
+                  </nz-form-label>
+                  <nz-form-control>
+                    <input formControlName="phoneNumber" id="phoneNumber" nz-input class="input-premium" placeholder="+51 999 999 999" />
+                  </nz-form-control>
+                </nz-form-item>
+              </nz-col>
+            </nz-row>
+
+            <nz-row [nzGutter]="[12, 0]">
+              <nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-label nzFor="country" class="form-label-premium">
+                    <i class="fa-solid fa-globe"></i>
+                    País
+                  </nz-form-label>
+                  <nz-form-control>
+                    <input formControlName="country" id="country" nz-input class="input-premium" placeholder="Tu país" />
+                  </nz-form-control>
+                </nz-form-item>
+              </nz-col>
+              <nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-label nzFor="gender" class="form-label-premium">
+                    <i class="fa-solid fa-venus-mars"></i>
+                    Sexo
+                  </nz-form-label>
+                  <nz-form-control>
+                    <nz-select formControlName="gender" class="input-premium" placeholder="Selecciona">
+                      <nz-option nzLabel="Masculino" nzValue="M"></nz-option>
+                      <nz-option nzLabel="Femenino" nzValue="F"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </nz-col>
+            </nz-row>
+
+          </form>
+        </div>
+      </div>
+    </nz-col>
+
+    <!-- COLUMNA DERECHA: DASHBOARD -->
+    <nz-col [nzLg]="17" [nzMd]="14" [nzSm]="24" [nzXs]="24">
+
+      <!-- FILA 1: 4 Stat Cards -->
+      <nz-row [nzGutter]="[16, 16]" class="m-b-16">
+
+        <!-- Paquete actual -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-cubes"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ userModel?.package_name || 'Sin plan' }}</div>
+              <div class="stat-card-badge" [class.active]="userModel?.payment?.state == 2">
+                <i [class]="userModel?.payment?.state == 2 ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
+                Paquete actual
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+        <!-- Rango actual -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ userModel?.range?.range?.title || 'Sin rango' }}</div>
+              <div class="stat-card-badge active">
+                <i class="fa-solid fa-circle-check"></i>
+                Rango actual
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+        <!-- Siguiente Rango -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ getNextRank() }}</div>
+              <div class="stat-card-badge active">
+                <i class="fa-solid fa-arrow-right"></i>
+                Proximo Rango
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+        <!-- Personas en red -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-users-rays"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ userModel?.directos || 0 }}</div>
+              <div class="stat-card-badge active">
+                <i class="fa-solid fa-user"></i>
+                Personas en red
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+      </nz-row>
+
+      <!-- FILA 2: Puntos personales + Negocio grupal + 2 Bonos (4 columnas) -->
+      <nz-row [nzGutter]="[16, 16]" class="m-b-16">
+
+        <!-- Puntos personales -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-user-check"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ pointPersonal }}</div>
+              <div class="stat-card-badge active">
+                Puntos personales
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+        <!-- Negocio grupal -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-users-rays"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">{{ pointGroup }}</div>
+              <div class="stat-card-badge active">
+                VNegocio grupal
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+        <!-- BONO PATROCINIO -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium bono-card">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-money-check-dollar"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">S/ {{ pointPatrocinio | number:'1.2-2' }}</div>
+              <div class="stat-card-badge active" style="background: #02b750af; font-size: 9px;">
+                <i class="fa-solid fa-gift"></i>
+                Bono Patrocinio
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+        <!-- BONO RESIDUAL -->
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <div class="stat-card-premium bono-card">
+            <div class="stat-card-icon">
+              <i class="fa-solid fa-money-check-dollar"></i>
+            </div>
+            <div class="stat-card-content">
+              <div class="stat-card-value">S/ {{ pointResudial | number:'1.2-2' }}</div>
+              <div class="stat-card-badge active" style="background: #3b6af6; font-size: 9px;">
+                <i class="fa-solid fa-coffee"></i>
+                Ganancias Residuales
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+      </nz-row>
+
+      <!-- FILA 3: Gran Total -->
+      <nz-row [nzGutter]="[16, 16]" class="m-b-16">
+        <nz-col [nzSpan]="24">
+          <div class="grand-total-premium">
+            <div class="grand-total-header-premium">
+              <div class="grand-total-title-group">
+                <i class="fa-solid fa-money-check-dollar"></i>
+                <div>
+                  <div class="grand-total-title">Ganancia Total</div>
+                  <div class="grand-total-subtitle">Resumen de ganancias</div>
+                </div>
+              </div>
+              <div class="grand-total-amount-premium">
+                S/ {{ (bonosTotalesHistorico + pointInfinity) | number:'1.2-2' }}
+              </div>
+            </div>
+
+            <div class="grand-total-body-premium">
+              <div class="grand-total-grid">
+                <div class="grand-total-item">
+                  <span class="grand-total-item-label">
+                    <i class="fa-solid fa-wallet"></i>
+                    Bonos
+                  </span>
+                  <span class="grand-total-item-value">S/ {{ bonosTotalesHistorico | number:'1.2-2' }}</span>
+                </div>
+                <div class="grand-total-divider"></div>
+                <div class="grand-total-item">
+                  <span class="grand-total-item-label">
+                    <i class="fa-solid fa-star"></i>
+                    Puntos
+                  </span>
+                  <span class="grand-total-item-value">{{ totalPoints || 0 }} pts</span>
+                </div>
+                <div class="grand-total-divider"></div>
+                <div class="grand-total-item">
+                  <span class="grand-total-item-label">
+                    <i class="fa-solid fa-infinity"></i>
+                    Infinito
+                  </span>
+                  <span class="grand-total-item-value">S/ {{ pointInfinity | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grand-total-footer">
+              <div class="rank-progress-mini">
+                <span class="rank-progress-label">
+                  <i class="fa-solid fa-crown"></i>
+                  Faltan <strong>{{ getPointsToNextRank() }}</strong> puntos para <strong>{{ getNextRank() }}</strong>
+                </span>
+                <span class="rank-progress-percent">{{ getRankProgress() }}%</span>
+              </div>
+              <div class="rank-progress-bar-mini">
+                <div class="rank-progress-fill" [style.width.%]="getRankProgress()"></div>
+              </div>
+              <div class="rank-auto-note">
+                <i class="fa-solid fa-circle-info"></i>
+                Al alcanzar el rango, se activa automáticamente el siguiente (mismo período)
+              </div>
+            </div>
+          </div>
+        </nz-col>
+      </nz-row>
+
+      <!-- FILA 4: HISTORIAL Y DESCARGAS -->
+      <nz-row [nzGutter]="[16, 16]">
+
+        <nz-col [nzXl]="12" [nzLg]="12" [nzMd]="24" [nzXs]="24">
+          <div class="history-card-premium" (click)="onDownloadPdfProfile()">
+            <div class="history-card-icon">
+              <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div class="history-card-content">
+              <p class="history-card-title">Historial de Resultados Globales</p>
+              <p class="history-card-subtitle">
+                Mes de {{ oneMonthAgo | date: 'MMMM' : '' : "es-ES" }} {{ oneMonthAgo | date: 'YYYY' }}
+              </p>
+              <p class="history-card-action">
+                <i class="fa-solid fa-download"></i>
+                Descargar reporte completo
+              </p>
+            </div>
+            <div class="history-card-arrow">
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+        </nz-col>
+
+        <nz-col [nzXl]="12" [nzLg]="12" [nzMd]="24" [nzXs]="24">
+          <div class="info-card-premium">
+            <div class="info-card-content">
+              <div class="info-card-icon">
+                <i class="fa-solid fa-circle-info"></i>
+              </div>
+              <div class="info-card-text">
+                <p class="info-card-title">Información importante</p>
+                <p class="info-card-description">
+                  *Todos los planes de afiliación y puntos duran hasta el último día de cada mes, luego se deben renovar. Ejemplo: Si compra un plan de afiliación el día 29 de Octubre, su plan de afiliación durará hasta el último día de Octubre, luego deberá renovar. Para cobrar por sus puntos debe estar Activo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </nz-col>
+
+      </nz-row>
+
+    </nz-col>
+  </nz-row>
+
+</nz-card>

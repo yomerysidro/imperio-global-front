@@ -1,0 +1,278 @@
+.profile-card {
+  overflow: hidden;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  .banner-header {
+    background: linear-gradient(135deg, #0000CD 0%, #00008B 100%);
+    padding: 15px 20px;
+    margin: 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 139, 0.3);
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .avatar-container {
+      position: relative;
+      margin-right: 20px;
+
+      .main-photo-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+
+        .main-photo {
+          width: 90%;
+          height: 90%;
+          border-radius: 50%;
+          border: 4px solid white;
+          object-fit: cover;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-photo-placeholder {
+          width: 90%;
+          height: 90%;
+          border-radius: 50%;
+          border: 4px solid white;
+          background-color: #f0f2f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+          i {
+            font-size: 32px;
+            color: #bfbfbf;
+          }
+        }
+
+        .status-overlay {
+          position: absolute;
+          bottom: -1px;
+          right: -1px; 
+          width: 38px;
+          height: 38px;
+          z-index: 10;
+          background: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+          border: 3px solid white;
+
+          .icon-avatar-bg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            i {
+              font-size: 20px;
+              color: #8c8c8c;
+              transition: all 0.3s ease;
+            }
+          }
+
+          .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background-color: #bfbfbf;
+          }
+
+          &.active {
+            border-color: #00B517;
+            .icon-avatar-bg i { color: #00B517 !important; }
+            .status-dot { 
+              background-color: #00B517; 
+              box-shadow: 0 0 8px #00B517;
+            }
+          }
+
+          &.inactive {
+            border-color: #ff4d4f;
+            .icon-avatar-bg i { color: #ff4d4f !important; }
+            .status-dot { background-color: #ff4d4f; }
+          }
+        }
+      }
+    }
+
+    .name-container {
+      flex: 1;
+      text-align: left;
+
+      .display-name {
+        color: white;
+        font-size: 15px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 1px;
+        line-height: 1.2;
+      }
+
+      .uuid-text {
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 5px;
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+
+  .details-body {
+    padding: 10px 25px 30px 25px;
+
+    .paquetes-row {
+      gap: 8px;
+      margin-bottom: 15px;
+      
+      .no-packs {
+        font-size: 12px;
+        color: #8c8c8c;
+      }
+    }
+
+    .custom-badge {
+      background-color: #4379EE;
+      color: white;
+      padding: 5px 14px;
+      border-radius: 12px;
+      margin: 4px;
+      font-weight: 600;
+      font-size: 10px;
+      display: inline-block;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(67, 121, 238, 0.2);
+    }
+
+    .puntos-box {
+      margin-top: 10px;
+      
+      .total-points-text {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1a1a1a;
+        display: block;
+      }
+
+      .helper-text {
+        font-size: 11px;
+        color: #8c8c8c;
+        margin-top: -2px;
+      }
+    }
+
+    .soft-divider {
+      border: 0;
+      border-top: 1px solid #f0f0f0;
+      margin: 20px 0;
+    }
+
+    /* Nueva Card de desglose de puntos (Igual a perfil) */
+    .points-breakdown-card {
+      background: #f0f4ff;
+      border-radius: 15px;
+      padding: 15px 10px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+
+      .breakdown-item {
+        text-align: center;
+
+        .breakdown-val {
+          font-size: 20px;
+          font-weight: 800;
+          line-height: 1.2;
+
+          &.blue { color: #4379EE; }
+          &.green { color: #00B517; }
+        }
+
+        .breakdown-lbl {
+          font-size: 10px;
+          color: #8c8c8c;
+          text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+        }
+
+        &.border-right {
+          border-right: 1px solid #d9e2ff;
+        }
+      }
+    }
+
+    .stats-grid {
+      .stat-col {
+        .val {
+          font-size: 28px;
+          font-weight: 900;
+          color: #1f1f1f;
+          line-height: 1;
+        }
+
+        .lbl {
+          font-size: 11px;
+          color: #bfbfbf;
+          text-transform: uppercase;
+          font-weight: 700;
+          margin-top: 8px;
+        }
+
+        &.border-lr {
+          border-left: 1px solid #f0f0f0;
+          border-right: 1px solid #f0f0f0;
+        }
+
+        .green-text { color: #00B517; }
+      }
+    }
+
+    .range-footer {
+      margin-top: 25px;
+
+      .range-pill {
+        background: #f0f5ff;
+        padding: 10px 20px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #adc6ff;
+
+        .r-title {
+          font-weight: 800;
+          font-size: 10px;
+          color: #2f54eb;
+          margin-right: 10px;
+        }
+
+        .r-name {
+          font-weight: 700;
+          font-size: 13px;
+        }
+
+        .r-icon {
+          width: 24px;
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+}

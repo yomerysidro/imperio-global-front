@@ -1,0 +1,65 @@
+<nz-row class="">
+  <nz-col [nzXs]="24" class="m-b-10 text-center">
+    <p class="font-size-18" style="color: #4379EE;">{{ this.userModel.name }}</p>
+  </nz-col>
+  <nz-col [nzXs]="24" class="m-b-20 text-center">
+    <label for="fileupload" class="position-relative m-b-20">
+      <img [src]="avatarUrl" alt="" class="rounded-circle img-fluid" style="max-width: 80px; height: 80px;">
+    </label>
+  </nz-col>
+  <nz-col [nzXs]="24" class="m-b-20 text-center">
+    <p class="font-size-18">ID: <span class="text-uppercase">{{ this.userModel.uuid }}</span> / Fecha: {{ this.userModel.created_at | date: 'dd/MM/yyyy' }}</p>
+  </nz-col>
+  <nz-col [nzXs]="24" >
+    <form
+      nz-form
+      [nzLayout]="'vertical'"
+      [formGroup]="validateForm"
+      class="m-b-30"
+    >
+      <nz-form-item class="m-b-30">
+        <nz-form-label [nzSpan]="24">ID del Patrocinador Actual del Usuario</nz-form-label>
+        <nz-form-control [nzSpan]="24" nzErrorTip="">
+          <nz-input-group [nzSuffix]="suffixIconFile">
+            <input nz-input formControlName="sponsor" placeholder="" class="text-uppercase" />
+          </nz-input-group>
+          <ng-template #suffixIconFile>
+            <img [src]="avatarUrlSponsor" alt="" class="rounded-circle img-fluid" style="max-width: 30px; height: 30px;">
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24">Escribir ID del nuevo patrocinador del Usuario</nz-form-label>
+        <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
+          <nz-input-group [nzSuffix]="suffixIconFileNew">
+            <input nz-input formControlName="sponsorNew" placeholder="" class="text-uppercase" appDelayedInput (delayedInput)="onSearchSponsor()"/>
+          </nz-input-group>
+          <ng-template #suffixIconFileNew>
+            <i nz-icon nzType="loading" nzTheme="outline" *ngIf="loadingSearch"></i>
+            <img [src]="avatarUrlNewSponsor" alt="" *ngIf="isSponsorNew" class="rounded-circle img-fluid" style="max-width: 30px; height: 30px;">
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24">Escribir Email del nuevo patrocinador del Usuario</nz-form-label>
+        <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
+          <input nz-input formControlName="sponsorEmailNew" placeholder="" class="text-uppercase" />
+        </nz-form-control>
+      </nz-form-item>
+
+    </form>
+  </nz-col>
+
+</nz-row>
+
+<nz-row class="m-b-20">
+  <nz-col [nzXs]="12" class="">
+    <button nz-button  [nzType]="'default'" (click)="onBack()">Retroceder</button>
+  </nz-col>
+  <nz-col [nzXs]="12" class="text-right">
+    <button nz-button  [nzType]="'primary'" (click)="onSave()" [nzLoading]="loadingSave" >Modificar</button>
+  </nz-col>
+</nz-row>

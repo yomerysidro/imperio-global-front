@@ -1,0 +1,55 @@
+<!-- ✅ REEMPLAZAR TODO EL CONTENIDO CON ESTO -->
+
+<div class="image-upload-container">
+  <!-- Input para seleccionar imagen -->
+  <div class="upload-area" (click)="fileInput.click()">
+    <input 
+      #fileInput
+      type="file"
+      accept="image/*"
+      (change)="onFileSelected($event)"
+      style="display: none;"
+    >
+    
+    <!-- Vista previa de la imagen -->
+    <div *ngIf="!previewImage" class="upload-placeholder">
+      <i nz-icon nzType="upload" nzTheme="outline" style="font-size: 48px; color: #d9d9d9;"></i>
+      <p>Haz clic para seleccionar una imagen</p>
+      <p style="font-size: 12px; color: #999;">Formatos: JPG, PNG, GIF</p>
+    </div>
+    
+    <div *ngIf="previewImage" class="image-preview">
+      <img [src]="previewImage" alt="Vista previa" class="preview-img">
+      <button 
+        class="remove-image-btn"
+        (click)="$event.stopPropagation(); removeImage()"
+        nz-button
+        nzType="primary"
+        nzDanger
+        nzSize="small"
+      >
+        <i nz-icon nzType="close" nzTheme="outline"></i> Eliminar
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer del modal -->
+  <div *nzModalFooter>
+    <div nz-row>
+      <div nz-col nzSpan="12" class="text-left">
+        <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+      </div>
+      <div nz-col nzSpan="12" class="text-right">
+        <button 
+          nz-button 
+          nzType="primary" 
+          (click)="handleOk()" 
+          [nzLoading]="loadingSubmit"
+          [disabled]="!imageCroppedBlob"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

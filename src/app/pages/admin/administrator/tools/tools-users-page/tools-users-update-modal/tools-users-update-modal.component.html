@@ -1,0 +1,166 @@
+<div class="update-modal-container">
+  
+  <div class="modal-header">
+    <div class="header-content">
+      <h3 class="modal-title">Modificar Datos de Usuario</h3>
+      <p class="modal-subtitle">Actualizar Perfil de Usuario</p>
+    </div>
+  </div>
+
+  <nz-row [nzGutter]="20" class="modal-body">
+
+    <nz-col [nzXs]="24" [nzLg]="10" class="profile-column">
+      <div class="profile-card">
+        <div class="profile-avatar-wrapper">
+          <label for="fileupload" class="avatar-upload-wrapper">
+            <img [src]="avatarUrl" alt="avatar" class="avatar-image">
+            <input type="file" name="fileupload" id="fileupload" (change)="fileChangeEvent($event)" class="d-none" accept=".png,.jpg,.jpeg"/>
+            <div class="avatar-overlay">
+              <i class="fa-solid fa-camera"></i>
+              <span>Cambiar Foto</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="profile-info">
+          <div class="info-row">
+            <span class="label">ID de Usuario</span>
+            <span class="value user-id">{{ userModel?.uuid || 'ser' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Fecha Registro</span>
+            <span class="value">{{ (userModel?.created_at | date: 'dd/MM/yyyy') || '16/06/2026' }}</span>
+          </div>
+        </div>
+
+        <form nz-form [formGroup]="validateForm" nzLayout="vertical" class="profile-form">
+          <nz-form-item>
+            <nz-form-label class="form-label">Nombres y Apellidos de Registro</nz-form-label>
+            <nz-form-control nzErrorTip="El nombre es obligatorio">
+              <input nz-input formControlName="fullname" placeholder="Ej: Juan Pérez" class="form-input" />
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+
+        <ng-container *ngIf="isSponsordata">
+          <div class="sponsor-section">
+            <div class="sponsor-alert">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span><strong>Primera Activación:</strong> Patrocinador de inicio de red.</span>
+            </div>
+            <nz-form-item>
+              <nz-form-label class="form-label">ID del Patrocinador</nz-form-label>
+              <nz-form-control nzErrorTip="El ID es necesario">
+                <nz-input-group [nzSuffix]="suffixIconFileNew" class="sponsor-input">
+                  <input nz-input formControlName="sponsorNew" placeholder="Ingresar ID" class="text-uppercase" appDelayedInput (delayedInput)="onSearchSponsor()"/>
+                </nz-input-group>
+                <ng-template #suffixIconFileNew>
+                  <i nz-icon nzType="loading" nzTheme="outline" *ngIf="loadingSearch"></i>
+                  <img [src]="avatarUrlNewSponsor" alt="sponsor" *ngIf="isSponsorNew" class="sponsor-avatar">
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </ng-container>
+      </div>
+    </nz-col>
+
+    <nz-col [nzXs]="24" [nzLg]="14" class="plans-column">
+      <div class="plans-container">
+        
+        <div class="plans-section-title">
+          <div class="title-icon">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div class="title-text">
+            <span>Planes y Membresías</span>
+            <small>Gestión de estados y suscripciones de red</small>
+          </div>
+        </div>
+
+        <div class="plan-card product-card">
+          <div class="plan-card-header">
+            <div class="plan-card-icon">
+              <i class="fa-solid fa-cubes"></i>
+            </div>
+            <div class="plan-card-info">
+              <span class="plan-card-title">Plan Inteligente (Producto)</span>
+              <span class="plan-card-subtitle">Genera puntos grupales</span>
+            </div>
+          </div>
+          
+          <div class="plan-card-body">
+            <div class="plan-status-block">
+              <span class="plan-label">Plan Actual</span>
+              <div class="plan-meta">
+                <span class="plan-name">{{ getPackName() || 'Pack Diamante' }}</span>
+                <span class="plan-badge active">Activo</span>
+              </div>
+            </div>
+            <button class="plan-change-btn" (click)="togglePackEdit()" type="button">
+              <i class="fa-solid" [class.fa-pen-to-square]="!showPackEdit" [class.fa-xmark]="showPackEdit"></i>
+              {{ showPackEdit ? 'Cancelar' : 'Cambiar' }}
+            </button>
+          </div>
+          
+          <div *ngIf="showPackEdit" class="plan-edit">
+            <nz-select formControlName="packActive" nzPlaceholder="Seleccionar nuevo plan" class="plan-select">
+              <nz-option [nzValue]="null" nzLabel="Sin Plan"></nz-option>
+              <nz-option *ngFor="let item of productPlans" [nzValue]="item.id" [nzLabel]="item.title"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+
+        <div class="plan-card service-card">
+          <div class="plan-card-header">
+            <div class="plan-card-icon">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div class="plan-card-info">
+              <span class="plan-card-title">Membresía Digital (Servicio)</span>
+              <span class="plan-card-subtitle">Genera residual de servicios</span>
+            </div>
+          </div>
+          
+          <div class="plan-card-body">
+            <div class="plan-status-block">
+              <span class="plan-label">Membresía Actual</span>
+              <div class="plan-meta">
+                <span class="plan-name">{{ getServiceName() || 'Ninguno' }}</span>
+                <span class="plan-badge inactive">Inactivo</span>
+              </div>
+            </div>
+            <button class="plan-change-btn" (click)="toggleServiceEdit()" type="button">
+              <i class="fa-solid" [class.fa-pen-to-square]="!showServiceEdit" [class.fa-xmark]="showServiceEdit"></i>
+              {{ showServiceEdit ? 'Cancelar' : 'Cambiar' }}
+            </button>
+          </div>
+          
+          <div *ngIf="showServiceEdit" class="plan-edit">
+            <nz-select formControlName="serviceActive" nzPlaceholder="Seleccionar nueva membresía" nzAllowClear class="plan-select">
+              <nz-option [nzValue]="null" nzLabel="Ninguno"></nz-option>
+              <nz-option *ngFor="let item of servicePlans" [nzValue]="item.id" [nzLabel]="item.title"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+
+      </div>
+    </nz-col>
+
+  </nz-row>
+
+  <div class="modal-footer">
+    <div class="footer-container">
+      <div class="footer-spacer"></div>
+      <div class="footer-actions-right">
+        <button nz-button class="btn-back" (click)="onBack()">
+          <i class="fa-solid fa-arrow-left"></i> Retroceder
+        </button>
+        <button nz-button nzType="primary" class="btn-save" (click)="onSave()" [nzLoading]="loadingSave">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

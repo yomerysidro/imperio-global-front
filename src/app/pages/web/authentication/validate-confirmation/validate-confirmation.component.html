@@ -1,0 +1,214 @@
+
+
+
+
+<div class="container-fluid p-0  " >
+
+  <nav class="navbar navbar-expand-lg border-bottom d-flex d-md-none" id="navbar-example2">
+    <div class="container-xxl align-items-center ">
+      <a class="navbar-brand pt-1" [routerLink]="'/home'">
+        <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid" width="169px">
+      </a>
+      <div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="19" viewBox="0 0 24 19" fill="none">
+            <rect width="24" height="3" rx="1.5" fill="#423838"/>
+            <rect y="8" width="24" height="3" rx="1.5" fill="#423838"/>
+            <rect x="10" y="16" width="13.8947" height="3" rx="1.5" fill="#423838"/>
+          </svg>
+        </button>
+
+        <img nz-image *ngIf="isAuth" width="40px" height="40px" [nzSrc]="avatarUrl" [nzDisablePreview]="true" class="d-md-none rounded-circle ml-1 border border-3"/>
+
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item" >
+            <a class="nav-link"  href="javascript: void(0)" (click)="goTo('inicio-section')">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript: void(0)" (click)="goTo('productos-section')">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript: void(0)" (click)="goTo('planes-section')">Planes y rangos</a>
+          </li>
+          <li class="nav-item d-block d-md-none" >
+            <a class="nav-link" href="javascript: void(0)" (click)="goTo('contact-section')">Contacto</a>
+          </li>
+          <li class="nav-item d-block d-md-none" >
+            <a class="nav-link" [routerLink]="'/auth/login'" [routerLinkActive]="'active'">Inicio Sesión</a>
+          </li>
+
+        </ul>
+
+      </div>
+    </div>
+  </nav>
+
+    <div class="row align-items-center justify-content-center m-0 p-0 container-mobile bg--auth-shape" style="height: 100vh; background-image: url('assets/images/Shape.png');" >
+        <!-- <div class="col-lg-5 d-none d-lg-flex bg-gris p-4" style="height: 100vh;">
+          <app-carousel-images [fullWidth]="true"></app-carousel-images>
+        </div> -->
+        <div class="col-md-4 " >
+          <nz-card class="card--auth">
+            <div class="row no-gutters  align-items-center" >
+              <ng-container *ngIf="!continuePageSuccess">
+                <div class="col-md-11 col-xl-11 col-12 mx-auto p-t-30">
+                  <!-- <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid mb-4" width="367px"> -->
+                  <h1 class="ff-poppins fs-22 fw-bolder container-form-mobile text-center" style="color: #202224;">Verificación de Código</h1>
+                  <p class="m-b-20 fs-15 container-form-mobile text-center" style="color: #202224;">Para recuperar tu contraseña, escribe el código que enviamos a tu correo electrónico, escribe el código que enviamos a tu correo</p>
+                  <form
+                    nz-form
+                    [formGroup]="frmValidateCode"
+                    nzLayout="vertical"
+                    class="login-form"
+                  >
+                    <nz-row class="m-b-30">
+                      <nz-col [nzSm]="24" [nzXs]="24">
+                        <div class="d-flex justify-content-center d-input--code ">
+                          <div>
+                            <nz-form-item class="p-l-10 p-r-10">
+                              <nz-form-control >
+                                <input
+                                  type="text"
+                                  nz-input
+                                  formControlName="code1"
+                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+                                  class="input--font-only"
+                                  id="code1"
+                                  (keyup)="nextStep($event,1)" (focus)="focused(1)"
+                                />
+
+                              </nz-form-control>
+                            </nz-form-item>
+                          </div>
+
+                          <div>
+                            <nz-form-item class="p-l-10 p-r-10">
+                              <nz-form-control >
+                                <input
+                                  type="text"
+                                  nz-input
+                                  formControlName="code2"
+                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+                                  class="input--font-only"
+                                  id="code2"
+                                  (keyup)="nextStep($event,2)" (focus)="focused(2)"
+                                />
+
+                              </nz-form-control>
+                            </nz-form-item>
+                          </div>
+
+                          <div>
+                            <nz-form-item class="p-l-10 p-r-10">
+                              <nz-form-control >
+                                <input
+                                  type="text"
+                                  nz-input
+                                  formControlName="code3"
+                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+                                  class="input--font-only"
+                                  id="code3"
+                                  (keyup)="nextStep($event,3)" (focus)="focused(3)"
+                                />
+
+                              </nz-form-control>
+                            </nz-form-item>
+                          </div>
+
+                          <div>
+                            <nz-form-item class="p-l-10 p-r-10">
+                              <nz-form-control >
+                                <input
+                                  type="text"
+                                  nz-input
+                                  formControlName="code4"
+                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+                                  class="input--font-only"
+                                  id="code4"
+                                  (keyup)="nextStep($event,4)" (focus)="focused(4)"
+                                />
+
+                              </nz-form-control>
+                            </nz-form-item>
+                          </div>
+
+                        </div>
+
+                      </nz-col>
+                    </nz-row>
+
+                    <nz-row class="mb-5">
+                      <nz-col [nzSm]="24" [nzXs]="24">
+                        <nz-form-control>
+                          <div
+                            class="d-flex align-items-center justify-content-between"
+                          >
+                            <button
+                              nz-button
+                              class="login-form-button w-100 border-0 p-t-20 p-b-20"
+                              [nzType]="'primary'"
+                              (click)="onSubmit()"
+                              [nzLoading]="loadingSubmit"
+                            style="height: auto; border-radius: 15px !important;"
+                            >
+                              Confirmar
+                            </button>
+                          </div>
+                        </nz-form-control>
+                      </nz-col>
+                    </nz-row>
+                    <div class="mb-3" *ngIf="showError">
+                      <div class="d-flex w-100 align-items-center p-2" style="background: rgba(113, 113, 113, 1);border-radius: 5px;">
+                        <p class="mb-0 text-white" ><i nz-icon nzType="close" style="font-size: 18px;" nzTheme="outline"></i>&nbsp;&nbsp;{{ textError }}</p>
+                      </div>
+                    </div>
+                  </form>
+
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="continuePageSuccess">
+                <div class="col-md-11 col-xl-11 col-12 mx-auto p-t-30">
+                  <div class="text-center">
+                    <svg width="106" height="106" viewBox="0 0 106 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="53" cy="53" r="51.5" fill="#FF8D4D" fill-opacity="0.06" stroke="url(#paint0_linear_796_4008)" stroke-width="3"/>
+                      <path d="M45.243 64.6282C44.2558 63.6411 44.2558 62.0406 45.243 61.0534L64.1377 42.1586C65.1249 41.1715 66.7254 41.1715 67.7126 42.1586C68.6997 43.1458 68.6997 44.7463 67.7126 45.7334L48.8178 64.6282C47.8306 65.6154 46.2301 65.6154 45.243 64.6282Z" fill="#D9D9D9"/>
+                      <path d="M45.243 64.6282C44.2558 63.6411 44.2558 62.0406 45.243 61.0534L64.1377 42.1586C65.1249 41.1715 66.7254 41.1715 67.7126 42.1586C68.6997 43.1458 68.6997 44.7463 67.7126 45.7334L48.8178 64.6282C47.8306 65.6154 46.2301 65.6154 45.243 64.6282Z" fill="url(#paint1_linear_796_4008)"/>
+                      <rect x="40.1172" y="52.7188" width="14.3973" height="4.80558" rx="2.40279" transform="rotate(45 40.1172 52.7188)" fill="#D9D9D9"/>
+                      <rect x="40.1172" y="52.7188" width="14.3973" height="4.80558" rx="2.40279" transform="rotate(45 40.1172 52.7188)" fill="url(#paint2_linear_796_4008)"/>
+                      <defs>
+                      <linearGradient id="paint0_linear_796_4008" x1="53" y1="0" x2="53" y2="106" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#FF8D4D"/>
+                      <stop offset="1" stop-color="#F87C47"/>
+                      </linearGradient>
+                      <linearGradient id="paint1_linear_796_4008" x1="49.2864" y1="46.202" x2="63.4926" y2="60.4083" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#FF8D4D"/>
+                      <stop offset="1" stop-color="#F87C47"/>
+                      </linearGradient>
+                      <linearGradient id="paint2_linear_796_4008" x1="47.3159" y1="45.4542" x2="47.3159" y2="64.5515" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#FF8D4D"/>
+                      <stop offset="1" stop-color="#F87C47"/>
+                      </linearGradient>
+                      </defs>
+                    </svg>
+
+                  </div>
+                  <div class="p-t-30 p-b-30">
+                    <p class="fs-22 fw-700  text-center">Success!</p>
+                    <p class="fs-18 fw-500 mb-0 text-center" style="color: rgba(182, 182, 182, 1);" [innerHTML]="textSuccess"></p>
+                  </div>
+                  <div class="text-center mb-3">
+                    <a [routerLink]="'/auth/login'" style="background-color: rgba(72, 128, 255, 1) !important;" class="btn btn-primary login-form-button w-100 border-0 p-t-20 p-b-20" >Ir a Login</a>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </nz-card>
+        </div>
+      </div>
+</div>
+

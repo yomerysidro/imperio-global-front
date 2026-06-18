@@ -1,0 +1,33 @@
+<div class="tree" *ngIf="tree.width && tree.height">
+  <div class="wrapper">
+    <svg class="treeLink" [style.width]="tree.width + 'px'" [style.height]="tree.height + 'px'">
+      <ng-container *ngFor="let node of tree.nDatabaseNodes">
+        <ng-container *ngFor="let path of node.paths; let i = index">
+          <path 
+            [attr.stroke]="node.nodeChildren[i].isSelected ? (node.linkColor || '#d1d9e2') : '#d1d9e2'"
+            [attr.d]="path" />
+        </ng-container>
+      </ng-container>
+    </svg>
+
+    <ng-container *ngFor="let node of tree.nDatabaseNodes; let i = index">
+      <div [ngStyle]="{
+          'position': 'absolute',
+          'left': node.XPosition + 'px',
+          'top': node.YPosition + 'px',
+          'width': node.w + 'px',
+          'height': node.h + 'px',
+          'border-radius': '50%',
+          'z-index': '20'
+        }">
+        <ng-container *ngTemplateOutlet="template ? template : defaultTemplate; context:{$implicit:node}"></ng-container>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #defaultTemplate let-node>
+  <div class="item">
+    {{node.id}}
+  </div>
+</ng-template>

@@ -1,0 +1,19 @@
+<div class="p-t-30 m-b-20">
+    <p style="color: rgb(80, 80, 80); font-weight: 700; text-align: center;">¡ Listo, tu compra se realizó con éxito 
+    Compraste tus productos con éxito!</p>
+    <p style="color: rgb(80, 80, 80); text-align: center;">Para confirmar la compra de sus productos, 
+    por favor cargue su vaucher de pago o comprobante. Nuestros asesores lo confirmarán</p>
+</div>
+
+<div class="clearfix m-b-20">
+    <nz-upload
+        [nzAccept]="'.png,.jpg,.jpeg'" [nzCustomRequest]="handleUpload" >
+        <button nz-button>
+            <span nz-icon nzType="upload"></span>
+            Subir comprobante
+        </button>
+    </nz-upload>
+</div>
+<div class="clearfix">
+    <button nz-button nzType="primary" class="ant-btn-success" [nzLoading]="loading" (click)="onSend()">Enviar comprobante de compra</button>
+</div>

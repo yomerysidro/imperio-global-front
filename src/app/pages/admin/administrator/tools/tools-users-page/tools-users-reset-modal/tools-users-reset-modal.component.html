@@ -1,0 +1,26 @@
+<nz-row class="m-b-40">
+  <nz-col [nzXs]="24" class="m-b-10 text-center">
+    <p class="font-size-18" style="color: #4379EE;">{{ this.userModel.name }}</p>
+  </nz-col>
+  <nz-col [nzXs]="24" class="m-b-20 text-center">
+    <label for="fileupload" class="position-relative m-b-20">
+      <img [src]="avatarUrl" alt="" class="rounded-circle img-fluid" style="max-width: 80px; height: 80px;">
+    </label>
+  </nz-col>
+  <nz-col [nzXs]="24" class="m-b-10 text-center">
+    <p class="font-size-18">ID: <span class="text-uppercase">{{ this.userModel.uuid }}</span> / Fecha: {{ this.userModel.created_at | date: 'dd/MM/yyyy' }}</p>
+  </nz-col>
+  <nz-col [nzXs]="24" class="text-center">
+    <p class=" font-size-15" style="color: #606060;">Esta función Resetear al usuario, mantendrá su usuario, correo y contraseña. Pero tendrá que comprar paquete y señalar su patrocinador como si fuera su 1ra compra.</p>
+    <p class=" font-size-15" style="color: #606060;">Para Resetear a un usuario este no debe tener usuarios invitados debajo de él. (Requisito).
+      Se recomienda resetear al usuario, los primeros
+      días de cada mes. cuando no tenga puntos o bonos.</p>
+  </nz-col>
+
+</nz-row>
+
+<nz-row class="m-b-20 justify-content-between">
+  <button nz-button  [nzType]="'default'" (click)="onBack()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i> Retroceder</button>
+  <button nz-button  [nzType]="'primary'" (click)="onSave()" [nzLoading]="loadingSave" >Resetear Usuario, proceder <i nz-icon nzType="right" nzTheme="outline"></i></button>
+
+</nz-row>

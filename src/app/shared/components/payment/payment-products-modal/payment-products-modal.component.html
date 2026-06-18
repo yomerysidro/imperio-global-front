@@ -1,0 +1,195 @@
+<ng-container *ngIf="paymentSection == 0">
+  <nz-spin nzTip="Verificando..." [nzSpinning]="isSpinning">
+    <nz-row class="m-b-10 p-t-20">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-gray-6">Nombre del plan de afiliación :</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <ng-container *ngIf="userModel?.payment?.payment_order != null">
+          <p class="m-0 fs-15 text-gray-6"><b>{{ userModel?.payment?.payment_order?.pack?.title }}</b></p>
+        </ng-container>
+        <ng-container *ngIf="userModel?.payment?.payment_order == null">
+          <p class="m-0 fs-15 text-gray-6"><b>DESACTIVADO</b></p>
+        </ng-container>
+
+      </nz-col>
+    </nz-row>
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="12" [nzXs]="12" >
+        <p class="m-0 fs-15 text-gray-6">Puntos ganados por compra :</p>
+      </nz-col>
+      <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
+        <p class="m-0 fs-15 text-gray-6">{{totalPoints}} puntos</p>
+      </nz-col>
+    </nz-row>
+
+    <hr style="border-color: #E4E4E4; border-width: 2px; margin: 0; margin-bottom: 10px;">
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="24" [nzXs]="24" >
+        <h4>DETALLE DE COMPRA</h4>
+      </nz-col>
+    </nz-row>
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="24" [nzXs]="24" class="m-b-10">
+        <ng-container *ngFor="let product of cartList; let i = index">
+          <div class="d-flex align-items-center justify-content-between">
+            <p class="m-0 fs-15 text-gray-6 notranslate"><b>{{ i + 1 }})</b>&nbsp;&nbsp;{{ product.title }} &nbsp;&nbsp; <b class="fs-12" style="color: #8E9FB9;">x{{ product.quantity }}</b></p>
+            <p class="m-0 fs-15 text-gray-6 notranslate"><b>S/{{ (amountDiscount == 0 ? (product.quantity * product.price) : ( (product.quantity * product.price) * (100 - amountDiscount) / 100)) | number: '1.0-2' }}</b></p>
+          </div>
+        </ng-container>
+
+      </nz-col>
+      <nz-col [nzSm]="24" [nzXs]="24" class="m-b-10">
+        <div class="d-flex align-items-center justify-content-between">
+          <p class="m-0 fs-15 text-gray-6 notranslate">Descuento por ser socio Distribuidor:</p> <b>{{ amountDiscount | number: '1.2'}}% Desc</b>
+        </div>
+      </nz-col>
+      <nz-col [nzSm]="24" [nzXs]="24" class="m-b-10">
+        <div class="d-flex align-items-center justify-content-between">
+          <p class="m-0 fs-15 text-gray-6 fs-22"><b>TOTAL:</b></p>
+          <p class="m-0 fs-15 text-gray-6 fs-22 notranslate"><b>S/. {{ totalBuy | number: '1.0-2' }}</b></p>
+        </div>
+      </nz-col>
+    </nz-row>
+
+    <hr style="border-color: #E4E4E4; border-width: 2px; margin: 0; margin-bottom: 10px;">
+
+    <nz-row class="m-b-10">
+      <nz-col [nzSm]="24" [nzXs]="24" >
+        <h4>DETALLES DE ENVÍO</h4>
+      </nz-col>
+    </nz-row>
+    <form
+      nz-form
+      [nzLayout]="'vertical'"
+      [formGroup]="validateForm"
+      class="m-b-30"
+    >
+      <nz-form-item>
+        <nz-form-label >Escribir número de celular de contacto:</nz-form-label>
+        <nz-form-control nzErrorTip="Campo requerido">
+          <input nz-input formControlName="phoneContact" placeholder="" class="bg--input"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label >Escribir dirección de Envío, indicar Distrito, ciudad y país.:</nz-form-label>
+        <nz-form-control nzErrorTip="Campo requerido">
+          <textarea [rows]="2" nz-input formControlName="addressContact" class="bg--input"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+
+    <div class="m-b-20">
+      <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentFlow()" [nzLoading]="isLoadingFlow">
+        <p class="mb-0 text-white">PAGAR</p>
+        <p class="mb-0 text-white">(PagoEfectivo exclusivo para Perú)</p>
+      </button>
+    </div>
+
+    <div class="m-b-20 position-relative" >
+      <hr style="border-color: #E4E4E4; border-width: 2px;"><span>OR</span>
+    </div>
+
+    <div class="m-b-30">
+      <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentIzipay()" [nzLoading]="isLoadingIzipay">
+        <p class="mb-0 text-white">PAGAR</p>
+        <p class="mb-0 text-white">(Credit/débit Card para todo Latam)</p>
+      </button>
+    </div>
+
+    <div class="m-b-20 position-relative" >
+      <hr style="border-color: #E4E4E4; border-width: 2px;"><span>OR</span>
+    </div>
+
+    <div class="m-b-20" >
+      <button nz-button nzType="primary" nzBlock class="btn-payment" (click)="onPaymentOffline()" [nzLoading]="isLoadingOffline">
+        <p class="mb-0 text-white">CONFIRMAR PAGO</p>
+        <p class="mb-0 text-white">Pagué en efectivo a agente de Imperio</p>
+      </button>
+    </div>
+
+    <div class="text-center">
+      <svg width="306" height="37" viewBox="0 0 306 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M251.5 4C251.5 2.067 253.067 0.5 255 0.5H302C303.933 0.5 305.5 2.067 305.5 4V33C305.5 34.933 303.933 36.5 302 36.5H255C253.067 36.5 251.5 34.933 251.5 33V4Z" fill="white" stroke="#EEEEEE"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M269.732 11.7727H267.864L266.472 15.1274L264.977 11.7727H263.143V16.434L261.207 11.7727H259.509L257.471 16.7166H258.693L259.135 15.6218H261.512L261.954 16.7166H264.264V12.8322L265.928 16.7166H266.913L268.577 12.8322V16.7166H269.732V11.7727ZM295.071 16.7166H293.441L291.301 13.0086V16.7166H288.992L288.55 15.6218H286.172L285.731 16.7166H284.406C283.862 16.7166 283.149 16.5753 282.742 16.1514C282.368 15.7277 282.164 15.1628 282.164 14.2799C282.164 13.5383 282.266 12.8673 282.775 12.3377C283.115 11.9491 283.726 11.7727 284.507 11.7727H285.594V12.8322H284.507C284.1 12.8322 283.862 12.9029 283.624 13.1149C283.421 13.3268 283.319 13.7152 283.319 14.2448C283.319 14.7744 283.421 15.163 283.624 15.4103C283.794 15.5867 284.1 15.6573 284.405 15.6573H284.915L286.545 11.773H288.244L290.146 16.4343V11.7727H291.912L293.916 15.1981V11.7727H295.071V16.7166ZM293.441 22.6141C293.169 22.3666 292.761 22.2255 292.116 22.2255H291.505C291.338 22.2255 291.203 22.1909 291.069 22.1566L291.063 22.1551C290.927 22.0842 290.826 21.9782 290.826 21.8016C290.826 21.625 290.859 21.519 290.995 21.413C291.097 21.3426 291.233 21.3426 291.437 21.3426H293.543V20.2831H291.267C290.044 20.2831 289.636 21.06 289.636 21.7665C289.636 23.2206 290.797 23.2518 291.81 23.2791C291.879 23.2809 291.947 23.2828 292.014 23.2851C292.218 23.2851 292.354 23.3201 292.422 23.391C292.489 23.4614 292.558 23.6025 292.558 23.744C292.558 23.8851 292.49 23.9911 292.422 24.062C292.32 24.1324 292.184 24.1675 291.98 24.1675H289.772V25.227H291.98C293.135 25.227 293.78 24.7329 293.78 23.6737C293.78 23.1793 293.645 22.8611 293.441 22.6141ZM298.23 23.6737C298.23 24.7332 297.585 25.227 296.43 25.227H294.222V24.1675H296.43C296.634 24.1675 296.803 24.1324 296.872 24.062C296.939 23.9911 297.007 23.8851 297.007 23.744C297.007 23.6025 296.94 23.4614 296.872 23.391C296.803 23.3201 296.668 23.2851 296.464 23.2851C296.396 23.2828 296.328 23.2809 296.259 23.2791C295.247 23.2519 294.086 23.2206 294.086 21.7665C294.086 21.06 294.528 20.2831 295.717 20.2831H297.992V21.3426H295.886C295.683 21.3426 295.547 21.3426 295.445 21.413C295.343 21.519 295.275 21.625 295.275 21.8016C295.275 21.9782 295.377 22.0842 295.513 22.1551L295.516 22.1559C295.651 22.1907 295.786 22.2255 295.955 22.2255H296.566C297.211 22.2255 297.619 22.3666 297.891 22.6141C298.094 22.8611 298.23 23.1793 298.23 23.6737ZM286.41 24.2033H289.093V25.2273H285.289V20.2836H289.093V21.3075H286.41V22.226H289.025V23.2144H286.41V24.2033ZM284.066 20.5309C283.692 20.3189 283.251 20.2833 282.673 20.2833H280.058V25.227H281.213V23.4261H282.436C282.843 23.4261 283.081 23.4617 283.251 23.6381C283.455 23.8851 283.455 24.309 283.455 24.627V25.227H284.576V24.2734C284.576 23.8144 284.542 23.6025 284.406 23.3555C284.304 23.2139 284.101 23.0375 283.829 22.9315C284.134 22.8261 284.644 22.4022 284.644 21.625C284.644 21.0603 284.44 20.7423 284.066 20.5309ZM273.978 20.2833H277.613C278.496 20.2833 279.515 20.5659 279.515 21.9078C279.515 23.2851 278.53 23.5677 277.545 23.5677H276.118V25.227H273.91L272.518 23.6025L271.057 25.227H266.54V20.2833H271.125L272.518 21.9078L273.978 20.2833ZM283.149 22.3318C282.979 22.4022 282.809 22.4022 282.606 22.4022L281.213 22.4377V21.3073H282.606C282.809 21.3073 283.013 21.3073 283.149 21.4133C283.285 21.4842 283.387 21.6252 283.387 21.8372C283.387 22.0491 283.285 22.2258 283.149 22.3318ZM276.118 22.5788H277.613C278.02 22.5788 278.292 22.3318 278.292 21.9078C278.292 21.4842 278.02 21.3073 277.613 21.3073H276.118V22.5788ZM273.231 22.7552L274.997 20.8132V24.8036L273.231 22.7552ZM267.66 24.2033H270.48L271.77 22.7554L270.514 21.3075H267.66V22.226H270.174V23.2144H267.66V24.2033ZM280.432 11.7727H281.587V16.7166H280.432V11.7727ZM279.175 11.9847C278.801 11.7727 278.394 11.7727 277.817 11.7727H275.201V16.7166H276.322V14.9155H277.544C277.952 14.9155 278.224 14.9508 278.394 15.1274C278.573 15.3449 278.568 15.6991 278.564 15.9734C278.564 16.0109 278.563 16.047 278.563 16.081V16.7166H279.718V15.7277C279.718 15.3041 279.684 15.0921 279.514 14.8448C279.413 14.7035 279.209 14.5269 278.971 14.4212C279.276 14.2799 279.786 13.8915 279.786 13.1146C279.787 12.5496 279.548 12.2317 279.175 11.9847ZM271.736 15.6927H274.386V16.7169H270.582V11.773H274.386V12.7969H271.736V13.6798H274.352V14.7038H271.736V15.6927ZM287.361 12.6203L288.142 14.5625H286.58L287.361 12.6203ZM278.292 13.7858C278.122 13.8918 277.952 13.8918 277.715 13.8918H276.322V12.7972H277.714C277.918 12.7972 278.156 12.7972 278.292 12.8678C278.427 12.9738 278.496 13.1151 278.496 13.3268C278.496 13.5385 278.428 13.7149 278.292 13.7858ZM260.324 12.6203L259.542 14.5625H261.105L260.324 12.6203Z" fill="#0077A6"/>
+        <path d="M133.5 4C133.5 2.067 135.067 0.5 137 0.5H184C185.933 0.5 187.5 2.067 187.5 4V33C187.5 34.933 185.933 36.5 184 36.5H137C135.067 36.5 133.5 34.933 133.5 33V4Z" fill="white" stroke="#EEEEEE"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M157.41 18.252C157.41 15.1626 158.783 12.4121 160.92 10.6321C159.344 9.31949 157.353 8.53369 155.186 8.53369C150.08 8.53369 145.941 12.8848 145.941 18.252C145.941 23.6192 150.08 27.9703 155.186 27.9703C157.353 27.9703 159.344 27.1845 160.92 25.8719C158.783 24.0919 157.41 21.3414 157.41 18.252Z" fill="#EB001B"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M157.41 18.252C157.41 21.3414 158.783 24.0919 160.92 25.8719C163.058 24.0919 164.431 21.3414 164.431 18.252C164.431 15.1627 163.058 12.4121 160.92 10.6321C158.783 12.4121 157.41 15.1627 157.41 18.252Z" fill="#FF5E00"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M166.655 8.53369C164.488 8.53369 162.497 9.31949 160.92 10.6321C163.058 12.4122 164.431 15.1626 164.431 18.252C164.431 21.3414 163.058 24.0919 160.92 25.8719C162.497 27.1845 164.488 27.9703 166.655 27.9703C171.76 27.9703 175.899 23.6192 175.899 18.252C175.899 12.8848 171.76 8.53369 166.655 8.53369Z" fill="#F79E1C"/>
+        <path d="M0.5 4C0.5 2.067 2.067 0.5 4 0.5H51C52.933 0.5 54.5 2.067 54.5 4V33C54.5 34.933 52.933 36.5 51 36.5H4C2.067 36.5 0.5 34.933 0.5 33V4Z" fill="white" stroke="#EEEEEE"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M34.5547 12.335L34.1053 15.1046C32.7578 14.3129 29.6911 14.1255 29.6907 15.5838C29.6907 16.1631 30.3846 16.5615 31.2209 17.0417C32.4893 17.77 34.0852 18.6864 34.0852 20.7072C34.0852 23.9363 30.8435 25.1227 28.6946 25.1227C26.5464 25.1227 25.1403 24.3944 25.1403 24.3944L25.6084 21.4986C26.8977 22.6022 30.8043 22.9158 30.8043 21.1657C30.8043 20.4303 30.0353 19.9966 29.1435 19.4937C27.9131 18.7998 26.449 17.9741 26.449 16.0423C26.449 12.501 30.1598 11.7727 31.7225 11.7727C33.168 11.7727 34.5547 12.335 34.5547 12.335ZM45.0613 24.9002H42.1699L41.8011 22.9845H37.7981L37.1416 24.9002H33.8591L38.5554 12.9639C38.5554 12.9639 38.8401 12.0028 40.0091 12.0028H42.5403L45.0613 24.9002ZM17.4021 12.0032L14.4001 20.8738L14.0448 18.9636L14.0452 18.9643L12.9856 13.1644C12.9856 13.1644 12.8575 12.0032 11.4919 12.0032H6.52894L6.4707 12.2215C6.4707 12.2215 7.98838 12.5582 9.76456 13.6957L12.5003 24.9005H15.7812L20.7911 12.0032H17.4021ZM23.2001 24.9002H20.0512L22.0192 12.0032H25.1684L23.2001 24.9002ZM38.7049 20.3381L40.3594 15.5117L41.2902 20.3381H38.7049Z" fill="#2566AF"/>
+        <path d="M14.0452 18.9641L12.9856 13.1642C12.9856 13.1642 12.8575 12.0029 11.4919 12.0029H6.52894L6.4707 12.2213C6.4707 12.2213 8.85609 12.7484 11.1441 14.7235C13.3318 16.6113 14.0452 18.9641 14.0452 18.9641Z" fill="#E6A540"/>
+        </svg>
+    </div>
+
+  </nz-spin>
+
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 1">
+  <nz-row class="m-b-20">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-20 text-center" >
+      <p class="m-0 fs-15 text-gray-6"><b>¡ Listo, se genero un link de pago!. </b></p>
+      <p class="m-0 fs-15 text-gray-6">Ingresar al link para poder realizar el pago de su plan.</p>
+
+    </nz-col>
+    <nz-col [nzSm]="24" [nzXs]="24" class="text-center">
+      <a [href]="linkPayment" target="_blank" class="btn btn-info text-white ">Ir a pagar</a>
+    </nz-col>
+  </nz-row>
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 2">
+  <nz-spin nzTip="Verificando..." [nzSpinning]="isSpinningPayment">
+    <div class="form">
+
+      <div class="container-form">
+        <div class="text-center m-b-10">
+          <img alt="Vue logo" src="assets/images/Logo-161x66.png" />
+        </div>
+        <div id="myPaymentForm"></div>
+      </div>
+    </div>
+  </nz-spin>
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 3">
+  <nz-row class="m-b-20">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-20 text-center" >
+      <ng-container *ngIf="!isPaymentError">
+        <p style="font-size: 18px;">
+
+        <b>¡ Listo, tu compra se realizó con éxito</b></p>
+
+          <p style="font-size: 18px;">
+            <b>Compraste tu productos!</b>&nbsp;&nbsp;&nbsp;<i nz-icon nzType="check" nzTheme="outline" style="color: #00B517; font-size: 26px;"></i> </p>
+          <p style="font-size: 18px;">Bienvenido a ImperioGlobal.net, compraste
+            correctamente tu productos.</p>
+        <button nz-button nzType="primary" class="btn-payment" nzSize="large" (click)="onCloseModal()">Listo</button>
+      </ng-container>
+      <ng-container *ngIf="isPaymentError">
+        <p class="text-rojo" style="font-size: 18px;">
+          <i nz-icon nzType="close" nzTheme="outline" style="color: #FF3A44; font-size: 20px;"></i>
+        <b>¡ Un error en tu compra!</b></p>
+          <p style="font-size: 18px;">{{ messageError }}</p>
+        <button nz-button nzType="primary" class="btn-payment" nzSize="large" (click)="onCloseModal()">Listo</button>
+      </ng-container>
+
+
+    </nz-col>
+  </nz-row>
+</ng-container>
+
+<ng-container *ngIf="paymentSection == 4">
+  <nz-row class="m-b-20">
+    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-20 text-center" >
+      <p class="m-0 fs-15 text-gray-6"><b>¡ Listo, pago offline!. </b></p>
+      <p class="m-0 fs-15 text-gray-6">Ingresar al link para poder realizar el pago de su plan.</p>
+
+    </nz-col>
+
+  </nz-row>
+</ng-container>

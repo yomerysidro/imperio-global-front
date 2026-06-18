@@ -1,0 +1,56 @@
+<div class="text-center m-b-30">
+    <h2 class="font-size-40" style="font-weight: 700; line-height: 1.2;">Solicitud de cobro de Bono Patrocinio</h2>
+</div>
+<nz-row class="m-b-40">
+  <nz-col [nzXs]="24" class="m-b-10 text-center">
+    <p class="font-size-18 m-0" style="color: #4379EE;">{{ this.userModel.name }}</p>
+  </nz-col>
+  <nz-col [nzXs]="24" class="text-center">
+    <label for="fileupload" class="position-relative m-b-20">
+      <img [src]="avatarUrl" alt="" class="rounded-circle img-fluid" style="max-width: 80px; height: 80px;">
+    </label>
+  </nz-col>
+  <nz-col [nzXs]="24" class="m-b-10 text-center">
+    <p class="font-size-18">ID: <span class="text-uppercase">{{ this.userModel.uuid }}</span> / Fecha: {{ this.userModel.created_at | date: 'dd/MM/yyyy' }}</p>
+  </nz-col>
+  <nz-col [nzXs]="24" class="text-center">
+    <p class=" font-size-15" style="color: #606060;">Para realizar el pago, el administrador de imperio debe pagar los bonos patrocinio de manera independiente al sistema, ya sea a través de pago en efectivo, transferencia bancaria o yape/Plin</p>
+  </nz-col>
+  <nz-col [nzXs]="24" class="mb-3">
+    <p>DETALLE DE SOLICITUD</p>
+    <div class="d-flex align-items-center justify-content-between">
+      <p class="m-0">Bono Patrocinio</p><p class="m-0 text-right" style="font-weight: 500;">{{ points }}</p>
+    </div>
+  </nz-col>
+
+  <nz-col [nzXs]="24" class="mb-4">
+    <nz-upload
+      nzType="drag"
+      [nzMultiple]="false"
+      [(nzFileList)]="fileList"
+      [nzBeforeUpload]="beforeUpload"
+      [nzRemove]="onRemoveFile"
+      class="upload-container-sm"
+    >
+      <p class="ant-upload-drag-icon">
+        <span nz-icon nzType="inbox"></span>
+      </p>
+      <p class="ant-upload-text lh-1 mb-1">Haga clic o arrastre el archivo a esta área para cargarlo</p>
+      <p class="ant-upload-hint lh-1 m-0">
+        Para terminar el proceso de confirmación Adjunta un documento o prueba de pago
+      </p>
+    </nz-upload>
+  </nz-col>
+
+  <div class=""> 
+    <div class="mb-3">
+      <button nz-button class="ant-btn-success" [nzType]="'primary'" (click)="onApproved(2)" [disabled]="disabledUpload" [nzLoading]="loading">Sí pagar Bono Patrocinio</button>
+    </div>
+    <div class="mb-3">
+      <button nz-button nzDanger [nzType]="'primary'" (click)="onApproved(3)" [nzLoading]="loading">No, Anular Bono Patrocinio</button>
+    </div>
+    <div>
+      <a nz-button class="ant-btn-default" [nzType]="'primary'" (click)="onCancel()" >Retroceder</a>
+    </div>
+  </div>
+</nz-row>
