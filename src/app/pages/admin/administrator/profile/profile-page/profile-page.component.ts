@@ -34,7 +34,7 @@ export class ProfilePageComponent implements OnInit {
   // === BONOS SEPARADOS (calculados desde patrocinio) ===
   pointServicio: number = 0;
   pointProducto: number = 0;
-  
+
   // === BONOS EXISTENTES ===
   pointPatrocinio: number = 0;
   pointResudial: number = 0;
@@ -89,16 +89,20 @@ export class ProfilePageComponent implements OnInit {
   public loadOptions(): void {
     this.apiService.getOptionsSearch({ key: 'bono_global' }).subscribe(
       (res) => {
-        if (res.success) {
-          this.isPointPersonal = this.userModel?.payment?.payment_order.pack.id == res.data[0].option_value;
+        if (res && res.success && res.data && res.data.length > 0) {
+          // Acceso seguro con ?. en toda la cadena
+          const packId = this.userModel?.payment?.payment_order?.pack?.id;
+          this.isPointPersonal = packId == res.data[0].option_value;
         }
-      }, (error) => {}
-    )
+      }, (error) => { console.error(error); }
+    );
+
     this.apiService.getProductPaymnetDetailFindAll({ page: 1, limit: 10 }).subscribe(
       (res) => {
-        this.productsPayments = res.data.items;
+        // Validar que res y res.data existan antes de asignar
+        this.productsPayments = res?.data?.items || [];
       }
-    )
+    );
   }
 
   public loadCurrentUser(): void {
@@ -108,6 +112,8 @@ export class ProfilePageComponent implements OnInit {
         this.avatarUrl = response.data.file?.path
           ? environment.hostUrl + '/storage/' + response.data.file?.path
           : CONSTANTS.IMAGE.FALLBACK;
+          // Escribe esto en la consola y presiona Enter
+console.log(response.data.points);
 
         this.validateForm.patchValue({
           address: response.data.address,
@@ -127,14 +133,14 @@ export class ProfilePageComponent implements OnInit {
 
         this.granTotalPuntos = response.data.totalPoints || 0;
         this.activePackages = pts.compra?.detalles || [];
-        
+
         // Patrocinio viene de la API
         this.pointPatrocinio = Number(pts.patrocinio || 0);
-        
+
         // Dividir patrocinio en Servicio (50%) y Producto (50%)
         this.pointServicio = this.pointPatrocinio * 0.5;
         this.pointProducto = this.pointPatrocinio * 0.5;
-        
+
         this.pointResudial = Number(pts.residual || 0);
         this.pointPersonal = Number(pts.personal || 0);
         this.pointCompra = Number(pts.personal || 0);
@@ -195,13 +201,13 @@ export class ProfilePageComponent implements OnInit {
     const currentTitle = this.userModel?.range?.range?.title || 'Sin rango';
     const currentIndex = ranks.findIndex(r => r.title === currentTitle);
     const currentPoints = this.totalPoints || 0;
-    
+
     // Si ya alcanzó el rango actual, apuntar al siguiente automáticamente
     let targetIndex = currentIndex;
     if (currentIndex !== -1 && currentIndex < ranks.length - 1 && currentPoints >= ranks[currentIndex].points) {
       targetIndex = currentIndex + 1;
     }
-    
+
     const nextPoints = targetIndex < ranks.length ? ranks[targetIndex].points : 0;
     if (nextPoints === 0) return 0;
     return Math.max(nextPoints - currentPoints, 0);
@@ -223,14 +229,14 @@ export class ProfilePageComponent implements OnInit {
     const currentTitle = this.userModel?.range?.range?.title || 'Sin rango';
     const currentIndex = ranks.findIndex(r => r.title === currentTitle);
     const currentPoints = this.totalPoints || 0;
-    
+
     let targetPoints: number;
     if (currentIndex !== -1 && currentIndex < ranks.length - 1 && currentPoints >= ranks[currentIndex].points) {
       targetPoints = ranks[currentIndex + 1].points;
     } else {
       targetPoints = currentIndex !== -1 ? ranks[currentIndex].points : 1000;
     }
-    
+
     if (targetPoints === 0) return 100;
     const progress = (currentPoints / targetPoints) * 100;
     return Math.min(Math.round(progress), 100);
@@ -414,7 +420,7 @@ export class ProfilePageComponent implements OnInit {
           } else {
             this.modalService.info(response.message);
           }
-        }, (error) => {}
+        }, (error) => { }
       )
     } else {
       this.isConfirmPatrocinio = true;
@@ -433,7 +439,7 @@ export class ProfilePageComponent implements OnInit {
       nzWidth: "550px",
       nzData: {},
     });
-    modal.afterClose.subscribe(() => {})
+    modal.afterClose.subscribe(() => { })
   }
 
   onTemplateHistory(): void {

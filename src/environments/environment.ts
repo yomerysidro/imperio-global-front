@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  hostUrl: 'https://api.imperioglobal.org', //'https://api.imperioglobal.net' ,// 'http://127.0.0.1:8000',
+  hostUrl: 'http://127.0.0.1:8000', //'https://api.imperioglobal.net' ,// 'http://127.0.0.1:8000',
   serveUrl: "https://imperioglobal.org"
 };
 
