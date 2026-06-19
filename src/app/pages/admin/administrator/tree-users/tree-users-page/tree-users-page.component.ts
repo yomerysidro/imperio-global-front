@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
 import { ECONode, IECONode, Orientation } from '@shared/interfaces/econode.type';
 import { ApiService } from '@shared/services/api.service';
@@ -53,79 +54,153 @@ export class TreeUsersPageComponent implements OnInit {
   /**
    * Carga la red completa desde el Backend
    */
+  /**
+   * Carga la red completa desde el Backend
+   */
   public loadData(): void {
     this.isChart = false;
     this.usuarioTotal = 0;
 
-    this.apiService.getPointListUser().subscribe((res) => {
-      if (res.success) {
-        // 1. Capturar modelo de usuario y red de puntos
-        const user = res.data.user;
-        this.currentUser = user;
-        this.listPoints = res.data.points;
+    forkJoin({
+      pointsRes: this.apiService.getPointListUser(),
+      authRes: this.apiService.getAuthenticationUser()
+    }).subscribe({
+      next: ({ pointsRes, authRes }) => {
+        if (pointsRes.success) {
+          const authUser = authRes.success ? authRes.data : null;
+          const pointsData = pointsRes.data;
+          
+          // Tratar de obtener el user desde la respuesta de puntos, si existe
+          const pointsUser = pointsData?.user || {};
+          
+          // Extraer la lista de puntos y otros metadatos
+          const { points, ...pointsUserProps } = pointsData || {};
 
-        // 2. Sincronizar contadores (Mapeo directo desde el Backend procesado)
-        this.usuarioDirectos = user?.directos || 0;
-        this.usuarioActivos = user?.activos || 0;
-        this.usuarioTotal = user?.red_total || 0;
+          // Combinar datos del perfil del usuario
+          const user = {
+            ...authUser,
+            ...pointsUser,
+            ...pointsUserProps
+          };
+          this.currentUser = user;
 
-        // ✅ 3. Cargar puntos del usuario
-        if (user?.points) {
-          this.puntosPersonales = user.points.personal || 0;
-          this.puntosRed = user.points.pointGroup || 0;
-          this.puntosTotales = user.totalPoints || 0;
-          this.puntosPatrocinio = user.points.patrocinioTotal || 0;
-          this.puntosResidual = user.points.residual || 0;
-        } else {
-          this.puntosPersonales = 0;
-          this.puntosRed = 0;
-          this.puntosTotales = 0;
-          this.puntosPatrocinio = 0;
-          this.puntosResidual = 0;
-        }
+          // Controlar si points viene como array de árbol estructurado o inicializar vacío
+          this.listPoints = Array.isArray(points) ? points : [];
 
-        // 4. Información del Patrocinador Superior
-        this.userSponsor = user?.sponsor_name || "Sistema";
-        this.codeSponsor = user?.sponsor_uuid || "--";
+          // 5. Construir árbol recursivo (Infinito)
+          const myId = user?.uuid || getCodeUuid() || '';
+          let children = this.nodeTreeParse(this.listPoints, myId);
 
-        // 5. Construir árbol recursivo (Infinito)
-        const myId = user?.uuid || getCodeUuid();
-        let children = this.nodeTreeParse(this.listPoints, myId);
-
-        // Placeholders visuales si la red está vacía
-        if (children.length === 0 && this.listPoints.length === 0) {
-          for (let index = 0; index < 4; index++) {
-            children.push({
-              data: { id: "-" + index, photo: 'assets/images/Ellipse 4.png', name: "Vacío" },
-              active: false,
-              selected: true,
-              children: [],
-              admin: false
-            });
+          // Placeholders visuales si la red está vacía o es la cuenta raíz 'DOSB' esperando inyección
+          if (children.length === 0) {
+            if (myId === 'DOSB' || this.listPoints.length === 0) {
+              for (let index = 0; index < 4; index++) {
+                children.push({
+                  data: { id: "-" + index, photo: 'assets/images/Ellipse 4.png', name: "Vacío" },
+                  active: false,
+                  selected: true,
+                  children: [],
+                  admin: false
+                });
+              }
+            }
           }
+
+          // Calcular estadísticas locales recursivas desde el árbol construido
+          const stats = this.getTreeStats(children);
+
+          // 2. Sincronizar contadores (Mapeo directo desde el Backend, con fallback calculado localmente)
+          this.usuarioDirectos = user?.directos || children.length;
+          this.usuarioActivos = user?.activos || stats.active;
+          this.usuarioTotal = user?.red_total || stats.total;
+
+          // Forzar fallback si los contadores del Backend vienen en 0 pero sí hay elementos en el árbol
+          if (this.usuarioTotal === 0 && stats.total > 0) {
+            this.usuarioTotal = stats.total;
+          }
+          if (this.usuarioDirectos === 0 && children.length > 0) {
+            this.usuarioDirectos = children.length;
+          }
+          if (this.usuarioActivos === 0 && stats.active > 0) {
+            this.usuarioActivos = stats.active;
+          }
+
+          // ✅ 3. Cargar puntos del usuario
+          if (user?.points) {
+            this.puntosPersonales = user.points.personal || 0;
+            this.puntosRed = user.points.pointGroup || 0;
+            this.puntosTotales = user.totalPoints || 0;
+            this.puntosPatrocinio = user.points.patrocinioTotal || user.points.patrocinio || 0;
+            this.puntosResidual = user.points.residual || 0;
+          } else {
+            this.puntosPersonales = 0;
+            this.puntosRed = 0;
+            this.puntosTotales = 0;
+            this.puntosPatrocinio = 0;
+            this.puntosResidual = 0;
+          }
+
+          // 4. Información del Patrocinador Superior
+          this.userSponsor = user?.sponsor_name || "Sistema";
+          this.codeSponsor = user?.sponsor_uuid || "--";
+
+          // Si el sponsor sigue siendo genérico, intentar buscarlo en la lista de puntos
+          if (this.userSponsor === "Sistema" && this.codeSponsor === "--") {
+            const myPoint = this.listPoints.find(p => p.user_code?.toLowerCase() === myId?.toLowerCase());
+            if (myPoint?.sponsor) {
+              this.userSponsor = myPoint.sponsor.name || "Sistema";
+              this.codeSponsor = myPoint.sponsor.uuid || "--";
+            }
+          }
+
+          const image = user?.file?.path
+            ? environment.hostUrl + '/storage/' + user.file.path
+            : this.fallback;
+
+          // Definición de la data del árbol
+          this.data = {
+            data: {
+              id: myId,
+              photo: image,
+              name: user?.name,
+              admin: !!user?.is_admin
+            },
+            active: (user?.payment?.state == 2) || (user?.payment_active?.state == 2) || !!user?.active || (user?.estado_visual?.toUpperCase() === 'ACTIVO'),
+            selected: true,
+            children: children
+          };
+
+          // Activamos el gráfico después de procesar todo
+          this.isChart = true;
         }
-
-        const image = user?.file?.path
-          ? environment.hostUrl + '/storage/' + user.file.path
-          : this.fallback;
-
-        // Definición de la data del árbol
-        this.data = {
-          data: {
-            id: myId,
-            photo: image,
-            name: user?.name,
-            admin: !!user?.is_admin
-          },
-          active: (user?.payment?.state == 2) || (user?.payment_active?.state == 2) || !!user?.active || (user?.estado_visual?.toUpperCase() === 'ACTIVO'),
-          selected: true,
-          children: children
-        };
-
-        // Activamos el gráfico después de procesar todo
-        this.isChart = true;
+      },
+      error: (err) => {
+        console.error("Error al cargar la red", err);
       }
     });
+  }
+
+  /**
+   * Calculates tree statistics recursively (Red Total and Activos)
+   */
+  private getTreeStats(nodes: IECONode[]): { total: number, active: number } {
+    let total = 0;
+    let active = 0;
+
+    const traverse = (childrenList: IECONode[]) => {
+      for (const node of childrenList) {
+        total++;
+        if (node.active) {
+          active++;
+        }
+        if (node.children && node.children.length > 0) {
+          traverse(node.children);
+        }
+      }
+    };
+
+    traverse(nodes);
+    return { total, active };
   }
 
   /**
