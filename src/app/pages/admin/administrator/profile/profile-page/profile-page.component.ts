@@ -112,8 +112,8 @@ export class ProfilePageComponent implements OnInit {
         this.avatarUrl = response.data.file?.path
           ? environment.hostUrl + '/storage/' + response.data.file?.path
           : CONSTANTS.IMAGE.FALLBACK;
-          // Escribe esto en la consola y presiona Enter
-console.log(response.data.points);
+
+        console.log(response.data.points);
 
         this.validateForm.patchValue({
           address: response.data.address,
@@ -127,35 +127,60 @@ console.log(response.data.points);
         this.userCode = response.data.uuid;
 
         // ============================================
-        // LÓGICA DE PUNTOS - CORREGIDA
+        // 🔥 LÓGICA DE PUNTOS - CORREGIDA
         // ============================================
-        const pts = response.data.points;
+        // Usamos 'as any' para evitar errores de TypeScript
+        const pts: any = response.data.points || {};
+        const userDetail: any = response.data.user_detail || {};
 
-        this.granTotalPuntos = response.data.totalPoints || 0;
-        this.activePackages = pts.compra?.detalles || [];
+        // 1. PUNTOS PERSONALES (del paquete del usuario)
+        this.pointPersonal = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
+        this.pointCompra = this.pointPersonal;
 
-        // Patrocinio viene de la API
-        this.pointPatrocinio = Number(pts.patrocinio || 0);
+        // 2. PUNTOS DE RED (grupales)
+        this.pointGroup = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
 
-        // Dividir patrocinio en Servicio (50%) y Producto (50%)
+        // 3. PUNTOS RESIDUALES
+        this.pointResudial = Number(userDetail.puntos_residuales ?? pts.residual ?? 0);
+
+        // 4. 🔥 GANANCIA POR PATROCINIO (BONO) - NO se suma a puntos para rango
+        this.pointPatrocinio = Number(userDetail.ganancia_patrocinio ?? pts.patrocinio ?? 0);
+
+        // Dividir patrocinio en Servicio (50%) y Producto (50%) para visualización
         this.pointServicio = this.pointPatrocinio * 0.5;
         this.pointProducto = this.pointPatrocinio * 0.5;
 
-        this.pointResudial = Number(pts.residual || 0);
-        this.pointPersonal = Number(pts.personal || 0);
-        this.pointCompra = Number(pts.personal || 0);
-        this.pointGroup = Number(pts.pointGroup || 0);
-        this.pointInfinity = Number(pts.infinito || 0);
-        this.pointAfiliado = Number(pts.pointAfiliado || 0);
-        this.totalPointsPersonalGlobal = Number(pts.personalGlobal || 0);
-        this.totalPoints = Number(response.data.totalPoints || 0);
+        // 5. 🔥 TOTAL DE PUNTOS PARA EL RANGO = PERSONALES + RED + RESIDUALES (SIN PATROCINIO)
+        this.totalPoints = this.pointPersonal + this.pointGroup + this.pointResudial;
 
-        // Bonos totales históricos (Servicio + Producto + Residual)
+        // 6. 🔥 GRAN TOTAL DE GANANCIAS = BONO PATROCINIO + RESIDUAL + INFINITO (PARA EL RESUMEN GLOBAL)
+        this.granTotalPuntos = this.pointPatrocinio + this.pointResudial + this.pointInfinity;
+
+        // 7. OTROS PUNTOS
+        this.pointInfinity = Number(pts.infinito ?? 0);
+        this.pointAfiliado = Number(pts.pointAfiliado ?? 0);
+        this.totalPointsPersonalGlobal = Number(pts.personalGlobal ?? 0);
+
+        // 8. Bonos totales históricos (Servicio + Producto + Residual)
         this.bonosTotalesHistorico = this.pointServicio + this.pointProducto + this.pointResudial;
 
+        // 9. Paquetes activos
+        this.activePackages = pts.compra?.detalles || [];
         if (!this.userModel.package_name) {
           this.userModel.package_name = response.data.package_name;
         }
+
+        console.log('Puntos calculados:', {
+          pointPersonal: this.pointPersonal,
+          pointGroup: this.pointGroup,
+          pointResudial: this.pointResudial,
+          pointPatrocinio: this.pointPatrocinio,
+          totalPoints: this.totalPoints,        // 250 - Para el rango
+          granTotalPuntos: this.granTotalPuntos, // 50 + 0 + 0 = 50 - Para ganancias
+          pointServicio: this.pointServicio,
+          pointProducto: this.pointProducto,
+          bonosTotalesHistorico: this.bonosTotalesHistorico
+        });
 
         this.loadOptions();
       },

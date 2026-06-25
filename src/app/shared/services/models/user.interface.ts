@@ -1,6 +1,16 @@
 import { FileModel } from "./file-model.interface";
 import { PaymentLog } from "./payment-log.interface";
 
+export interface UserDetail {
+  puntos_personales: number;
+  puntos_red: number;
+  ganancia_patrocinio: number;
+  puntos_residuales: number;
+  total_puntos: number;
+  paquete_actual: string;
+  rango_actual: string;
+}
+
 export interface UserModel {
   id: number;
   name: string;
@@ -27,6 +37,7 @@ export interface UserModel {
   activos?: number;
   package_name?: string;
   red_total?: number;
+  user_detail?: UserDetail; // 🔥 NUEVO: datos detallados del usuario
 }
 
 export interface AuthModel {
