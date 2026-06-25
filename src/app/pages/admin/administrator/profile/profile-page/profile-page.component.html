@@ -236,14 +236,14 @@
           </div>
         </nz-col>
 
-        <!-- Negocio grupal -->
+        <!-- 🔥 CORREGIDO: VNegocio grupal - Suma de Bonos + Puntos + Infinito -->
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
           <div class="stat-card-premium">
             <div class="stat-card-icon">
               <i class="fa-solid fa-users-rays"></i>
             </div>
             <div class="stat-card-content">
-              <div class="stat-card-value">{{ pointGroup }}</div>
+              <div class="stat-card-value">{{ (bonosTotalesHistorico + totalPoints + pointInfinity) || 0 }}</div>
               <div class="stat-card-badge active">
                 VNegocio grupal
               </div>
