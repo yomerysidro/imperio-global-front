@@ -37,7 +37,8 @@
           <div class="profile-avatar-wrapper">
             <label for="fileupload" class="profile-avatar-label">
               <img [src]="avatarUrl" alt="" class="profile-avatar">
-              <input type="file" name="fileupload" id="fileupload" (change)="fileChangeEvent($event)" class="d-none" accept=".png,.jpg,.jpeg" />
+              <input type="file" name="fileupload" id="fileupload" (change)="fileChangeEvent($event)" class="d-none"
+                accept=".png,.jpg,.jpeg" />
               <div class="profile-avatar-overlay">
                 <i class="fa-solid fa-camera" style="font-size: 24px; color: rgb(242, 239, 239);"></i>
               </div>
@@ -70,7 +71,8 @@
                 Dirección de domicilio
               </nz-form-label>
               <nz-form-control>
-                <input formControlName="address" id="address" nz-input class="input-premium" placeholder="Ingresa tu dirección" />
+                <input formControlName="address" id="address" nz-input class="input-premium"
+                  placeholder="Ingresa tu dirección" />
               </nz-form-control>
             </nz-form-item>
 
@@ -107,7 +109,8 @@
                     Teléfono
                   </nz-form-label>
                   <nz-form-control>
-                    <input formControlName="phoneNumber" id="phoneNumber" nz-input class="input-premium" placeholder="+51 999 999 999" />
+                    <input formControlName="phoneNumber" id="phoneNumber" nz-input class="input-premium"
+                      placeholder="+51 999 999 999" />
                   </nz-form-control>
                 </nz-form-item>
               </nz-col>
@@ -121,7 +124,8 @@
                     País
                   </nz-form-label>
                   <nz-form-control>
-                    <input formControlName="country" id="country" nz-input class="input-premium" placeholder="Tu país" />
+                    <input formControlName="country" id="country" nz-input class="input-premium"
+                      placeholder="Tu país" />
                   </nz-form-control>
                 </nz-form-item>
               </nz-col>
@@ -161,7 +165,8 @@
             <div class="stat-card-content">
               <div class="stat-card-value">{{ userModel?.package_name || 'Sin plan' }}</div>
               <div class="stat-card-badge" [class.active]="userModel?.payment?.state == 2">
-                <i [class]="userModel?.payment?.state == 2 ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
+                <i
+                  [class]="userModel?.payment?.state == 2 ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
                 Paquete actual
               </div>
             </div>
@@ -236,14 +241,14 @@
           </div>
         </nz-col>
 
-        <!-- 🔥 CORREGIDO: VNegocio grupal - Suma de Bonos + Puntos + Infinito -->
+        <!-- 🔥 CORREGIDO: VNegocio grupal - Solo PUNTOS PERSONALES + RED + RESIDUALES (SIN BONOS) -->
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
           <div class="stat-card-premium">
             <div class="stat-card-icon">
               <i class="fa-solid fa-users-rays"></i>
             </div>
             <div class="stat-card-content">
-              <div class="stat-card-value">{{ (bonosTotalesHistorico + totalPoints + pointInfinity) || 0 }}</div>
+              <div class="stat-card-value">{{ totalPoints || 0 }}</div>
               <div class="stat-card-badge active">
                 VNegocio grupal
               </div>
@@ -297,6 +302,7 @@
                   <div class="grand-total-subtitle">Resumen de ganancias</div>
                 </div>
               </div>
+              <!-- 🔥 CORREGIDO: Solo ganancias (Bonos + Residual + Infinito) -->
               <div class="grand-total-amount-premium">
                 S/ {{ (bonosTotalesHistorico + pointInfinity) | number:'1.2-2' }}
               </div>
@@ -314,10 +320,10 @@
                 <div class="grand-total-divider"></div>
                 <div class="grand-total-item">
                   <span class="grand-total-item-label">
-                    <i class="fa-solid fa-star"></i>
-                    Puntos
+                    <i class="fa-solid fa-coins"></i>
+                    Residual
                   </span>
-                  <span class="grand-total-item-value">{{ totalPoints || 0 }} pts</span>
+                  <span class="grand-total-item-value">S/ {{ pointResudial | number:'1.2-2' }}</span>
                 </div>
                 <div class="grand-total-divider"></div>
                 <div class="grand-total-item">
@@ -383,7 +389,9 @@
               <div class="info-card-text">
                 <p class="info-card-title">Información importante</p>
                 <p class="info-card-description">
-                  *Todos los planes de afiliación y puntos duran hasta el último día de cada mes, luego se deben renovar. Ejemplo: Si compra un plan de afiliación el día 29 de Octubre, su plan de afiliación durará hasta el último día de Octubre, luego deberá renovar. Para cobrar por sus puntos debe estar Activo.
+                  *Todos los planes de afiliación y puntos duran hasta el último día de cada mes, luego se deben
+                  renovar. Ejemplo: Si compra un plan de afiliación el día 29 de Octubre, su plan de afiliación durará
+                  hasta el último día de Octubre, luego deberá renovar. Para cobrar por sus puntos debe estar Activo.
                 </p>
               </div>
             </div>
