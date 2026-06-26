@@ -20,7 +20,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { TemplateWebModule } from '@shared/template-web/template-web.module';
 import { RecoverPasswordComponent } from './recover-password/recover-password.component';
 
-const antdModule= [
+const antdModule = [
     NzFormModule,
     NzInputModule,
     NzButtonModule,
@@ -33,7 +33,9 @@ const antdModule= [
         CommonModule,
         SharedModule,
         ReactiveFormsModule,
-        AuthenticationWebRoutingModule
+        AuthenticationWebRoutingModule,
+        ...antdModule,  // <--- AGREGA ESTA LÍNEA AQUÍ
+        // Si no quieres usar el spread operator, puedes poner el array antdModule directamente aquí
     ],
     declarations: [
         Login1Component,
