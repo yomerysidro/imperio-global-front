@@ -41,9 +41,12 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   currentPackName: string = '';
   currentServiceName: string = '';
 
-  // Controles para mostrar/ocultar selects
   showPackEdit: boolean = false;
   showServiceEdit: boolean = false;
+
+  // 🔥 Variable para guardar el estado anterior y saber qué se actualizó
+  private previousPackId: number | null = null;
+  private previousServiceId: number | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -60,143 +63,185 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadData();
     if (this.userModel.payment == null) this.isSponsordata = true;
+    // 🔥 Cargamos los datos COMPLETOS del usuario llamando al backend directamente usando su código
+    this.loadUserFullData();
   }
 
-  public loadData(): void {
-    forkJoin([
-      this.apiService.getPlansSearch({}),
-    ]).subscribe(([planList]) => {
-      this.planList = planList.data;
-
-      this.productPlans = this.planList.filter((p: any) => {
-        const category = (p.category || '').toLowerCase();
-        return category !== 'servicio';
-      });
-      
-      this.servicePlans = this.planList.filter((p: any) => {
-        const category = (p.category || '').toLowerCase();
-        return category === 'servicio';
-      });
-
-      this.avatarUrl = this.userModel.file?.path
-        ? environment.hostUrl + '/storage/' + this.userModel.file?.path
-        : CONSTANTS.IMAGE.FALLBACK;
-
-      // OBTENER PACK ACTIVO
-      let activePackId = null;
-      let activePackName = '';
-      
-      if (this.userModel.payment?.payment_order?.pack?.id) {
-        activePackId = this.userModel.payment.payment_order.pack.id;
-        activePackName = this.userModel.payment.payment_order.pack.title || '';
-        this.currentPackId = activePackId;
-        this.currentPackName = activePackName;
-      }
-      
-      if (!activePackId) {
-        const pts = (this.userModel as any).points;
-        if (pts?.compra?.detalles) {
-          const packActivo = pts.compra.detalles.find((d: any) => {
-            const category = (d.category || '').toLowerCase();
-            return category !== 'servicio';
-          });
-          if (packActivo) {
-            activePackId = packActivo.pack_id || packActivo.id;
-            activePackName = packActivo.title || packActivo.pack?.title || '';
-            this.currentPackId = activePackId;
-            this.currentPackName = activePackName;
-          }
+  // 🔥 NUEVO: Obtiene los datos completos del usuario desde el backend
+  public loadUserFullData(): void {
+    // Usamos el método getUserByCode que acabamos de agregar al servicio
+    this.apiService.getUserByCode(this.userModel.uuid).subscribe(
+      (response) => {
+        if (response.success && response.data.items && response.data.items.length > 0) {
+          // Reemplazamos el modelo incompleto con el modelo completo del backend (primer elemento del array)
+          this.userModel = response.data.items[0];
+          // Ahora cargamos los planes y actualizamos el formulario con los datos reales
+          this.loadPlansAndPatch();
+        } else {
+          console.error('No se encontró el usuario con el código:', this.userModel.uuid);
         }
+      },
+      (error) => {
+        console.error('Error al cargar datos completos del usuario:', error);
       }
+    );
+  }
 
-      // OBTENER SERVICIO ACTIVO
-      let activeServiceId = null;
-      let activeServiceName = '';
+  // 🔥 Mover la lógica de carga de planes a una función separada
+  public loadPlansAndPatch(): void {
+    this.apiService.getPlansSearch({}).subscribe(
+      (planList) => {
+        this.planList = planList.data;
 
-      const paymentServices = (this.userModel as any).payment_services || [];
-      
-      if (paymentServices.length > 0) {
-        const servicioActivo = paymentServices.find((s: any) => {
-          if (s.state !== undefined && s.state !== null) {
-            return s.state === 2 && s.pack?.category?.toLowerCase() === 'servicio';
-          }
-          return s.pack?.category?.toLowerCase() === 'servicio';
+        this.productPlans = this.planList.filter((p: any) => {
+          const category = (p.category || '').toLowerCase();
+          return category !== 'servicio';
         });
         
-        if (servicioActivo) {
-          activeServiceId = servicioActivo.pack_id || servicioActivo.pack?.id;
-          activeServiceName = servicioActivo.pack?.title || '';
-          this.currentServiceId = activeServiceId;
-          this.currentServiceName = activeServiceName;
-        }
-      }
-
-      if (!activeServiceId) {
-        const paymentProductOrders = (this.userModel as any).payment_product_orders || [];
-        const servicio = paymentProductOrders.find((s: any) => {
-          const category = (s.pack?.category || '').toLowerCase();
+        this.servicePlans = this.planList.filter((p: any) => {
+          const category = (p.category || '').toLowerCase();
           return category === 'servicio';
         });
-        if (servicio) {
-          activeServiceId = servicio.pack_id || servicio.pack?.id;
-          activeServiceName = servicio.pack?.title || '';
-          this.currentServiceId = activeServiceId;
-          this.currentServiceName = activeServiceName;
-        }
-      }
 
-      if (!activeServiceId) {
-        const pts = (this.userModel as any).points;
-        if (pts?.compra?.detalles) {
-          const servicioActivo = pts.compra.detalles.find((d: any) => {
-            const category = (d.category || d.tipo || '').toLowerCase();
-            return category === 'servicio';
+        this.avatarUrl = this.userModel.file?.path
+          ? environment.hostUrl + '/storage/' + this.userModel.file?.path
+          : CONSTANTS.IMAGE.FALLBACK;
+
+        // --- BÚSQUEDA DEL PRODUCTO ACTIVO ---
+        let activePackId = null;
+        let activePackName = '';
+        
+        if (this.userModel.payment?.payment_order?.pack?.id) {
+          const pack = this.userModel.payment.payment_order.pack;
+          if ((pack as any).category?.toLowerCase() !== 'servicio') {
+            activePackId = pack.id;
+            activePackName = pack.title || '';
+          }
+        }
+
+        if (!activePackId && (this.userModel as any).payment_product_orders) {
+          const productOrders = (this.userModel as any).payment_product_orders || [];
+          const packFound = productOrders.find((o: any) => {
+            return o.pack && (o.pack as any).category?.toLowerCase() !== 'servicio';
+          });
+          if (packFound) {
+            activePackId = packFound.pack_id || packFound.pack?.id;
+            activePackName = packFound.pack?.title || '';
+          }
+        }
+
+        if (!activePackId) {
+          const pts = (this.userModel as any).points;
+          if (pts?.compra?.detalles) {
+            const packActivo = pts.compra.detalles.find((d: any) => {
+              const category = (d.category || '').toLowerCase();
+              return category !== 'servicio';
+            });
+            if (packActivo) {
+              activePackId = packActivo.pack_id || packActivo.id;
+              activePackName = packActivo.title || packActivo.pack?.title || '';
+            }
+          }
+        }
+
+        // --- BÚSQUEDA DEL SERVICIO ACTIVO ---
+        let activeServiceId = null;
+        let activeServiceName = '';
+
+        const paymentServices = (this.userModel as any).payment_services || [];
+        if (paymentServices.length > 0) {
+          const servicioActivo = paymentServices.find((s: any) => {
+            return s.state === 2 && (s.pack as any).category?.toLowerCase() === 'servicio';
           });
           if (servicioActivo) {
-            activeServiceId = servicioActivo.pack_id || servicioActivo.id;
-            activeServiceName = servicioActivo.title || servicioActivo.pack?.title || '';
-            this.currentServiceId = activeServiceId;
-            this.currentServiceName = activeServiceName;
+            activeServiceId = servicioActivo.pack_id || servicioActivo.pack?.id;
+            activeServiceName = servicioActivo.pack?.title || '';
           }
         }
-      }
 
-      // VALIDAR Y AGREGAR A LISTAS SI NO EXISTEN
-      if (activePackId) {
-        const exists = this.productPlans.some(p => p.id === activePackId);
-        if (!exists) {
-          const pack = this.planList.find(p => p.id === activePackId);
-          if (pack) {
-            this.productPlans.push(pack);
-            if (!this.currentPackName) {
-              this.currentPackName = pack.title || '';
+        if (!activeServiceId) {
+          const productOrders = (this.userModel as any).payment_product_orders || [];
+          const servicio = productOrders.find((s: any) => {
+            return s.pack && (s.pack as any).category?.toLowerCase() === 'servicio';
+          });
+          if (servicio) {
+            activeServiceId = servicio.pack_id || servicio.pack?.id;
+            activeServiceName = servicio.pack?.title || '';
+          }
+        }
+
+        if (!activeServiceId) {
+          const pts = (this.userModel as any).points;
+          if (pts?.compra?.detalles) {
+            const servicioActivo = pts.compra.detalles.find((d: any) => {
+              const category = (d.category || d.tipo || '').toLowerCase();
+              return category === 'servicio';
+            });
+            if (servicioActivo) {
+              activeServiceId = servicioActivo.pack_id || servicioActivo.id;
+              activeServiceName = servicioActivo.title || servicioActivo.pack?.title || '';
             }
           }
         }
-      }
 
-      if (activeServiceId) {
-        const exists = this.servicePlans.some(s => s.id === activeServiceId);
-        if (!exists) {
-          const service = this.planList.find(s => s.id === activeServiceId);
-          if (service) {
-            this.servicePlans.push(service);
-            if (!this.currentServiceName) {
-              this.currentServiceName = service.title || '';
+        // 🔥 GUARDAMOS LOS IDS ACTUALES PARA COMPARAR DESPUÉS
+        this.previousPackId = this.currentPackId;
+        this.previousServiceId = this.currentServiceId;
+
+        this.currentPackId = activePackId;
+        this.currentPackName = activePackName || 'Sin plan';
+        
+        this.currentServiceId = activeServiceId;
+        this.currentServiceName = activeServiceName || 'Ninguno';
+
+        // --- AGREGAR A LAS LISTAS ---
+        if (activePackId) {
+          const exists = this.productPlans.some(p => p.id === activePackId);
+          if (!exists) {
+            const pack = this.planList.find(p => p.id === activePackId);
+            if (pack) {
+              this.productPlans.push(pack);
+              if (!this.currentPackName) {
+                this.currentPackName = pack.title || '';
+              }
             }
           }
         }
-      }
 
-      // PATCHEAR VALORES
-      this.validateForm.patchValue({
-        fullname: this.userModel.name,
-        packActive: activePackId,
-        serviceActive: activeServiceId
-      });
-    });
+        if (activeServiceId) {
+          const exists = this.servicePlans.some(s => s.id === activeServiceId);
+          if (!exists) {
+            const service = this.planList.find(s => s.id === activeServiceId);
+            if (service) {
+              this.servicePlans.push(service);
+              if (!this.currentServiceName) {
+                this.currentServiceName = service.title || '';
+              }
+            }
+          }
+        }
+
+        // --- PATROCINADOR ---
+        let currentSponsor = '';
+        if (this.userModel.payment?.payment_order?.sponsor_code) {
+          currentSponsor = this.userModel.payment.payment_order.sponsor_code;
+        } else if ((this.userModel as any).sponsor_code) {
+          currentSponsor = (this.userModel as any).sponsor_code;
+        }
+
+        // --- PATCH ---
+        this.validateForm.patchValue({
+          fullname: this.userModel.name,
+          packActive: activePackId,
+          serviceActive: activeServiceId,
+          sponsorNew: currentSponsor
+        });
+      },
+      (error) => {
+        console.error('Error al cargar planes:', error);
+      }
+    );
   }
 
   public getPackName(): string {
@@ -238,8 +283,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     );
   }
 
- public fileChangeEvent(event: any): void {
-    // Se elimina 'nzDestroyOnClose' ya que el servicio destruye el componente de forma nativa
+  public fileChangeEvent(event: any): void {
     let modal = this.nzModalService.create({
       nzContent: ImageCropperUploadComponent,
       nzTitle: 'Imagen para cortar',
@@ -264,6 +308,14 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     });
   }
 
+  public onPackChange(value: number): void {
+    this.validateForm.get('packActive')?.setValue(value === 0 ? null : value);
+  }
+
+  public onServiceChange(value: number): void {
+    this.validateForm.get('serviceActive')?.setValue(value === 0 ? null : value);
+  }
+
   private resetLocalState(): void {
     this.showPackEdit = false;
     this.showServiceEdit = false;
@@ -275,19 +327,18 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   public onSave(): void {
-    const packValue = this.validateForm.get('packActive')?.value;
-    const serviceValue = this.validateForm.get('serviceActive')?.value;
+    let packValue = this.validateForm.get('packActive')?.value;
+    let serviceValue = this.validateForm.get('serviceActive')?.value;
     const sponsorValue = this.validateForm.get('sponsorNew')?.value;
 
-    if (this.userModel.payment == null) {
-      const hasNoProduct = (!packValue || packValue == null);
-      const hasNoService = (!serviceValue || serviceValue == null);
+    if (packValue === 0 || packValue === '0' || packValue === null || packValue === undefined) packValue = null;
+    if (serviceValue === 0 || serviceValue === '0' || serviceValue === null || serviceValue === undefined) serviceValue = null;
 
-      if (hasNoProduct && hasNoService) {
+    if (this.userModel.payment == null) {
+      if (!packValue && !serviceValue) {
         this.modalService.warning("Seleccione al menos un Producto o una Membresía de Servicio.");
         return;
       }
-
       if (!sponsorValue) {
         this.modalService.warning("El código del patrocinador es requerido para la primera activación.");
         return;
@@ -301,17 +352,31 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
       userFullName: this.validateForm.get('fullname')?.value,
       packId: packValue,
       serviceId: serviceValue,
-      sponsorNew: sponsorValue ?? "",
-      currentPackId: this.currentPackId,
-      currentServiceId: this.currentServiceId
+      sponsorNew: sponsorValue || ""
     };
 
     this.apiService.postUserModify(payload).subscribe(
       () => {
         this.resetLocalState();
-        this.nzModalService.closeAll();
-        this.modalService.success("¡Usuario actualizado con éxito!");
+        
+        // 🔥 MENSAJES DE ÉXITO PERSONALIZADOS SEGÚN LO QUE SE HAYA ACTUALIZADO
+        let successMessage = "¡Usuario actualizado con éxito!";
+        const packChanged = packValue !== null && packValue !== this.previousPackId;
+        const serviceChanged = serviceValue !== null && serviceValue !== this.previousServiceId;
+
+        if (packChanged && serviceChanged) {
+          successMessage = "Producto y Servicio actualizados y activados correctamente.";
+        } else if (packChanged) {
+          successMessage = "Producto activado correctamente.";
+        } else if (serviceChanged) {
+          successMessage = "Servicio activado correctamente.";
+        }
+        
+        this.modalService.success(successMessage);
         this.loadingSave = false;
+
+        // 🔥 CERRAMOS EL MODAL Y LE DECIMOS AL PADRE QUE RECARGUE LA TABLA
+        this.nzModalService.closeAll();
         this.back.emit((new Date()).getTime());
       },
       (error) => {
