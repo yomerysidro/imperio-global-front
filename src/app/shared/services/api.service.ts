@@ -350,4 +350,13 @@ export class ApiService {
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
     return this.httpService.post<IResponse<any>>( '/payment-product/cash-confirm' , command ).pipe(tap( res => res ));
   }
+
+  // 🔥 NUEVO MÉTODO: Obtiene un usuario específico por su código (uuid) usando el endpoint find-all
+  public getUserByCode(code: string): Observable<IResponse< IResponsePaginationModel< Array<UserModel> >>> {
+    let url = stringFormat('/users/find-all');
+    let httpParams = new HttpParams({
+      fromObject: { code: code, limit: 1, page: 1 }
+    });
+    return this.httpService.get<IResponse< IResponsePaginationModel< Array<UserModel> >>>(url, { params: httpParams }).pipe(tap(res => res));
+  }
 }
