@@ -1,223 +1,999 @@
-<div class="row mb-3 p-t-40" id="inicio-section">
+<!-- ================================================================ -->
+<!-- 1. HERO BANNER (Inicio)                                          -->
+<!-- ================================================================ -->
+<div class="row mb-5 p-t-40" id="inicio-section">
   <div class="col-12">
-    <section class="pt-5 banner--home-section position-relative">
-      <div class="row banner--home"
-        style="background-image: url('assets/images/42091bef618c8e50f365fc5f5bca433e.jpg');">
-        <div class="col-md-6 banner--home--text">
-          <h4 class="text-white fw-bold d-none d-lg-block">Plan de prosperidad y Abundancia</h4>
-          <h1 class="text-white fw-bold text--title--banner">Imperio Global
-            Multinivel líder en
-            Sudamérica</h1>
-          <h4 class="text-white fw-bold d-none d-lg-block" style="opacity: .7;">Somos una empresa 100% peruana cuya
-            función
-            es brindarte bienestar con productos de alta calidad
-            Contamos con planes exclusivos para Afiliados</h4>
-
-          <a href="https://api.whatsapp.com/send?phone=51997245632" target="_blank"
-            class="btn btn-sm btn-image-wrapper d-none d-lg-inline-block"
-            style="background-color: #FFF; border-radius: 10px;">
-            <svg width="20" height="20" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_572_16851)">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                  d="M109.402 18.5952C97.5369 6.65184 81.3849 -0.0446652 64.5502 0.000224237C29.5979 0.000224237 1.15213 28.443 1.13997 63.4043C1.12505 74.5312 4.04469 85.4651 9.60437 95.1035L0.60791 127.964L34.2223 119.147C43.5185 124.212 53.9364 126.866 64.523 126.866H64.5502C99.4964 126.866 127.945 98.4203 127.957 63.4592C128.012 46.6266 121.33 30.4718 109.402 18.5952ZM93.458 76.6693C91.874 75.8757 84.0846 72.0453 82.6313 71.5008C81.178 70.9568 80.123 70.7072 79.0681 72.2944C78.0132 73.8816 74.9758 77.448 74.0516 78.5061C73.1273 79.5637 72.203 79.6944 70.6185 78.9013C69.0345 78.1077 63.93 76.4352 57.8766 71.0389C53.167 66.8368 49.9715 61.6501 49.0594 60.0629C48.1473 58.4757 48.9621 57.6304 49.7557 56.8277C50.4671 56.1195 51.3397 54.9792 52.1302 54.0523C52.9207 53.1248 53.1883 52.4681 53.714 51.41C54.2404 50.352 53.9785 49.4277 53.5833 48.6341C53.1883 47.8406 50.0171 40.042 48.6976 36.8709C47.4115 33.7819 46.1072 34.1984 45.1343 34.1346C44.2222 34.089 43.1519 34.0798 42.0939 34.0798C40.4703 34.1223 38.9383 34.8409 37.8678 36.0622C36.4175 37.6492 32.3252 41.4801 32.3252 49.2787C32.3252 57.0773 38.0015 64.6112 38.792 65.6693C39.5826 66.7275 49.9654 82.7291 65.8516 89.5941C68.802 90.8667 71.8169 91.9829 74.8846 92.9387C78.6788 94.1547 82.1326 93.9755 84.8628 93.568C87.9033 93.112 94.2366 89.7339 95.5588 86.0336C96.8814 82.3339 96.8788 79.1595 96.4713 78.4997C96.0638 77.84 95.042 77.4752 93.458 76.6816V76.6693Z"
-                  fill="#2566AF" />
-              </g>
-              <defs>
-                <clipPath id="clip0_572_16851">
-                  <rect width="128" height="128" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-            &nbsp; <span class="align-middle">Contacta con Nosotros</span></a>
+    <section class="hero-banner">
+      <div class="hero-content">
+        <div class="hero-text">
+          <span class="hero-badge">PLAN DE PROSPERIDAD Y ABUNDANCIA</span>
+          <h1>Tu camino hacia la <br><span class="text-highlight">prosperidad total</span></h1>
+          <p>Imperio Global, red de networking líder en Sudamérica. Construye un negocio sólido con productos de alto impacto y un sistema educativo de élite.</p>
+          
+          <div class="hero-buttons">
+            <!-- Botón Únete ahora (Abre WhatsApp) -->
+            <a href="javascript: void(0)" class="btn btn-primary-custom" (click)="joinNowWhatsApp()">Únete ahora</a>
+            
+            <!-- Botón Descubre los planes (Desplaza a la sección de Planes) -->
+            <a href="javascript: void(0)" class="btn btn-outline-custom" (click)="goToPlans()">Descubre los planes</a>
+          </div>
+          
+          <div class="hero-tags">
+            <span class="tag-peruana">100% Peruana</span>
+            <span class="tag-text">+10 años de experiencia en networking</span>
+          </div>
         </div>
-        <div class="col-md-6 col-12 banner--home--photo"
-          style="background-image: url('assets/images/fe687ef0f0d48ebe6480edc6849a6af3.png');">
 
+        <div class="hero-visual">
+          <div class="hero-image-wrapper">
+            <img src="assets/images/fe687ef0f0d48ebe6480edc6849a6af3.png" alt="CEO Imperio Global">
+          </div>
+          <div class="hero-stats">
+            <div class="stat-box"><h3>10+</h3><p>Productos de salud<br>y educación</p></div>
+            <div class="stat-box"><h3>2500+</h3><p>Clientes satisfechos<br>a nivel nacional</p></div>
+            <div class="stat-box"><h3>10+</h3><p>Años de experiencia<br>en networking</p></div>
+          </div>
         </div>
       </div>
     </section>
-    <div class="text-center d-block d-md-none mt-4">
-      <a nz-button nzType="default" class="btn-image-wrapper mb-4" [routerLink]="'/auth/login'">
-        Crea o ingresa a tu cuenta
-      </a>
-    </div>
-
   </div>
 </div>
 
-<div class="row mb-5">
-  <div class="col-5 d-none d-lg-block">
-    <div class="row">
-      <div class="col-4">
-        <h1 class="mb-2">10+</h1>
-        <p class="fs-14 lh-sm">Productos
-          de salud y Educación</p>
-      </div>
-      <div class="col-4">
-        <h1 class="mb-2">2500+</h1>
-        <p class="fs-14 lh-sm">clientes satisfechos
-          en Lima metropolitana</p>
-      </div>
-      <div class="col-4">
-        <h1 class="mb-2">10+</h1>
-        <p class="fs-14 lh-sm">Años de experiencia
-          en Networking</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-7 col-12">
-    <div class="row">
-      <div class="col-6">
-        <section
-          class="d-flex align-items-center btn-box-shadow rounded justify-content-between flex-row card-stylist-short--section">
-          <div class="d-flex align-items-center">
-            <img nz-image [nzSrc]="'assets/images/imagenes_imperio/imagen 2.png'" class="img-profesional">
-            <div class="ps-2">
-              <p class="mb-0"><b>Red de mercadeo</b></p>
-              <p style="margin: 0;">afiliados</p>
-            </div>
-          </div>
-          <button nz-button nzType="primary" class="btn-secondary border-0 d-none d-md-block">Select</button>
-        </section>
-      </div>
-      <div class="col-6">
-        <section
-          class="d-flex align-items-center btn-box-shadow rounded justify-content-between flex-row card-stylist-short--section">
-          <div class="d-flex align-items-center">
-            <img nz-image [nzSrc]="'assets/images/imagenes_imperio/imagen 1.png'" class="img-profesional">
-            <div class="ps-2">
-              <p class="mb-0"><b>Productos Naturales</b></p>
-              <p style="margin: 0;">cuidado personal</p>
-            </div>
-          </div>
-          <button nz-button nzType="primary" class="btn-secondary border-0 d-none d-md-block">Select</button>
-        </section>
-      </div>
-    </div>
-  </div>
-</div>
 
+
+<!-- ================================================================ -->
+<!-- 2. NUESTROS PLANES DE AFILIACIÓN (4 en Fila)                      -->
+<!-- ================================================================ -->
 <div id="planes-section" class="mb-5">
-
-  <div class="row p-50 text-center" style="background-color: #215EE9;">
-    <h1 class="text-white lh-1 mb-3 large-h1--title">NUESTRO PLANES DE AFILIACIÓN: <br>
-      INDUSTRIA NETWORKER</h1>
-    <h2 class="text-white large-h2--subtitle">Llevamos la abundancia a tu hogar</h2>
+  
+  <div class="section-header">
+    <h1>NUESTROS <span class="badge-title">PLANES DE AFILIACIÓN</span></h1>
+    <p>Elige el pack que mejor se adapte a tu meta y construye tu franquicia IMPERIO GLOBAL.</p>
   </div>
 
-  <div class="row text-center planes--section--title">
-    <h1 class="lh-1 mb-5 title--planes">Inicia tu negocio como franquiciante y gana</h1>
-    <h2 class="d-none d-md-block" style="color: #717171; font-size: 25px;">Somos IMPERIO GLOBAL, una empresa 100% Peruana, Cuya función es brindarte Bienestar con Productos de alta calidad,contando con un sistema educativo en Liderazgo. (Fundado el 10 de febrero del 2022). Conviértete en dueño de una franquicia y gana por lo que genera tu Red.</h2>
-  </div>
-
-  <div class="row">
-    <div class="col-12">
-      <nz-carousel 
-        nzEffect="scrollx" 
-        [nzAutoPlay]="false"
-        [nzDotPosition]="'bottom'"
-        class="plans-carousel"
-      >
-        <div nz-carousel-content *ngFor="let plan of planList" class="carousel-slide">
-          <div class="plan-card">
-            <div class="mb-4">
-              <img [src]="env.hostUrl + '/storage/' + plan.file.path" alt="" class="img-fluid rounded">
+  <div class="container py-5">
+    <div class="row g-4 justify-content-center">
+      
+      <!-- ========================================== -->
+      <!-- PLAN DIAMANTE                               -->
+      <!-- ========================================== -->
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card-new pack-diamante">
+          <div class="plan-header">
+            <div class="plan-title-box"><h3>PACK<br>DIAMANTE</h3></div>
+          </div>
+          <div class="plan-price-box">
+            <span class="price-pill">S/ 1,220</span>
+            <span class="points-pill">1,000<br>pts</span>
+            <span class="discount-text">45%</span>
+          </div>
+          <div class="plan-body">
+            <div class="plan-img-container">
+              <img src="assets/images/planes/PackDiamante.png" alt="Pack Diamante">
             </div>
-            <div class="text-center">
-              <a [routerLink]="'/admin/membership-plan'" class="btn p-5 btn-primary bg-rojo btn-md">Comprar</a>
+            <div class="plan-benefits">
+              <ul>
+                <li>12 Productos</li>
+                <li>Oficina Virtual</li>
+                <li>Libro Educativo</li>
+                <li>45% Desct.</li>
+              </ul>
+            </div>
+            <div class="plan-action">
+              <a href="javascript: void(0)" class="btn btn-plan-action" (click)="buyWhatsApp('Pack Diamante', 1220, 1)">Elegir Pack Diamante</a>
             </div>
           </div>
         </div>
-      </nz-carousel>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PLAN EMPRESARIO                             -->
+      <!-- ========================================== -->
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card-new pack-empresario">
+          <div class="plan-header">
+            <div class="plan-title-box"><h3>PACK<br>EMPRESARIO</h3></div>
+          </div>
+          <div class="plan-price-box">
+            <span class="price-pill">S/ 440</span>
+            <span class="points-pill">340<br>pts</span>
+            <span class="discount-text">45%</span>
+          </div>
+          <div class="plan-body">
+            <div class="plan-img-container">
+              <img src="assets/images/planes/PackEmpresario.png" alt="Pack Empresario">
+            </div>
+            <div class="plan-benefits">
+              <ul>
+                <li>4 Productos</li>
+                <li>Oficina Virtual</li>
+                <li>45% Desct.</li>
+              </ul>
+            </div>
+            <div class="plan-action">
+              <a href="javascript: void(0)" class="btn btn-plan-action" (click)="buyWhatsApp('Pack Empresario', 440, 1)">Elegir Pack Empresario</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PACK INTERNACIONAL (NUEVO ICONO + MODAL)     -->
+      <!-- ========================================== -->
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card-new pack-constructor">
+          <div class="plan-header">
+            <div class="plan-title-box"><h3>PACK<br>INTERNACIONAL</h3></div>
+          </div>
+          
+          <div class="plan-price-box">
+            <span class="price-pill">S/ 150</span>
+            <span class="points-pill" style="border-left: none; border-right: 1px solid #e2e8f0;">$ 45</span>
+            <span class="discount-text">150 PTS</span>
+          </div>
+          
+          <div class="plan-body">
+            <!-- NUEVO ICONO: IMAGEN PNG DEL GLOBO DE BANDERAS -->
+            <div class="plan-img-container">
+              <img src="assets/images/planes/internacional.png" alt="Globo Internacional" style="max-height: 100px; object-fit: contain;">
+            </div>
+            
+            <!-- Lista CORTA (Resumen) -->
+            <div class="plan-benefits">
+              <ul>
+                <li>Marketing digital y publicidad</li>
+                <li>Marca personal y dropshipping</li>
+                <li>Capacitación en Forex y Bienes raíces</li>
+                <li>Y muchos más beneficios...</li>
+              </ul>
+            </div>
+
+            <div class="plan-action">
+              <a href="javascript: void(0)" class="btn btn-plan-action" (click)="buyWhatsApp('Pack Internacional', 150, 1)">Elegir Pack Internacional</a>
+              <button class="btn btn-view-more" (click)="openConstructorModal()">Ver todos los beneficios</button>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL -->
+          <div class="local-modal-overlay" *ngIf="isConstructorModalOpen">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Todos los beneficios</h4>
+                <h3 class="text-primary">Pack Internacional</h3>
+                <button class="modal-close-btn" (click)="closeConstructorModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Liderazgo nivel básico, intermedio y avanzado</li>
+                  <li><span class="check-icon">✓</span> Ventas básico al nivel experto</li>
+                  <li><span class="check-icon">✓</span> Marketing digital y publicidad RRSS</li>
+                  <li><span class="check-icon">✓</span> Marca personal, dropshipping, hotmart</li>
+                  <li><span class="check-icon">✓</span> Obtener el 40% descuento de productos</li>
+                  <li><span class="check-icon">✓</span> Código Hereditario</li>
+                  <li><span class="check-icon">✓</span> Capacitación BTC Volsa, Forex, Bienes raíces</li>
+                  <li><span class="check-icon">✓</span> Capacitación en declaraciones de IGV (Sunat)</li>
+                  <li><span class="check-icon">✓</span> Cursos de política (constitución política)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PLAN CONSUMIDOR (CON 3 PUNTOS)              -->
+      <!-- ========================================== -->
+      <div class="col-lg-3 col-md-6">
+        <div class="plan-card-new pack-consumidor">
+          <div class="plan-header">
+            <div class="plan-title-box"><h3>PACK<br>CONSUMIDOR</h3></div>
+          </div>
+          <div class="plan-price-box">
+            <span class="price-pill">S/ 120</span>
+            <span class="points-pill">100<br>pts</span>
+            <span class="discount-text">36.5%</span>
+          </div>
+          <div class="plan-body">
+            <div class="plan-img-container icon-container">
+              <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#215EE9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path>
+                <path d="M5 20v-2a7 7 0 0 1 14 0v2"></path>
+                <rect x="3" y="12" width="18" height="10" rx="2"></rect>
+                <line x1="8" y1="16" x2="16" y2="16"></line>
+              </svg>
+            </div>
+            <div class="plan-benefits">
+              <ul>
+                <li>Oficina Virtual</li>
+                <li>Crecimiento Personal</li>
+                <li>Liderazgo</li>
+              </ul>
+            </div>
+            <div class="plan-action">
+              <a href="javascript: void(0)" class="btn btn-plan-action" (click)="buyWhatsApp('Pack Consumidor', 120, 1)">Elegir Pack Consumidor</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <div class="row p-50 text-center">
-    <div class="col-12">
-      <section class="w-100 p-20 text-center section--gray--border">
-        <h3 class="text-neutral-grey mb-5" style="font-size: 20px;">Afíliate y gana a través Bono de venta directa, Bono flash, Bono de red de mercadeo, venta de reconsumo</h3>
-        <h3 class="text-black-lht" style="font-size: 25px;"><a href="assets/pdf/PDF IMPERIO GLOBAL 2024.pdf" download>Mas información +</a></h3>
-      </section>
+<!-- ================================================================ -->
+<!-- 3. NUESTROS PRODUCTOS (11 Productos - Grid automático)           -->
+<!-- ================================================================ -->
+<div id="productos-section" class="mb-5">
+  <div class="section-header bg-white">
+    <h1>NUESTROS <span class="badge-title">PRODUCTOS</span></h1>
+    <p>Productos nutricionales y de bienestar para cuidar tu salud y potenciar tu proyecto empresarial.</p>
+  </div>
+
+  <div class="container py-4">
+    <div class="row g-4">
+      
+      <!-- ==================== FILA 1 - NUEVOS INGRESOS ==================== -->
+      
+      <!-- NUEVO PRODUCTO 1: BIO IMPERIO -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card" style="position: relative;">
+            <!-- ETIQUETA DE NUEVO INGRESO (Posición corregida) -->
+            <div style="position: absolute; top: 0; right: 0; background: #ff4757; color: white; padding: 6px 14px; border-radius: 0 16px 0 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.2);">
+              NUEVO INGRESO
+            </div>
+
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0" style="padding-right: 10px;">BIO IMPERIO</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/bio.png" alt="Bio Imperio">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Salud Digestiva</span>
+              <p>Premium Probiotics [50 Billion CFU]. Equilibra tu flora intestinal y fortalece tu bienestar general.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="productNew1Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('BIO IMPERIO', 182.00, productNew1Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(10)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL NUEVO PRODUCTO 1 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 10">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">BIO IMPERIO</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Favorece bacterias buenas y mejora la salud digestiva.</li>
+                  <li><span class="check-icon">✓</span> Ayuda a reducir hinchazón, gases y malestar estomacal.</li>
+                  <li><span class="check-icon">✓</span> Apoya el sistema inmunológico desde el intestino.</li>
+                  <li><span class="check-icon">✓</span> Optimiza el aprovechamiento de proteínas y vitaminas.</li>
+                  <li><span class="check-icon">✓</span> Contribuye a combatir el estrés oxidativo y apoyar la depuración del organismo.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NUEVO PRODUCTO 2: MORINGA VIT IMPERIO -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card" style="position: relative;">
+            <!-- ETIQUETA DE NUEVO INGRESO -->
+            <div style="position: absolute; top: 0; right: 0; background: #ff4757; color: white; padding: 6px 14px; border-radius: 0 16px 0 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.2);">
+              NUEVO INGRESO
+            </div>
+
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0" style="padding-right: 10px;">MORINGA VIT IMPERIO</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/moringa.png" alt="Moringa Vit Imperio">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Aceite de Moringa</span>
+              <p>Aceite de moringa que fortalece piel, cabello y sistema inmune. El milagro de la naturaleza en una botella.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="productNew2Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('MORINGA VIT IMPERIO', 182.00, productNew2Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(11)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL NUEVO PRODUCTO 2 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 11">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">MORINGA VIT IMPERIO</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Antioxidante y antiinflamatorio.</li>
+                  <li><span class="check-icon">✓</span> Mejora la salud de la piel.</li>
+                  <li><span class="check-icon">✓</span> Salud articular y cardiovascular.</li>
+                  <li><span class="check-icon">✓</span> Regulación de glucosa y alivio digestivo.</li>
+                  <li><span class="check-icon">✓</span> Salud cerebral y cabello saludable.</li>
+                  <li><span class="check-icon">✓</span> Vitalidad, energía y control de peso.</li>
+                  <li><span class="check-icon">✓</span> Nutrición esencial y cicatrizante.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PRODUCTOS ORIGINALES (9 en total) ==================== -->
+      
+      <!-- Producto 1 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 91.00</span>
+              <h4 class="product-title m-0">ADELGAZANTE FILTRANTE</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/adelgazante.png" alt="Adelgazante">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Control de peso</span>
+              <p>Filtro natural a base de té verde, ginseng y jengibre para ayudar a perder peso de forma natural y desintoxicar el organismo.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product1Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('ADELGAZANTE FILTRANTE', 91.00, product1Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(1)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 1 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 1">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">ADELGAZANTE FILTRANTE</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Ayuda a perder peso de forma natural.</li>
+                  <li><span class="check-icon">✓</span> Olvídate de los kilos extra.</li>
+                  <li><span class="check-icon">✓</span> Fortalecimiento del sistema inmunológico.</li>
+                  <li><span class="check-icon">✓</span> Desintoxica tu organismo y corrige problemas del acné.</li>
+                  <li><span class="check-icon">✓</span> Controla la presión arterial.</li>
+                  <li><span class="check-icon">✓</span> Reduce el colesterol y triglicéridos.</li>
+                  <li><span class="check-icon">✓</span> Acelera el metabolismo.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 2 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">LIMPIEZA POTENCIAL (LP)</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/lp.png" alt="Limpieza Potencial">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Detox</span>
+              <p>Fórmula con tamarindo, moringa y L-carnitina que limpia y desinflama el colon, eliminando toxinas y mejorando la absorción de nutrientes.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product2Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('LIMPIEZA POTENCIAL (LP)', 182.00, product2Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(2)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 2 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 2">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">LIMPIEZA POTENCIAL (LP)</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Elimina el estreñimiento.</li>
+                  <li><span class="check-icon">✓</span> Limpia y desinflama el colon.</li>
+                  <li><span class="check-icon">✓</span> Reduce los niveles de colesterol y triglicéridos.</li>
+                  <li><span class="check-icon">✓</span> Elimina toxinas y tránsito lento.</li>
+                  <li><span class="check-icon">✓</span> Cicatriza heridas internas (Gastritis y úlceras).</li>
+                  <li><span class="check-icon">✓</span> Mejora la absorción de nutrientes.</li>
+                  <li><span class="check-icon">✓</span> Delicioso sabor a tamarindo.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 3 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 91.00</span>
+              <h4 class="product-title m-0">AGUA ALCALINA OZONIZADA</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/agua.png" alt="Agua Alcalina">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Hidratación</span>
+              <p>Agua alcalina ozonizada que ayuda a desintoxicar el organismo, mejorar la hidratación, equilibrar el pH y cuidar el sistema digestivo.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product3Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('AGUA ALCALINA OZONIZADA', 91.00, product3Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(3)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 3 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 3">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">AGUA ALCALINA OZONIZADA</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Ayuda a retrasar la oxidación de las células.</li>
+                  <li><span class="check-icon">✓</span> Desintoxica el organismo.</li>
+                  <li><span class="check-icon">✓</span> Mejora la hidratación.</li>
+                  <li><span class="check-icon">✓</span> Equilibra el pH del cuerpo.</li>
+                  <li><span class="check-icon">✓</span> Ayuda en el cuidado de la piel.</li>
+                  <li><span class="check-icon">✓</span> Mejora el sistema inmunológico.</li>
+                  <li><span class="check-icon">✓</span> Reduce los niveles de glucosa en la sangre.</li>
+                  <li><span class="check-icon">✓</span> Cuida el sistema digestivo.</li>
+                  <li><span class="check-icon">✓</span> Elimina el estreñimiento.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 4 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">SACHA JERGÓN</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/sacha.png" alt="Sacha Jergón">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Sistema inmune</span>
+              <p>Suplemento amazónico que fortalece el sistema inmunológico y apoya procesos inflamatorios y respiratorios.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product4Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('SACHA JERGÓN', 182.00, product4Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(4)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 4 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 4">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">SACHA JERGÓN</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Anticanceroso.</li>
+                  <li><span class="check-icon">✓</span> Antitumoral.</li>
+                  <li><span class="check-icon">✓</span> Antiinflamatorio.</li>
+                  <li><span class="check-icon">✓</span> Tuberculosis.</li>
+                  <li><span class="check-icon">✓</span> Hígado - hepatitis.</li>
+                  <li><span class="check-icon">✓</span> Gastritis.</li>
+                  <li><span class="check-icon">✓</span> Úlceras.</li>
+                  <li><span class="check-icon">✓</span> Cervicitis.</li>
+                  <li><span class="check-icon">✓</span> Tos y bronquios.</li>
+                  <li><span class="check-icon">✓</span> Asma.</li>
+                  <li><span class="check-icon">✓</span> Problemas respiratorios.</li>
+                  <li><span class="check-icon">✓</span> Contra el VIH.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 5 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">POWER ENERGY</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/power.png" alt="Power Energy">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Energizante</span>
+              <p>Mezcla energizante con maca, guaraná, camu camu, acai y otros frutos que reduce la fatiga mental y aporta energía natural.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product5Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('POWER ENERGY', 182.00, product5Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(5)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 5 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 5">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">POWER ENERGY</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Reduce la fatiga mental gracias al extracto de guaraná.</li>
+                  <li><span class="check-icon">✓</span> Mejora la circulación sanguínea.</li>
+                  <li><span class="check-icon">✓</span> Aporta ENERGÍA NATURAL.</li>
+                  <li><span class="check-icon">✓</span> Fortalece las defensas del cuerpo.</li>
+                  <li><span class="check-icon">✓</span> Previene ansiedad, angustia y estrés.</li>
+                  <li><span class="check-icon">✓</span> Mejora la conducción nerviosa.</li>
+                  <li><span class="check-icon">✓</span> Ayuda con migrañas y dolores de cabeza.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 6 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">SÚPER OMEGA 3-6-9</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/omega.png" alt="Súper Omega 3-6-9">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Cerebro y corazón</span>
+              <p>Cápsulas de aceite de Sacha Inchi y otros omegas que contribuyen al funcionamiento normal del corazón, la visión y el cerebro.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product6Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('SÚPER OMEGA 3-6-9', 182.00, product6Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(6)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 6 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 6">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">SÚPER OMEGA 3-6-9</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Ayuda al funcionamiento normal del Corazón.</li>
+                  <li><span class="check-icon">✓</span> Mantiene la Visión en condiciones normales.</li>
+                  <li><span class="check-icon">✓</span> Contribuye y protege al desarrollo Cerebral.</li>
+                  <li><span class="check-icon">✓</span> Ayuda a luchar contra el estrés oxidativo.</li>
+                  <li><span class="check-icon">✓</span> Disminuye el riesgo del Alzheimer.</li>
+                  <li><span class="check-icon">✓</span> Reduce el colesterol y los triglicéridos.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 7 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">COLÁGENO HIDROLIZADO</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/colageno.png" alt="Colágeno Hidrolizado">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Belleza · Articulaciones</span>
+              <p>Colágeno hidrolizado con camu camu, magnesio y zinc que apoya la salud de piel, articulaciones y huesos, ayudando a prevenir el envejecimiento.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product7Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('COLÁGENO HIDROLIZADO', 182.00, product7Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(7)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 7 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 7">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">COLÁGENO HIDROLIZADO</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Ayuda a retrasar el proceso del envejecimiento.</li>
+                  <li><span class="check-icon">✓</span> Colabora en la fijación de calcio en los huesos.</li>
+                  <li><span class="check-icon">✓</span> Proteína responsable de la elasticidad de la piel.</li>
+                  <li><span class="check-icon">✓</span> Ayuda a combatir la flacidez.</li>
+                  <li><span class="check-icon">✓</span> Contribuye al fortalecimiento y regeneración de músculos y ligamentos.</li>
+                  <li><span class="check-icon">✓</span> Previene enfermedades como la artrosis.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 8 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">CAPPUCCINO STAR</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/capuchino.png" alt="Cappuccino Star">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Nutrición · Café funcional</span>
+              <p>Café orgánico con moringa, espirulina, aceite de coco y ganoderma que brinda energía y protege el sistema inmunológico.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product8Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('CAPPUCCINO STAR', 182.00, product8Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(8)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 8 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 8">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">CAPPUCCINO STAR</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Promueve la regeneración de células hepáticas.</li>
+                  <li><span class="check-icon">✓</span> Estimula y refuerza el sistema inmunológico.</li>
+                  <li><span class="check-icon">✓</span> Previene el daño celular del cerebro.</li>
+                  <li><span class="check-icon">✓</span> Brinda energía y rejuvenece.</li>
+                  <li><span class="check-icon">✓</span> Relaja el sistema nervioso.</li>
+                  <li><span class="check-icon">✓</span> Excelente antioxidante.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 9 (Original) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 70.00</span>
+              <h4 class="product-title m-0">"ACCCIONA CARAJO"</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/acciona.jpeg" alt="Acciona Carajo">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Educación · Liderazgo</span>
+              <p>Libro de desarrollo personal y liderazgo que complementa el sistema educativo de Imperio Global.</p>
+            </div>
+            
+            <!-- ACCIONES EN UNA SOLA LÍNEA -->
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product9Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('ACCCIONA CARAJO', 70.00, product9Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(9)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 9 -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 9">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">"ACCCIONA CARAJO"</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Desarrollo personal.</li>
+                  <li><span class="check-icon">✓</span> Liderazgo.</li>
+                  <li><span class="check-icon">✓</span> Superación.</li>
+                  <li><span class="check-icon">✓</span> Mentalidad de éxito.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- 4. QUIÉNES SOMOS                                                 -->
+<!-- ================================================================ -->
+<div id="about-section" class="mb-5">
+  <div class="section-header bg-white">
+    <h1>QUIÉNES <span class="badge-title">SOMOS</span></h1>
   </div>
   
-  <div class="row p-50 text-center" style="background-color: #215EE9;">
-    <h1 class="text-white lh-1 mb-3 large-h1--title">PRODUCTOS NATURALES Y CUIDADO PERSONAL</h1>
-    <h2 class="text-white large-h2--subtitle d-none d-block-md">Los productos vienen con la compra de cada paquete de afiliación, Cuenta con registro en Digesa.</h2>
+  <div class="container text-center mb-5">
+    <p class="about-text">Somos IMPERIO GLOBAL, una empresa 100% peruana cuya función es brindar bienestar con productos de alta calidad, contando con un sistema educativo del ser en liderazgo disruptivo propio.<br>
+    <strong class="text-blue">Fundada el 10 de febrero del 2022.</strong></p>
   </div>
-</div>
 
-<div id="productos-section" class="productos--section mb-5">
-  <app-services></app-services>
-</div>
-
-<div id="contact-section" class="">
-  <div class="row p-50 text-center" style="background-color: #215EE9;">
-    <h1 class="text-white lh-1 mb-3 large-h1--title">CANALES DE CONTACTO</h1>
-    <h2 class="text-white large-h2--subtitle">Llevamos productos de salud a tu hogar</h2>
-  </div>
-  <div class="row p-50 text-center">
-    <div class="col-12 mb-5">
-      <img src="assets/images/contacto.jpeg" alt="" class="img-fluid" style="border-radius: 20px;">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="info-card border-blue-card">
+          <h4>¡Visión!</h4>
+          <p>Crear la mayor cantidad de empresarios líderes de impacto social que ayuden a transformar vidas en todo el mundo.<br>Contando con líneas como nutrición, cosmética y belleza, y bienes raíces.</p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="info-card border-green-card">
+          <h4>¡Misión!</h4>
+          <p>Ser una empresa que responda a las necesidades de cada persona en su salud y economía, brindando la oportunidad de ayudar con pasión y lealtad para alcanzar sus sueños.</p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="info-card border-orange-card">
+          <h4>¡Objetivos!</h4>
+          <p>Despertar líderes de servicio con valores, ética, humildad y responsabilidad mediante un sistema educativo del ser y liderazgo disruptivo.<br>Formar una nueva generación global cuyas historias inspiren a otros.</p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="info-card border-purple-card">
+          <h4>¡Filosofía!</h4>
+          <p class="text-center fw-bold fs-5">DIOS, FAMILIA Y LEGADO.</p>
+        </div>
+      </div>
     </div>
-    <div class="col-12 mb-3 text-center">
-      <p class="text-neutral-grey fs-16 ff-poppins">Ponte en contacto con nosotros</p>
-      <p>
-        <svg xmlns="http://www.w3.org/2000/svg" width="51" height="51" viewBox="0 0 51 51" fill="none">
-          <path
-            d="M42.041 23.0886H46.2393C46.2393 12.3199 38.1092 4.19824 27.3258 4.19824V8.39658C35.8526 8.39658 42.041 14.5744 42.041 23.0886Z"
-            fill="#333333" />
-          <path
-            d="M27.3468 16.7934C31.7613 16.7934 33.6443 18.6763 33.6443 23.0909H37.8426C37.8426 16.3211 34.1166 12.595 27.3468 12.595V16.7934ZM34.5301 28.2191C34.1267 27.8525 33.5967 27.657 33.0519 27.6738C32.5071 27.6907 31.9901 27.9186 31.6102 28.3094L26.5869 33.4754C25.3777 33.2445 22.9469 32.4867 20.4447 29.9908C17.9425 27.4865 17.1847 25.0494 16.9601 23.8487L22.1219 18.8233C22.5132 18.4436 22.7415 17.9265 22.7583 17.3816C22.7752 16.8366 22.5793 16.3064 22.2122 15.9033L14.4558 7.3744C14.0885 6.97001 13.5781 6.72472 13.0329 6.69062C12.4876 6.65652 11.9506 6.8363 11.5358 7.19178L6.98064 11.0983C6.61771 11.4626 6.4011 11.9473 6.37188 12.4607C6.34039 12.9855 5.74003 25.4167 15.3794 35.0603C23.7887 43.4675 34.3223 44.0825 37.2233 44.0825C37.6474 44.0825 37.9077 44.0699 37.9769 44.0657C38.4902 44.037 38.9747 43.8194 39.3372 43.4549L43.2416 38.8976C43.5974 38.4831 43.7775 37.9462 43.7438 37.401C43.7101 36.8558 43.4652 36.3452 43.0611 35.9776L34.5301 28.2191Z"
-            fill="#333333" />
-        </svg>
-      </p>
-      <p class="text-black-lht">+51 997245632</p>
-      <p>
-        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="38" viewBox="0 0 50 38" fill="none">
-          <path d="M50 0H0V38H50V0ZM45 9.5L25 21.375L5 9.5V4.75L25 16.625L45 4.75V9.5Z" fill="#333333" />
-        </svg>
-      </p>
-      <p class="text-black-lht">pascual seminario&#64;gmail.com</p>
-      <p class="mb-5 text-black-lht">Calle Berlin Número 414 Ate Vitarte<br>
-        Lima, Perú
-      </p>
-      <p>
-        <nz-space>
-          <a *nzSpaceItem class="d-inline-block me-3" [href]="'#'" target="_blank">
-            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
-              <path
-                d="M29.5312 0H5.46875C2.44844 0 0 2.44844 0 5.46875V29.5312C0 32.5516 2.44844 35 5.46875 35H29.5312C32.5516 35 35 32.5516 35 29.5312V5.46875C35 2.44844 32.5516 0 29.5312 0Z"
-                fill="#2867B2" />
-              <path
-                d="M12.6875 26.25H8.96875V14.5469H12.6875V26.25ZM10.8281 12.9062C9.625 12.9062 8.75 12.0312 8.75 10.8281C8.75 9.625 9.73438 8.75 10.8281 8.75C12.0313 8.75 12.9063 9.625 12.9063 10.8281C12.9063 12.0312 12.0313 12.9062 10.8281 12.9062ZM26.25 26.25H22.5313V19.9063C22.5313 18.0469 21.7656 17.5 20.6719 17.5C19.5781 17.5 18.4844 18.375 18.4844 20.0156V26.25H14.7656V14.5469H18.2656V16.1875C18.5937 15.4219 19.9062 14.2188 21.7656 14.2188C23.8437 14.2188 26.0313 15.4219 26.0313 19.0312V26.25H26.25Z"
-                fill="white" />
-            </svg>
-          </a>
+  </div>
+</div>
+<!-- ================================================================ -->
+<!-- 5. CONTACTO (Estilo Mejorado)                                    -->
+<!-- ================================================================ -->
+<div id="contact-section" class="mb-5">
+  <div class="section-header bg-white">
+    <h1>CANALES DE <span class="badge-title">CONTACTO</span></h1>
+    <p>Llevamos productos de salud a tu hogar.</p>
+  </div>
 
-          <a *nzSpaceItem class="d-inline-block me-3" [href]="'#'" target="_blank">
-            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
-              <path
-                d="M29.5312 0H5.46875C2.44844 0 0 2.44844 0 5.46875V29.5312C0 32.5516 2.44844 35 5.46875 35H29.5312C32.5516 35 35 32.5516 35 29.5312V5.46875C35 2.44844 32.5516 0 29.5312 0Z"
-                fill="#FF0000" />
-              <path
-                d="M25.8125 13.2344C25.5938 12.4688 25.0469 11.9219 24.2813 11.7031C22.9688 11.375 17.3906 11.375 17.3906 11.375C17.3906 11.375 11.9219 11.375 10.5 11.7031C9.73438 11.9219 9.1875 12.4688 8.96875 13.2344C8.75 14.6563 8.75 17.5 8.75 17.5C8.75 17.5 8.75 20.3438 9.07813 21.7656C9.29688 22.5312 9.84375 23.0781 10.6094 23.2969C11.9219 23.625 17.5 23.625 17.5 23.625C17.5 23.625 22.9687 23.625 24.3906 23.2969C25.1562 23.0781 25.7031 22.5312 25.9219 21.7656C26.25 20.3438 26.25 17.5 26.25 17.5C26.25 17.5 26.25 14.6563 25.8125 13.2344ZM15.75 20.125V14.875L20.3438 17.5L15.75 20.125Z"
-                fill="white" />
-            </svg>
-          </a>
+  <div class="container">
+    
+    <!-- Tarjeta de Fundador -->
+    <div class="founder-card mb-5">
+      <div class="founder-profile">
+        <div class="founder-img">
+          <img src="assets/images/fe687ef0f0d48ebe6480edc6849a6af3.png" alt="Pascual Seminario">
+        </div>
+        <h4>Pascual Seminario</h4>
+        <p>CEO & Fundador - Escritor y empresario</p>
+      </div>
+      <div class="founder-info">
+        <span class="badge-blue-small">RESPALDO</span>
+        <h3>Experiencia, coherencia y resultados</h3>
+        <ul>
+          <li><i nz-icon nzType="check-circle" nzTheme="fill" class="text-primary me-2"></i> Bachiller en Contabilidad.</li>
+          <li><i nz-icon nzType="check-circle" nzTheme="fill" class="text-primary me-2"></i> Asesor de negocios y finanzas.</li>
+          <li><i nz-icon nzType="check-circle" nzTheme="fill" class="text-primary me-2"></i> Profesional en el network marketing.</li>
+          <li><i nz-icon nzType="check-circle" nzTheme="fill" class="text-primary me-2"></i> Logro obtenido a rango Diamante en MLM.</li>
+          <li><i nz-icon nzType="check-circle" nzTheme="fill" class="text-primary me-2"></i> Escritor del libro "Acciona Carajo".</li>
+          <li><i nz-icon nzType="check-circle" nzTheme="fill" class="text-primary me-2"></i> Fundador y creador de IMPERIO GLOBAL.</li>
+        </ul>
+        <div class="quote-container">
+          <p class="quote">"Transforma tu vida con nosotros".</p>
+        </div>
+      </div>
+    </div>
 
-          <a *nzSpaceItem class="d-inline-block" [href]="'#'" target="_blank">
-            <span class="d-inline-flex align-items-center justify-content-center"
-              style="width: 35px; height: 35px; background-color: #FF3A44F5; border-radius: 7px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                  d="M5.14261 0.051C6.07568 0.00927271 6.37318 0 8.75 0C11.1268 0 11.4243 0.0100454 12.3566 0.051C13.2889 0.0919545 13.9252 0.236455 14.482 0.445864C15.0651 0.659909 15.5941 0.9945 16.0316 1.42723C16.477 1.85145 16.8207 2.36455 17.0402 2.93173C17.2566 3.47264 17.4045 4.09082 17.4475 4.99491C17.4905 5.90286 17.5 6.19186 17.5 8.5C17.5 10.8089 17.4897 11.0979 17.4475 12.0043C17.4053 12.9084 17.2566 13.5266 17.0402 14.0675C16.8207 14.6348 16.4765 15.1487 16.0316 15.5735C15.5941 16.0063 15.0651 16.3401 14.482 16.5534C13.9252 16.7635 13.2889 16.9073 12.3582 16.949C11.4243 16.9907 11.1268 17 8.75 17C6.37318 17 6.07568 16.99 5.14261 16.949C4.21193 16.908 3.57557 16.7635 3.01875 16.5534C2.43482 16.3401 1.90577 16.0057 1.46841 15.5735C1.02326 15.1491 0.678773 14.6354 0.458977 14.0683C0.243409 13.5274 0.0954545 12.9092 0.0525 12.0051C0.00954544 11.0971 0 10.8081 0 8.5C0 6.19109 0.0103409 5.90209 0.0525 4.99645C0.0946591 4.09082 0.243409 3.47264 0.458977 2.93173C0.679098 2.36461 1.02384 1.85092 1.4692 1.42645C1.90594 0.994115 2.43447 0.659479 3.01795 0.445864C3.57477 0.236455 4.21114 0.0927273 5.14182 0.051H5.14261ZM12.2858 1.581C11.3631 1.54005 11.0863 1.53155 8.75 1.53155C6.41375 1.53155 6.13693 1.54005 5.2142 1.581C4.36068 1.61886 3.89773 1.75718 3.58909 1.87386C3.18102 2.02841 2.88909 2.21155 2.58284 2.50905C2.29254 2.7834 2.06912 3.1174 1.92898 3.48655C1.80886 3.78636 1.66648 4.23609 1.6275 5.06523C1.58534 5.96159 1.57659 6.2305 1.57659 8.5C1.57659 10.7695 1.58534 11.0384 1.6275 11.9348C1.66648 12.7639 1.80886 13.2136 1.92898 13.5135C2.06898 13.882 2.2925 14.2166 2.58284 14.491C2.86523 14.773 3.20966 14.9901 3.58909 15.1261C3.89773 15.2428 4.36068 15.3811 5.2142 15.419C6.13693 15.46 6.41295 15.4685 8.75 15.4685C11.087 15.4685 11.3631 15.46 12.2858 15.419C13.1393 15.3811 13.6023 15.2428 13.9109 15.1261C14.319 14.9716 14.6109 14.7885 14.9172 14.491C15.2075 14.2166 15.431 13.882 15.571 13.5135C15.6911 13.2136 15.8335 12.7639 15.8725 11.9348C15.9147 11.0384 15.9234 10.7695 15.9234 8.5C15.9234 6.2305 15.9147 5.96159 15.8725 5.06523C15.8335 4.23609 15.6911 3.78636 15.571 3.48655C15.4119 3.09014 15.2234 2.80655 14.9172 2.50905C14.6347 2.22706 14.2909 2.01003 13.9109 1.87386C13.6023 1.75718 13.1393 1.61886 12.2858 1.581ZM7.63239 11.1203C8.25655 11.3727 8.95155 11.4068 9.59869 11.2167C10.2458 11.0266 10.805 10.6242 11.1806 10.0781C11.5562 9.53203 11.725 8.87622 11.6582 8.22267C11.5914 7.56913 11.2931 6.95839 10.8142 6.49477C10.5089 6.19841 10.1398 5.97149 9.73345 5.83034C9.32707 5.68919 8.89352 5.63732 8.46403 5.67848C8.03454 5.71963 7.61978 5.85277 7.24962 6.06833C6.87945 6.28388 6.56309 6.57648 6.32331 6.92507C6.08353 7.27365 5.92629 7.66954 5.86291 8.08424C5.79953 8.49894 5.8316 8.92214 5.95679 9.32335C6.08199 9.72457 6.2972 10.0938 6.58694 10.4046C6.87667 10.7153 7.23372 10.9597 7.63239 11.1203ZM5.56977 5.41064C5.98741 5.00494 6.48321 4.68312 7.02887 4.46355C7.57454 4.24399 8.15938 4.13098 8.75 4.13098C9.34062 4.13098 9.92546 4.24399 10.4711 4.46355C11.0168 4.68312 11.5126 5.00494 11.9302 5.41064C12.3479 5.81634 12.6791 6.29797 12.9052 6.82805C13.1312 7.35812 13.2475 7.92625 13.2475 8.5C13.2475 9.07375 13.1312 9.64188 12.9052 10.172C12.6791 10.702 12.3479 11.1837 11.9302 11.5894C11.0868 12.4087 9.94282 12.869 8.75 12.869C7.55718 12.869 6.41322 12.4087 5.56977 11.5894C4.72632 10.77 4.25248 9.65874 4.25248 8.5C4.25248 7.34126 4.72632 6.22999 5.56977 5.41064ZM14.245 4.78164C14.3485 4.6868 14.4313 4.57275 14.4887 4.44625C14.546 4.31975 14.5766 4.18337 14.5786 4.04517C14.5807 3.90698 14.5542 3.76979 14.5007 3.64172C14.4472 3.51365 14.3678 3.3973 14.2672 3.29958C14.1666 3.20185 14.0469 3.12472 13.915 3.07276C13.7832 3.02081 13.642 2.99507 13.4997 2.99709C13.3575 2.9991 13.2171 3.02882 13.0868 3.08449C12.9566 3.14016 12.8392 3.22065 12.7416 3.32118C12.5517 3.5167 12.4478 3.77641 12.4518 4.04517C12.4558 4.31393 12.5675 4.57059 12.7632 4.76065C12.9588 4.95071 13.223 5.05922 13.4997 5.06314C13.7764 5.06706 14.0437 4.96608 14.245 4.78164Z"
-                  fill="#F5F8FF" fill-opacity="0.9" />
-              </svg>
-            </span>
-          </a>
-        </nz-space>
-      </p>
+    <!-- Canales de contacto -->
+    <div class="contact-channels">
+      <div class="text-center mb-4">
+        <h4>Conecta con IMPERIO GLOBAL</h4>
+        <p class="text-muted">Estos son nuestros canales oficiales de atención.</p>
+      </div>
+      
+      <div class="row g-3 mt-3">
+        <!-- WhatsApp -->
+        <div class="col-md-4">
+          <div class="channel-box" (click)="goToWhatsApp()" style="cursor: pointer;">
+            <div class="icon-circle bg-green">
+              <!-- Icono REAL de WhatsApp -->
+              <i class="fab fa-whatsapp" style="font-size: 26px;"></i>
+            </div>
+            <div>
+              <small>WHATSAPP</small>
+              <strong>+51 997 245 632</strong>
+            </div>
+          </div>
+        </div>
+        <!-- Correo -->
+        <div class="col-md-4">
+          <div class="channel-box" (click)="goToEmail()" style="cursor: pointer;">
+            <div class="icon-circle bg-red">
+              <!-- Icono de correo -->
+              <i class="fas fa-envelope" style="font-size: 22px;"></i>
+            </div>
+            <div>
+              <small>CORREO ELECTRÓNICO</small>
+              <strong>imperioglobalsac&#64;gmail.com</strong>
+            </div>
+          </div>
+        </div>
+        <!-- Oficina -->
+        <div class="col-md-4">
+          <div class="channel-box">
+            <div class="icon-circle bg-blue-light">
+              <!-- Icono REAL de Google Maps / Ubicación -->
+              <i class="fas fa-map-marked-alt" style="font-size: 22px;"></i>
+            </div>
+            <div>
+              <small>OFICINA PRINCIPAL</small>
+              <strong>Calle Berlín N.° 414, Ate Vitarte<br>Lima, Perú</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+      
+      <div class="text-center">
+        <p class="fw-bold mb-3">Redes oficiales</p>
+        <div class="social-buttons">
+          <a href="javascript: void(0)" class="btn-social fb" (click)="goToFacebook()">Facebook</a>
+          <a href="javascript: void(0)" class="btn-social yt" (click)="goToYoutube()">YouTube</a>
+          <a href="javascript: void(0)" class="btn-social ig" (click)="goToInstagram()">Instagram</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,71 +1,240 @@
-.navbar{
-  position: fixed;
-  z-index: 99;
-  width: 100%;
-  padding-bottom: 0;
-}
-
-.logo-text-title,
-.logo-text-subtitle{
-  vertical-align: middle;
-  font-size: 16px;
-}
-
-.ant-form-item-label label{
-
-}
-
-@media (min-width: 768px) {
-  .navbar-nav {
-    .nav-link{
-        color: var(--bs-gray);
-        font-size: 16px;
-
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-top: 12px;
-    }
-
-    .nav-link.active , .nav-link.show{
-        color: #000;
-    }
-
-    .nav-link.active::after{
-        content: " ";
-        width: 7px;
-        height: 7px;
-        background: var(--bs-blue);
-        display: block;
-        border-radius: 50%;
-        margin: 0 auto;
-        margin-top: 4px;
-    }
+/* ========================================
+   RESET Y CONTENEDOR PRINCIPAL
+   ======================================== */
+   .login-wrapper {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
   }
-
-}
-
-@media (max-width: 992px){
-  .navbar-nav .nav-link{
-    background-color: #215EE9;
-    color: #FFF;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    text-transform: uppercase;
-    margin-left: -12px;
-    margin-right: -12px;
-    padding-left: 12px;
-    padding-right: 12px;
-    font-weight: 400;
-    padding-top: 10px;
+  
+  /* Fondo de pantalla con degradado azul */
+  .login-container {
+    background: linear-gradient(135deg, #1a3f8a 0%, #215ee9 60%, #4f8cff 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
   }
-  .navbar-nav .nav-link.active{
-    background-color: #082975;
+  
+  /* ========================================
+     TARJETA DE LOGIN
+     ======================================== */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 24px;
+    padding: 45px 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 2;
   }
-  .logo-text-title{
+  
+  /* Animación de entrada */
+  .animate-fade-in {
+    animation: slideInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  
+  /* ========================================
+     BOTÓN DE REGRESAR (NUEVO ESTILO)
+     ======================================== */
+  .btn-back-home {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  .btn-back-home:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .btn-back-home:active {
+    transform: scale(0.95);
+  }
+  
+  /* ========================================
+     INPUTS FLOTANTES (CORREGIDO: Padding adecuado)
+     ======================================== */
+  .floating-input-group {
+    position: relative;
+    margin-bottom: 5px;
+  }
+  
+  .custom-input {
+    width: 100%;
+    padding: 5px 10px; /* CORREGIDO: Ahora tiene altura normal */
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+  
+  .custom-input:focus {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+  }
+  
+  .custom-input::placeholder { color: transparent; }
+  
+  /* Etiqueta flotante */
+  .floating-label {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(1, 13, 118, 0.7);
+    font-size: 12px;
+    pointer-events: none;
+    transition: 0.2s ease all;
+    background: transparent;
+    padding: 0 4px;
+  }
+  
+  .custom-input:focus ~ .floating-label,
+  .custom-input:not(:placeholder-shown) ~ .floating-label {
+    top: -8px;
+    left: 16px;
+    font-size: 12px;
+    color: #ffffff;
+    background: rgba(26, 63, 138, 0.9);
+    backdrop-filter: blur(4px);
+    border-radius: 6px;
+    padding: 0 8px;
+  }
+  
+  /* Icono de ojo */
+  .password-toggle {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: 0.2s;
     font-size: 22px;
   }
-  .logo-text-subtitle{
-    font-size: 10px;
-    line-height: 1;
+  .password-toggle:hover { color: #fff; }
+  
+  /* ========================================
+     BOTÓN PRINCIPAL
+     ======================================== */
+  .btn-gradient-primary {
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+    color: #215ee9;
+    font-weight: 700;
+    font-size: 17px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    min-height: 56px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-}
-
+  
+  .btn-gradient-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    color: #1a4fc4;
+  }
+  
+  /* ========================================
+     MODAL DE CARGA
+     ======================================== */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeOverlay 0.3s ease-in;
+  }
+  
+  @keyframes fadeOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .loading-modal {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 40px 50px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    min-width: 250px;
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  @keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    80% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  /* ========================================
+     RESPONSIVE (MÓVIL)
+     ======================================== */
+  @media (max-width: 768px) {
+    .glass-card {
+      padding: 30px 20px;
+      max-width: 95%;
+    }
+    .btn-back-home {
+      top: 15px;
+      left: 15px;
+      width: 38px;
+      height: 38px;
+    }
+    .btn-back-home svg {
+      width: 20px;
+      height: 20px;
+    }
+    .custom-input { padding: 14px 16px; font-size: 15px; }
+    .btn-gradient-primary { min-height: 50px; font-size: 16px; }
+    
+    .loading-modal {
+      padding: 30px 30px;
+      min-width: auto;
+      width: 80%;
+    }
+  }
