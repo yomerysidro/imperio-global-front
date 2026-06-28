@@ -1,170 +1,85 @@
+<div class="login-wrapper">
+  
+  <!-- CONTENEDOR PRINCIPAL LOGIN -->
+  <div class="container-fluid p-0 login-container">
+    <div class="row g-0 align-items-center justify-content-center min-vh-100">
+      
+      <!-- TARJETA CON ANCHO FIJO DE 480px -->
+      <div class="col-12 d-flex justify-content-center">
+        <div class="glass-card animate-fade-in">
+          
+          <!-- BOTÓN DE REGRESAR (NUEVO) -->
+          <a [routerLink]="'/home'" class="btn-back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </a>
 
+          <div class="text-center mb-4">
+            <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="Imperio Global" class="img-fluid mb-3" style="max-height: 50px; filter: brightness(0) invert(1);">
+            <h2 class="fw-bold text-white mb-1">Bienvenido de vuelta</h2>
+            <p class="text-white-50 mb-0">Accede a tu imperio global</p>
+          </div>
 
-
-
-<div class="container-fluid p-0  " >
-
-  <nav class="navbar navbar-expand-lg border-bottom d-flex d-md-none" id="navbar-example2">
-    <div class="container-xxl align-items-center ">
-      <a class="navbar-brand pt-1" [routerLink]="'/home'">
-        <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid" width="169px">
-      </a>
-      <div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="19" viewBox="0 0 24 19" fill="none">
-            <rect width="24" height="3" rx="1.5" fill="#423838"/>
-            <rect y="8" width="24" height="3" rx="1.5" fill="#423838"/>
-            <rect x="10" y="16" width="13.8947" height="3" rx="1.5" fill="#423838"/>
-          </svg>
-        </button>
-
-        <img nz-image *ngIf="isAuth" width="40px" height="40px" [nzSrc]="avatarUrl" [nzDisablePreview]="true" class="d-md-none rounded-circle ml-1 border border-3"/>
-
-      </div>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item" >
-            <a class="nav-link"  href="javascript: void(0)" (click)="goTo('inicio-section')">Inicio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="javascript: void(0)" (click)="goTo('productos-section')">Productos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="javascript: void(0)" (click)="goTo('planes-section')">Planes y rangos</a>
-          </li>
-          <li class="nav-item d-block d-md-none" >
-            <a class="nav-link" href="javascript: void(0)" (click)="goTo('contact-section')">Contacto</a>
-          </li>
-          <li class="nav-item d-block d-md-none" >
-            <a class="nav-link" [routerLink]="'/auth/login'" [routerLinkActive]="'active'">Inicio Sesión</a>
-          </li>
-
-        </ul>
-
-      </div>
-    </div>
-  </nav>
-
-    <div class="row align-items-center justify-content-center m-0 p-0 container-mobile bg--auth-shape" style="height: 100vh; background-image: url('assets/images/Shape.png');" >
-        <!-- <div class="col-lg-5 d-none d-lg-flex bg-gris p-4" style="height: 100vh;">
-          <app-carousel-images [fullWidth]="true"></app-carousel-images>
-        </div> -->
-        <div class="col-md-4 " >
-          <nz-card class="card--auth">
-            <div class="row no-gutters  align-items-center" >
-
-              <div class="col-md-11 col-xl-11 col-12 mx-auto p-t-30">
-                <!-- <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid mb-4" width="367px"> -->
-                <h1 class="ff-poppins fs-22 fw-bolder container-form-mobile text-center" style="color: #202224;">Inicia sesión</h1>
-                <p class="m-b-20 fs-15 container-form-mobile text-center" style="color: #202224;">Escribe correo y contraseña para continuar</p>
-                <form
-                  nz-form
-                  [formGroup]="frmLogin"
-                  nzLayout="vertical"
-                  class="login-form "
-                >
-                  <nz-row class="m-b-20">
-                    <nz-col [nzSm]="24" [nzXs]="24">
-                      <nz-form-item>
-                        <nz-form-label nzFor="email"
-                          ><span style="color: #202224;">Correo Electrónico</span></nz-form-label
-                        >
-                        <nz-form-control [nzErrorTip]="errorEmail">
-
-                          <!-- <input type="hidden" nz-input placeholder="" formControlName="phonenumber" />
-                          <intl-telephone-input
-                                [preferredCountries]="[CountryISO.Peru]"
-                                [enablePlaceholder]="true"
-                                [searchCountryFlag]="true"
-                                [separateDialCode]="false"
-                                [enableAutoCountrySelect]="true"
-                                [searchCountryField]="SearchCountryField.All"
-                                [phoneValidation]="true"
-                                [numberFormat]="PhoneNumberFormat.International"
-                                [inputId]="'phone'"
-                                (onChange)="onInputChange($event)"
-                              >
-                          </intl-telephone-input> -->
-                          <input
-                            type="text"
-                            nz-input
-                            formControlName="email"
-                          />
-                          <ng-template #errorEmail let-control>
-                            <ng-container *ngIf="control.hasError('required')">Campo obligatorio.</ng-container>
-                            <ng-container *ngIf="control.hasError('email')">
-                              Email incorrecto
-                            </ng-container>
-                          </ng-template>
-
-                        </nz-form-control>
-                      </nz-form-item>
-                    </nz-col>
-                  </nz-row>
-                  <nz-row class="mb-4">
-                    <nz-col [nzSm]="24" [nzXs]="24">
-                      <nz-form-item>
-                        <nz-form-label nzFor="password"
-                          class="label--right">
-                          <span style="color: #202224;">Contraseña</span>
-                          <a [routerLink]="'/auth/recover-password'" style="position: absolute; right: 0; color: rgba(32, 34, 36, .6);">Olvidaste tu contraseña?</a>
-                        </nz-form-label
-                        >
-                        <nz-form-control nzErrorTip="Campo obligatorio.">
-
-                          <nz-input-group [nzSuffix]="templateView" >
-                            <ng-template #templateView>
-                              <i nz-icon nzType="eye" nzTheme="outline" *ngIf="isViewPassword" style="color: #A6A6A6; font-size: 18px;" (click)="onViewPassword(false)"></i>
-                              <i nz-icon nzType="eye-invisible" nzTheme="outline" *ngIf="!isViewPassword" style="color: #A6A6A6; font-size: 18px;" (click)="onViewPassword(true)"></i>
-                            </ng-template>
-                            <input
-                              [type]="!isViewPassword ? 'password': 'text'"
-                              nz-input
-                              formControlName="password"
-                            />
-                          </nz-input-group>
-
-                        </nz-form-control>
-                      </nz-form-item>
-                    </nz-col>
-                  </nz-row>
-
-                  <nz-row class="m-b-20">
-                    <nz-col [nzSm]="24" [nzXs]="24">
-                      <nz-form-control>
-                        <div
-                          class="d-flex align-items-center justify-content-between"
-                        >
-                          <button
-                            nz-button
-                            class="login-form-button w-100 border-0"
-                            [nzType]="'primary'"
-                            (click)="onSubmit()"
-                            [nzLoading]="loadingSubmit"
-                          >
-                            Ingresar
-                          </button>
-                        </div>
-                      </nz-form-control>
-                    </nz-col>
-                  </nz-row>
-                </form>
-                <div class="text-center">
-                  <span class="font-size-15"
-                    >Aún no tienes cuenta?
-                    <a
-                    [routerLink]="'/auth/register'"
-                    >
-                      Crea tu cuenta aqui</a
-                    ></span
-                  >
+          <form nz-form [formGroup]="frmLogin" nzLayout="vertical" class="login-form w-100">
+            
+            <!-- Campo Email -->
+            <nz-form-item class="mb-4">
+              <nz-form-control [nzErrorTip]="errorEmail">
+                <div class="floating-input-group">
+                  <input type="text" nz-input formControlName="email" class="custom-input" placeholder=" ">
+                  <label class="floating-label">Correo Electrónico</label>
                 </div>
-              </div>
-            </div>
-          </nz-card>
+                <ng-template #errorEmail let-control>
+                  <span class="text-danger small" *ngIf="control.hasError('required')">Campo obligatorio</span>
+                  <span class="text-danger small" *ngIf="control.hasError('email')">Email incorrecto</span>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <!-- Campo Password -->
+            <nz-form-item class="mb-4">
+              <nz-form-control nzErrorTip="Campo obligatorio">
+                <div class="floating-input-group">
+                  <input [type]="!isViewPassword ? 'password': 'text'" nz-input formControlName="password" class="custom-input" placeholder=" ">
+                  <label class="floating-label">Contraseña</label>
+                  <span class="password-toggle" (click)="onViewPassword(!isViewPassword)">
+                    <i nz-icon [nzType]="isViewPassword ? 'eye' : 'eye-invisible'" nzTheme="outline"></i>
+                  </span>
+                </div>
+              </nz-form-control>
+              <a [routerLink]="'/auth/recover-password'" class="text-decoration-none text-white-50 small float-end mt-1">¿Olvidaste tu contraseña?</a>
+            </nz-form-item>
+
+            <!-- Botón Ingresar -->
+            <button nz-button class="btn-gradient-primary w-100 border-0 py-3 rounded-pill fw-bold fs-6 mt-3" (click)="onSubmit()">
+              Ingresar a mi cuenta
+            </button>
+
+          </form>
+
+          <div class="text-center mt-4">
+            <span class="text-white-50 small">¿Aún no tienes cuenta? </span>
+            <a [routerLink]="'/auth/register'" class="text-warning fw-bold text-decoration-none">Crea tu cuenta aquí</a>
+          </div>
+
         </div>
       </div>
-</div>
+    </div>
+  </div>
 
+  <!-- ============================================ -->
+  <!-- MODAL DE CARGA EN EL CENTRO DE LA PANTALLA -->
+  <!-- ============================================ -->
+  <div class="loading-overlay" *ngIf="loadingSubmit">
+    <div class="loading-modal">
+      <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <h5 class="mt-3 text-white fw-bold">Cargando...</h5>
+      <p class="text-white-50 small">Por favor espera un momento</p>
+    </div>
+  </div>
+
+</div>

@@ -359,4 +359,8 @@ export class ApiService {
     });
     return this.httpService.get<IResponse< IResponsePaginationModel< Array<UserModel> >>>(url, { params: httpParams }).pipe(tap(res => res));
   }
+    // 🔥 Este método ya existe en tu servicio
+    public getUserById(id: number): Observable<IResponse<UserModel>> {
+      return this.httpService.get<IResponse<UserModel>>(`/users/${id}`).pipe(tap(res => res));
+    }
 }

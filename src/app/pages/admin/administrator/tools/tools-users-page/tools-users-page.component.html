@@ -121,7 +121,7 @@
   </ng-container>
 
   <ng-container *ngIf="tabModal == 1">
-    <app-tools-users-update-modal [userModel]="userModel" (back)="onBack($event)" ></app-tools-users-update-modal>
+    <app-tools-users-update-modal [userModel]="userModel" (back)="onBack($event)" (updated)="onSearch()"></app-tools-users-update-modal>
   </ng-container>
 
   <ng-container *ngIf="tabModal == 2">

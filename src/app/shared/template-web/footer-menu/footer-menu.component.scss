@@ -1,21 +1,133 @@
-.svg{
-  fill: #F07D87;
-  stroke: #F07D87;
-}
-footer a.active p{
-  color: #F07D87 !important;
-}
-footer a.active svg path{
-  fill: #F07D87;
-  stroke-width: 0.5px;
-  stroke: #F07D87;
-}
-@media (max-width: 768px){
-  footer p{
-    font-size: 12px;
+/* ========================================
+   FOOTER DE ESCRITORIO (AZUL OSCURO IDÉNTICO)
+   ======================================== */
+   .footer-desktop {
+    background-color: #0f4197; /* Azul corporativo oscuro */
+    color: #ffffff;
+    padding: 50px 0 20px 0;
+    font-family: 'Poppins', sans-serif;
   }
-  :host{
-    display: block;
-    max-height: 93px;
+  
+  .footer-desktop .footer-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
   }
-}
+  
+  .footer-desktop .footer-title {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Enlaces rápidos */
+  .footer-desktop .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+  }
+  .footer-desktop .footer-links li {
+    margin-bottom: 8px;
+  }
+  .footer-desktop .footer-links a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-desktop .footer-links a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  
+  /* Iconos de Redes Sociales (Círculos de colores) */
+  .social-icons {
+    display: flex;
+    gap: 12px;
+  }
+  .social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: transform 0.3s;
+  }
+  .social-btn:hover { transform: scale(1.1); color: white; }
+  .social-btn.facebook { background-color: #1877f2; }
+  .social-btn.youtube { background-color: #ff0000; }
+  .social-btn.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+  
+  /* Boletín Informativo (Input + Botón naranja) */
+  .newsletter-form {
+    display: flex;
+    align-items: center;
+    background: #0b2a5e; /* Fondo más oscuro para el input */
+    border-radius: 30px;
+    padding: 4px;
+    max-width: 300px;
+  }
+  .newsletter-form .form-control {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    font-size: 14px;
+    outline: none;
+    box-shadow: none;
+    flex: 1;
+  }
+  .newsletter-form .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .btn-newsletter {
+    background: #f59e0b; /* Naranja brillante */
+    color: #0f4197;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .btn-newsletter:hover {
+    background: #d97706;
+  }
+  
+  /* Copyright */
+  .footer-bottom {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  
+  /* ========================================
+     TUS ESTILOS DE FOOTER MÓVIL (SE MANTIENEN)
+     ======================================== */
+  .svg{
+    fill: #F07D87;
+    stroke: #F07D87;
+  }
+  footer a.active p{
+    color: #F07D87 !important;
+  }
+  footer a.active svg path{
+    fill: #F07D87;
+    stroke-width: 0.5px;
+    stroke: #F07D87;
+  }
+  @media (max-width: 768px){
+    footer p{
+      font-size: 12px;
+    }
+    :host{
+      display: block;
+      max-height: 93px;
+    }
+  }

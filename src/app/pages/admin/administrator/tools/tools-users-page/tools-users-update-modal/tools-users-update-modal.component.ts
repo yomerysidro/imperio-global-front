@@ -20,6 +20,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
 
   @Input() userModel: UserModel;
   @Output() back: EventEmitter<number> = new EventEmitter<number>();
+  @Output() updated: EventEmitter<void> = new EventEmitter<void>();
 
   validateForm: FormGroup;
   avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
@@ -44,7 +45,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   showPackEdit: boolean = false;
   showServiceEdit: boolean = false;
 
-  // 🔥 Variable para guardar el estado anterior y saber qué se actualizó
+  // Variable para guardar el estado anterior y saber qué se actualizó
   private previousPackId: number | null = null;
   private previousServiceId: number | null = null;
 
@@ -64,31 +65,46 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.userModel.payment == null) this.isSponsordata = true;
-    // 🔥 Cargamos los datos COMPLETOS del usuario llamando al backend directamente usando su código
+    // 🔥 Cargamos los datos COMPLETOS del usuario llamando al endpoint /users/{id} (SHOW)
     this.loadUserFullData();
   }
 
-  // 🔥 NUEVO: Obtiene los datos completos del usuario desde el backend
+  // 🔥 NUEVO: Obtiene los datos completos del usuario desde el backend usando el endpoint SHOW
   public loadUserFullData(): void {
-    // Usamos el método getUserByCode que acabamos de agregar al servicio
-    this.apiService.getUserByCode(this.userModel.uuid).subscribe(
+    // Usamos el ID del usuario, no el código, para obtener el objeto completo con servicios
+    this.apiService.getUserById(this.userModel.id).subscribe(
       (response) => {
-        if (response.success && response.data.items && response.data.items.length > 0) {
-          // Reemplazamos el modelo incompleto con el modelo completo del backend (primer elemento del array)
-          this.userModel = response.data.items[0];
+        if (response.success) {
+          // Reemplazamos el modelo incompleto con el modelo completo del backend
+          this.userModel = response.data;
           // Ahora cargamos los planes y actualizamos el formulario con los datos reales
           this.loadPlansAndPatch();
         } else {
-          console.error('No se encontró el usuario con el código:', this.userModel.uuid);
+          console.error('No se encontró el usuario con el ID:', this.userModel.id);
         }
       },
       (error) => {
         console.error('Error al cargar datos completos del usuario:', error);
+        // Fallback: Si falla el show, intentamos con el findAll como antes
+        this.loadUserFullDataFallback();
       }
     );
   }
 
-  // 🔥 Mover la lógica de carga de planes a una función separada
+  // 🔥 FALLBACK: Si el endpoint SHOW falla, intentamos con el método anterior
+  public loadUserFullDataFallback(): void {
+    this.apiService.getUserByCode(this.userModel.uuid).subscribe(
+      (response) => {
+        if (response.success && response.data.items && response.data.items.length > 0) {
+          this.userModel = response.data.items[0];
+          this.loadPlansAndPatch();
+        }
+      },
+      (error) => console.error('Error en fallback:', error)
+    );
+  }
+
+  // Carga los planes y parcha el formulario
   public loadPlansAndPatch(): void {
     this.apiService.getPlansSearch({}).subscribe(
       (planList) => {
@@ -145,10 +161,11 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
           }
         }
 
-        // --- BÚSQUEDA DEL SERVICIO ACTIVO ---
+        // --- BÚSQUEDA DEL SERVICIO ACTIVO (CORREGIDA) ---
         let activeServiceId = null;
         let activeServiceName = '';
 
+        // 🔥 BÚSQUEDA PRINCIPAL: Primero buscamos en payment_services (que viene del endpoint SHOW)
         const paymentServices = (this.userModel as any).payment_services || [];
         if (paymentServices.length > 0) {
           const servicioActivo = paymentServices.find((s: any) => {
@@ -160,6 +177,22 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
           }
         }
 
+        // Fallback: Buscar en puntos.detalles si no se encontró en payment_services
+        if (!activeServiceId) {
+          const pts = (this.userModel as any).points;
+          if (pts?.compra?.detalles) {
+            const servicioActivo = pts.compra.detalles.find((d: any) => {
+              const category = (d.category || '').toLowerCase();
+              return category === 'servicio';
+            });
+            if (servicioActivo) {
+              activeServiceId = servicioActivo.pack_id || servicioActivo.id;
+              activeServiceName = servicioActivo.title || servicioActivo.pack?.title || '';
+            }
+          }
+        }
+
+        // Fallback: Buscar en payment_product_orders
         if (!activeServiceId) {
           const productOrders = (this.userModel as any).payment_product_orders || [];
           const servicio = productOrders.find((s: any) => {
@@ -168,20 +201,6 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
           if (servicio) {
             activeServiceId = servicio.pack_id || servicio.pack?.id;
             activeServiceName = servicio.pack?.title || '';
-          }
-        }
-
-        if (!activeServiceId) {
-          const pts = (this.userModel as any).points;
-          if (pts?.compra?.detalles) {
-            const servicioActivo = pts.compra.detalles.find((d: any) => {
-              const category = (d.category || d.tipo || '').toLowerCase();
-              return category === 'servicio';
-            });
-            if (servicioActivo) {
-              activeServiceId = servicioActivo.pack_id || servicioActivo.id;
-              activeServiceName = servicioActivo.title || servicioActivo.pack?.title || '';
-            }
           }
         }
 
@@ -359,7 +378,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
       () => {
         this.resetLocalState();
         
-        // 🔥 MENSAJES DE ÉXITO PERSONALIZADOS SEGÚN LO QUE SE HAYA ACTUALIZADO
+        // 🔥 MENSAJES DE ÉXITO PERSONALIZADOS
         let successMessage = "¡Usuario actualizado con éxito!";
         const packChanged = packValue !== null && packValue !== this.previousPackId;
         const serviceChanged = serviceValue !== null && serviceValue !== this.previousServiceId;
@@ -375,7 +394,8 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         this.modalService.success(successMessage);
         this.loadingSave = false;
 
-        // 🔥 CERRAMOS EL MODAL Y LE DECIMOS AL PADRE QUE RECARGUE LA TABLA
+        // 🔥 AVISAMOS AL PADRE QUE HUBO UN CAMBIO Y CERRAMOS EL MODAL
+        this.updated.emit(); 
         this.nzModalService.closeAll();
         this.back.emit((new Date()).getTime());
       },
