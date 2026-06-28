@@ -522,27 +522,85 @@
 }
 
 /* ==========================================
-   RESPONSIVE
+   RESPONSIVE (MÓVIL) - CORREGIDO SIN DESORDEN
    ========================================== */
-@media (max-width: 992px) {
-  .col-lg-3 { flex: 0 0 50%; max-width: 50%; }
-}
-@media (max-width: 576px) {
-  .col-lg-3 { flex: 0 0 100%; max-width: 100%; }
-  .plan-card-new { padding: 15px 12px 12px; margin-top: 20px; }
-  .plan-title-box h3 { font-size: 11px; padding: 6px 16px; }
-  .plan-price-box { padding: 6px 10px; gap: 6px; margin: 20px 0 10px 0; }
-  .price-pill { font-size: 18px; }
-  .points-pill { font-size: 12px; border-left: none; border-right: none; padding: 0 6px; }
-  .discount-text { font-size: 10px; padding: 4px 8px; }
-  .plan-img-container { min-height: 80px; padding: 8px; }
-  .plan-img-container img { max-height: 60px; }
-  .plan-benefits ul li { font-size: 12px; }
-  .btn-plan-action { font-size: 13px; padding: 6px 8px; min-width: 130px; }
-  .btn-view-more { font-size: 11px; padding: 4px 12px; }
-}
+   @media (max-width: 992px) {
+    .col-lg-3 { flex: 0 0 50%; max-width: 50%; }
+  }
+  
+  @media (max-width: 576px) {
+    .col-lg-3 { flex: 0 0 100%; max-width: 100%; }
+    
+    .plan-card-new { padding: 15px 12px 12px; margin-top: 20px; }
+    .plan-title-box h3 { font-size: 11px; padding: 6px 16px; }
+    .plan-price-box { padding: 6px 10px; gap: 6px; margin: 20px 0 10px 0; }
+    .price-pill { font-size: 18px; }
+    .points-pill { font-size: 12px; border-left: none; border-right: none; padding: 0 6px; }
+    .discount-text { font-size: 10px; padding: 4px 8px; }
+    
+    /* --- IMÁGENES E ÍCONOS MÁS GRANDES --- */
+    .plan-img-container { 
+      min-height: 140px; /* Aumentado drásticamente para que se vean grandes */
+      padding: 15px; 
+    }
+    .plan-img-container img { 
+      max-height: 110px; /* Imágenes de productos mucho más grandes */
+      width: auto;
+    }
+    
+    /* Icono SVG del Pack Consumidor también más grande */
+    .icon-container svg { 
+      width: 100px;  /* Aumentado de 70px a 100px */
+      height: 100px; 
+    }
+  
+    /* --- BENEFICIOS CENTRADOS Y EN UNA SOLA LÍNEA --- */
+    /* Cambiamos toda la estructura para que quede perfecta */
+    .plan-benefits {
+      text-align: center !important;
+      padding: 0 !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .plan-benefits ul {
+      /* Eliminamos el inline-block que causaba desorden */
+      display: block; 
+      padding: 0 !important;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .plan-benefits ul li {
+      font-size: 14px; /* Texto un poco más grande para celulares */
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center; /* Centra el punto y el texto en el medio exacto */
+      margin-bottom: 6px;
+      width: 100%;
+      color: #334155;
+    }
+    
+    .plan-benefits ul li::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: #215EE9;
+      border-radius: 4px;
+      margin-right: 10px;
+      flex-shrink: 0; /* Impide que el punto se deforme */
+    }
+  
+    /* --- BOTONES --- */
+    .btn-plan-action { font-size: 13px; padding: 6px 8px; min-width: 130px; }
+    .btn-view-more { font-size: 11px; padding: 4px 12px; }
+  }
   /* ================================================================
-   3. PRODUCTOS (Estilo de 3 columnas y Modal Local)
+   4. PRODUCTOS (Estilo de 3 columnas y Modal Local)
    ================================================================ */
 
 /* Contenedor padre para posicionar el modal */
