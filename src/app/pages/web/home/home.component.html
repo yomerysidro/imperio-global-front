@@ -693,20 +693,75 @@
         </div>
       </div>
 
-      <!-- Producto 7 (Original) -->
+            <!-- ========================================== -->
+      <!-- PRODUCTO 7A: COLÁGENO HIDROLIZADO EN POTE   -->
+      <!-- ========================================== -->
       <div class="col-lg-4 col-md-6">
         <div class="product-wrapper">
           <div class="product-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <span class="product-tag-price">S/. 182.00</span>
-              <h4 class="product-title m-0">COLÁGENO HIDROLIZADO</h4>
+              <h4 class="product-title m-0">COLÁGENO HIDROLIZADO EN POTE</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/colageno.png" alt="Colágeno Hidrolizado">
+              <img src="assets/images/products/colagenopote.png" alt="Colágeno Hidrolizado en Pote">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Belleza · Articulaciones</span>
-              <p>Colágeno hidrolizado con camu camu, magnesio y zinc que apoya la salud de piel, articulaciones y huesos, ayudando a prevenir el envejecimiento.</p>
+              <p>Colágeno hidrolizado en pote con camu camu, magnesio y zinc que apoya la salud de piel, articulaciones y huesos, ayudando a prevenir el envejecimiento.</p>
+            </div>
+            
+            <div class="product-actions" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
+                <input type="number" [(ngModel)]="product7PoteQty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+              </div>
+              <div class="btn-group" style="display: flex; gap: 6px;">
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('COLÁGENO HIDROLIZADO EN POTE', 182.00, product7PoteQty)">Comprar</button>
+                <button class="btn btn-white" (click)="openLocalModal(12)">Ver más</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL LOCAL PRODUCTO 7A -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 12">
+            <div class="local-modal-box">
+              <div class="local-modal-header">
+                <h4>Beneficios de</h4>
+                <h3 class="text-primary">COLÁGENO HIDROLIZADO EN POTE</h3>
+                <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
+              </div>
+              <div class="local-modal-body">
+                <ul class="benefits-list">
+                  <li><span class="check-icon">✓</span> Ayuda a retrasar el proceso del envejecimiento.</li>
+                  <li><span class="check-icon">✓</span> Colabora en la fijación de calcio en los huesos.</li>
+                  <li><span class="check-icon">✓</span> Proteína responsable de la elasticidad de la piel.</li>
+                  <li><span class="check-icon">✓</span> Ayuda a combatir la flacidez.</li>
+                  <li><span class="check-icon">✓</span> Contribuye al fortalecimiento y regeneración de músculos y ligamentos.</li>
+                  <li><span class="check-icon">✓</span> Previene enfermedades como la artrosis.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+            <!-- ========================================== -->
+      <!-- PRODUCTO 7B: COLÁGENO HIDROLIZADO EN CAJA   -->
+      <!-- ========================================== -->
+      <div class="col-lg-4 col-md-6">
+        <div class="product-wrapper">
+          <div class="product-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="product-tag-price">S/. 182.00</span>
+              <h4 class="product-title m-0">COLÁGENO HIDROLIZADO EN CAJA</h4>
+            </div>
+            <div class="product-img">
+              <img src="assets/images/products/colageno-caja.png" alt="Colágeno Hidrolizado en Caja">
+            </div>
+            <div class="product-desc">
+              <span class="cat-tag">Belleza · Articulaciones</span>
+              <p>Colágeno hidrolizado en caja con camu camu, magnesio y zinc que apoya la salud de piel, articulaciones y huesos, ayudando a prevenir el envejecimiento.</p>
             </div>
             
             <!-- ACCIONES EN UNA SOLA LÍNEA -->
@@ -714,22 +769,24 @@
               
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span class="qty-label" style="font-size: 12px; font-weight: 700; color: #2d3436; margin: 0;">Cant:</span>
-                <input type="number" [(ngModel)]="product7Qty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
+                <input type="number" [(ngModel)]="product7CajaQty" value="1" min="1" class="qty-input" style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 20px; padding: 4px; font-size: 13px;">
               </div>
 
               <div class="btn-group" style="display: flex; gap: 6px;">
-                <button class="btn btn-blue" (click)="buyViaWhatsApp('COLÁGENO HIDROLIZADO', 182.00, product7Qty)" style="background: #215EE9; color: white; border: none; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Comprar</button>
-                <button class="btn btn-white" (click)="openLocalModal(7)" style="background: white; color: #2d3436; border: 1px solid #ddd; padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 12px; cursor: pointer;">Ver más</button>
+                <!-- CORREGIDO: Se agregó la clase "btn-blue" para que salga azul -->
+                <button class="btn btn-blue" (click)="buyViaWhatsApp('COLÁGENO HIDROLIZADO EN CAJA', 182.00, product7CajaQty)">Comprar</button>
+                <!-- CORREGIDO: Se agregó la clase "btn-white" para que salga blanco con borde -->
+                <button class="btn btn-white" (click)="openLocalModal(13)">Ver más</button>
               </div>
             </div>
           </div>
 
-          <!-- MODAL LOCAL PRODUCTO 7 -->
-          <div class="local-modal-overlay" *ngIf="modalActiveId === 7">
+          <!-- MODAL LOCAL PRODUCTO 7B -->
+          <div class="local-modal-overlay" *ngIf="modalActiveId === 13">
             <div class="local-modal-box">
               <div class="local-modal-header">
                 <h4>Beneficios de</h4>
-                <h3 class="text-primary">COLÁGENO HIDROLIZADO</h3>
+                <h3 class="text-primary">COLÁGENO HIDROLIZADO EN CAJA</h3>
                 <button class="modal-close-btn" (click)="closeLocalModal()">✕</button>
               </div>
               <div class="local-modal-body">

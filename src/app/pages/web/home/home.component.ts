@@ -27,7 +27,8 @@ export class HomeComponent implements OnInit {
   product4Qty: number = 1;
   product5Qty: number = 1;
   product6Qty: number = 1;
-  product7Qty: number = 1;
+  product7PoteQty: number = 1;
+  product7CajaQty: number = 1;
   product8Qty: number = 1;
   product9Qty: number = 1;
 
@@ -82,7 +83,7 @@ export class HomeComponent implements OnInit {
   // FUNCIÓN PARA COMPRAR VÍA WHATSAPP
   // ==========================================
   buyViaWhatsApp(productName: string, price: number, quantity: number): void {
-    const phoneNumber = '51991762074'; // Número sin el +
+    const phoneNumber = '51997245632'; // Número sin el +
     const total = (price * quantity).toFixed(2);
     
     const message = `¡Hola Imperio Global! Quiero comprar el producto:%0A%0A*Producto:* ${productName}%0A*Cantidad:* ${quantity}%0A*Total a pagar:* S/. ${total}%0A%0A¡Gracias!`;
@@ -96,7 +97,7 @@ export class HomeComponent implements OnInit {
   // FUNCIÓN PARA EL BOTÓN "ÚNETE AHORA" (Abre WhatsApp)
   // ==========================================
   joinNowWhatsApp(): void {
-    const phoneNumber = '51991762074';
+    const phoneNumber = '51997245632';
     const message = `¡Hola Imperio Global! Estoy interesado en unirme a su red de networking. Quiero recibir más información sobre los planes y beneficios. ¡Gracias!`;
     
     const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
@@ -149,7 +150,7 @@ export class HomeComponent implements OnInit {
   // FUNCIÓN ÚNICA PARA COMPRAR CUALQUIER PACK VÍA WHATSAPP
   // ==========================================
   buyWhatsApp(productName: string, price: number, quantity: number = 1): void {
-    const phoneNumber = '51991762074'; // Número de WhatsApp sin el +
+    const phoneNumber = '51997245632'; // Número de WhatsApp sin el +
     const total = (price * quantity).toFixed(2);
     
     const message = `¡Hola Imperio Global! Quiero comprar el pack:%0A%0A*Nombre:* ${productName}%0A*Cantidad:* ${quantity}%0A*Total a pagar:* S/. ${total}%0A%0A¡Gracias!`;

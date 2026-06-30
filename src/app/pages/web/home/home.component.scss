@@ -635,6 +635,35 @@
   margin-bottom: 10px !important; /* Separa el título de la imagen */
 }
 
+
+/* --- ESTILO DE BOTONES PARA PRODUCTOS --- */
+.btn-group .btn-blue { 
+  background: #215EE9; 
+  color: white; 
+  border: none; 
+  padding: 6px 14px; 
+  border-radius: 30px; 
+  font-weight: 700; 
+  font-size: 12px; 
+  cursor: pointer; 
+  transition: 0.2s;
+}
+.btn-group .btn-blue:hover { background: #1a4fc4; }
+
+.btn-group .btn-white { 
+  background: white; 
+  color: #2d3436; 
+  border: 1px solid #ddd; 
+  padding: 6px 14px; 
+  border-radius: 30px; 
+  font-weight: 700; 
+  font-size: 12px; 
+  cursor: pointer; 
+  transition: 0.2s;
+}
+.btn-group .btn-white:hover { background: #f9f9f9; border-color: #bbb; }
+
+
 /* Ajuste para los productos originales que usan flexbox */
 .product-card .d-flex .product-title,
 .product-card .d-flex h4 {
