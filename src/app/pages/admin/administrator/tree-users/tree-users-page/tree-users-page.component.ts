@@ -17,7 +17,7 @@ import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/use
 })
 export class TreeUsersPageComponent implements OnInit {
   Orientation = Orientation;
-  nodeSelected: ECONode = null;
+  nodeSelected: ECONode | null = null;
   isChart: boolean = false;
   data!: IECONode;
   environment = environment;
@@ -96,7 +96,6 @@ export class TreeUsersPageComponent implements OnInit {
           const realStats = this.getTreeStats(realChildren);
 
           // 🔥 CONTADORES - USAR LOS VALORES DEL BACKEND PRIMERO
-          // Si el backend dice 0, debe mostrar 0, no usar fallbacks incorrectos
           this.usuarioDirectos = user?.directos !== undefined ? user.directos : realChildren.length;
           this.usuarioActivos = user?.activos !== undefined ? user.activos : realStats.active;
           this.usuarioTotal = user?.red_total !== undefined ? user.red_total : realStats.total;
@@ -115,7 +114,6 @@ export class TreeUsersPageComponent implements OnInit {
           // 🔥 SOLO USAR PLACEHOLDERS PARA EL ÁRBOL VISUAL (no para contadores)
           let childrenForDisplay = realChildren;
           if (childrenForDisplay.length === 0) {
-            // Solo placeholders visuales, no afectan contadores
             if (myId === 'DOSB' || this.listPoints.length === 0) {
               childrenForDisplay = [];
               for (let index = 0; index < 4; index++) {
@@ -182,8 +180,7 @@ export class TreeUsersPageComponent implements OnInit {
   }
 
   /**
-   * Calculates tree statistics recursively (Red Total and Activos)
-   * 🔥 SOLO cuenta nodos reales, no placeholders
+   * Calcula estadísticas del árbol (Red Total y Activos)
    */
   private getTreeStats(nodes: IECONode[]): { total: number, active: number } {
     let total = 0;
@@ -191,9 +188,7 @@ export class TreeUsersPageComponent implements OnInit {
 
     const traverse = (childrenList: IECONode[]) => {
       for (const node of childrenList) {
-        // 🔥 Ignorar placeholders (IDs que empiezan con "-")
         if (node.data?.id?.startsWith('-')) continue;
-        
         total++;
         if (node.active) {
           active++;
@@ -257,7 +252,7 @@ export class TreeUsersPageComponent implements OnInit {
   }
 
   /**
-   * 🔥 BUSCA UN USUARIO EN EL ÁRBOL DE MANERA RECURSIVA
+   * BUSCA UN USUARIO EN EL ÁRBOL DE MANERA RECURSIVA
    */
   private findUserInTree(userCode: string): any {
     if (!this.data) return null;
@@ -292,7 +287,7 @@ export class TreeUsersPageComponent implements OnInit {
   }
 
   /**
-   * 🔥 BUSCA UN USUARIO EN LA LISTA DE PUNTOS LOCAL
+   * BUSCA UN USUARIO EN LA LISTA DE PUNTOS LOCAL
    */
   private findUserInListPoints(userCode: string): any {
     if (!this.listPoints || this.listPoints.length === 0) return null;
@@ -312,96 +307,125 @@ export class TreeUsersPageComponent implements OnInit {
   }
 
   /**
-   * Evento al hacer clic en un nodo del árbol
+   * 🔥 CORREGIDO: Evento al hacer clic en un nodo del árbol
    */
   public onSeletedUser(usercode: string): void {
     if (!usercode || usercode.startsWith("-")) return;
 
     const codeStr = String(usercode);
-    const isSelf = codeStr.toLowerCase() === getCodeUuid().toLowerCase();
+    const codeUuid = getCodeUuid();
+    const isSelf = codeUuid ? (codeStr.toLowerCase() === codeUuid.toLowerCase()) : false;
 
     if (isSelf) {
       this.apiService.getAuthenticationUser().subscribe(res => {
-        this.openModal(res.data, "Tu Detalle");
+        this.openModal(res.data, "Tu Detalle", false);
       });
       return;
     }
 
-    let targetUser = this.findUserInTree(codeStr);
-    
-    if (!targetUser) {
-      targetUser = this.findUserInListPoints(codeStr);
-    }
-
-    if (targetUser) {
-      const userName = targetUser.name || targetUser.data?.name || codeStr;
-      this.openModal(targetUser, `Detalle: ${userName}`);
-      return;
-    }
-
-    console.log('📡 Usuario no encontrado localmente, consultando al backend:', codeStr);
-    
+    // 🔥 CORRECCIÓN: Primero intentar buscar por código (uuid) usando getUsersFindAll
+    console.log('📡 Buscando usuario por código (uuid):', codeStr);
     this.apiService.getUsersFindAll({ code: codeStr, limit: 1, page: 1 }).subscribe({
       next: (res) => {
-        if (res.success && res.data?.items?.length > 0) {
-          const user = res.data.items[0];
-          this.openModal(user, `Detalle: ${user.name}`);
+        if (res.success && res.data?.items && res.data.items.length > 0) {
+          const userData = res.data.items[0];
+          console.log('✅ Usuario encontrado por código:', userData);
+          this.openModal(userData, `Detalle: ${userData.name || codeStr}`, true);
         } else {
-          const fallbackUser = this.findUserInTree(codeStr) || this.findUserInListPoints(codeStr);
-          if (fallbackUser) {
-            const userName = fallbackUser.name || fallbackUser.data?.name || codeStr;
-            this.openModal(fallbackUser, `Detalle: ${userName}`);
+          // Si falla por código, intentar por ID numérico (si es número)
+          const numericId = parseInt(codeStr, 10);
+          if (!isNaN(numericId)) {
+            console.log('📡 Intentando buscar por ID numérico:', numericId);
+            this.apiService.getUserById(numericId).subscribe({
+              next: (resById) => {
+                if (resById.success && resById.data) {
+                  console.log('✅ Usuario encontrado por ID:', resById.data);
+                  this.openModal(resById.data, `Detalle: ${resById.data.name || codeStr}`, true);
+                } else {
+                  console.warn('⚠️ Usuario no encontrado por ningún método:', codeStr);
+                  this.fallbackOpenModal(codeStr);
+                }
+              },
+              error: (errById) => {
+                console.error('❌ Error al obtener usuario por ID:', errById);
+                this.fallbackOpenModal(codeStr);
+              }
+            });
           } else {
-            console.warn('⚠️ Usuario no encontrado en ninguna fuente:', codeStr);
+            console.warn('⚠️ Usuario no encontrado por código y no es un ID numérico válido:', codeStr);
+            this.fallbackOpenModal(codeStr);
           }
         }
       },
       error: (err) => {
-        console.error('❌ Error al obtener usuario:', err);
-        const fallbackUser = this.findUserInTree(codeStr) || this.findUserInListPoints(codeStr);
-        if (fallbackUser) {
-          const userName = fallbackUser.name || fallbackUser.data?.name || codeStr;
-          this.openModal(fallbackUser, `Detalle: ${userName}`);
+        console.error('❌ Error al obtener usuario por código:', err);
+        // Intentar por ID numérico como fallback
+        const numericId = parseInt(codeStr, 10);
+        if (!isNaN(numericId)) {
+          console.log('📡 Fallback: Intentando buscar por ID numérico:', numericId);
+          this.apiService.getUserById(numericId).subscribe({
+            next: (resById) => {
+              if (resById.success && resById.data) {
+                console.log('✅ Usuario encontrado por ID (fallback):', resById.data);
+                this.openModal(resById.data, `Detalle: ${resById.data.name || codeStr}`, true);
+              } else {
+                this.fallbackOpenModal(codeStr);
+              }
+            },
+            error: (errById) => {
+              console.error('❌ Error al obtener usuario por ID (fallback):', errById);
+              this.fallbackOpenModal(codeStr);
+            }
+          });
+        } else {
+          this.fallbackOpenModal(codeStr);
         }
       }
     });
   }
 
   /**
-   * Abre el modal de detalle
+   * 🔥 Método fallback: abre el modal con los datos del árbol o la lista de puntos
    */
-  private openModal(user: any, title: string) {
+  private fallbackOpenModal(codeStr: string): void {
+    const fallbackUser = this.findUserInTree(codeStr) || this.findUserInListPoints(codeStr);
+    if (fallbackUser) {
+      this.openModal(fallbackUser, `Detalle: ${fallbackUser.name || codeStr}`, true);
+    } else {
+      console.error('❌ Usuario no encontrado en ninguna fuente:', codeStr);
+    }
+  }
+
+  /**
+   * 🔥 CORREGIDO: Abre el modal de detalle
+   * @param user Objeto del usuario
+   * @param title Título del modal
+   * @param sendTree Indica si debe enviar el árbol de la red (true para socios, false para perfil propio)
+   */
+  private openModal(user: any, title: string, sendTree: boolean = true) {
     const userData = user.data || user;
-    
     const userCode = userData.id || userData.uuid || '';
     const userCodeStr = String(userCode);
 
-    let pts = userData.points;
-    if (typeof pts === 'string') {
-      try {
-        pts = JSON.parse(pts);
-      } catch {
-        pts = {};
-      }
-    }
-    pts = pts || {};
+    console.log('📌 ABRIENDO MODAL PARA CÓDIGO:', userCodeStr);
+    console.log('📌 Datos completos del usuario:', userData);
+    console.log('📌 Enviar árbol de red:', sendTree);
 
-    const fullUser = this.listPoints.find(p => {
-      const pUserCode = p.user_code || '';
-      return String(pUserCode).toLowerCase() === String(userCodeStr).toLowerCase();
-    })?.user || userData;
+    // 🔥 OBTENER PUNTOS DESDE USER_DETAIL (ENVIADO POR EL BACKEND)
+    const userDetail = userData.user_detail || {};
+    const pts = userData.points || {};
 
-    const personales = Number(pts?.personal || fullUser?.points?.personal || 0);
-    const grupales = Number(pts?.pointGroup || fullUser?.points?.pointGroup || 0);
-    const infinito = Number(pts?.infinito || fullUser?.points?.infinito || 0);
+    console.log('📌 user_detail RECIBIDO EN OPENMODAL:', userDetail);
+    console.log('📌 points RECIBIDOS EN OPENMODAL:', pts);
 
-    const redTotal = grupales + infinito;
-    const granTotalPuntos = personales + redTotal;
+    let personales = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
+    let redTotal = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
+    let granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? 0);
 
+    // 🔥 PAQUETES
     let packs = [];
-    
     const userPacks = pts?.compra?.detalles || [];
-    const paymentPack = fullUser.payment?.payment_order?.pack;
+    const paymentPack = userData.payment?.payment_order?.pack;
     
     if (userPacks.length > 0) {
       packs = userPacks.map((pack: any) => ({
@@ -415,15 +439,15 @@ export class TreeUsersPageComponent implements OnInit {
       packs.push({
         paquete: paymentPack.title || 'Membresía Activa',
         puntos: paymentPack.points || personales || 0,
-        fecha: fullUser.payment?.created_at || new Date().toISOString()
+        fecha: userData.payment?.created_at || new Date().toISOString()
       });
     }
     
-    if (packs.length === 0 && fullUser.package_name) {
+    if (packs.length === 0 && userData.package_name) {
       packs.push({
-        paquete: fullUser.package_name || 'Plan Base',
+        paquete: userData.package_name || 'Plan Base',
         puntos: personales || 0,
-        fecha: fullUser.created_at || new Date().toISOString()
+        fecha: userData.created_at || new Date().toISOString()
       });
     }
     
@@ -435,19 +459,31 @@ export class TreeUsersPageComponent implements OnInit {
       });
     }
 
+    // 🔥 CREAR OBJETO PARA EL MODAL
     const userForModal = {
-      ...fullUser,
-      name: fullUser.name || userData.name || 'Usuario',
-      uuid: fullUser.uuid || userData.id || userData.uuid || '',
-      email: fullUser.email || userData.email || '',
-      photo: fullUser.photo || userData.photo || this.fallback,
+      ...userData,
+      name: userData.name || 'Usuario',
+      uuid: userData.uuid || userData.id || '',
+      email: userData.email || '',
+      photo: userData.photo || this.fallback,
       points: pts,
-      totalPoints: fullUser.totalPoints || granTotalPuntos,
-      payment: fullUser.payment || userData.payment,
-      payment_active: fullUser.payment_active || userData.payment_active,
-      active: fullUser.active || userData.active || false,
-      package_name: fullUser.package_name || fullUser.packageName || ''
+      totalPoints: userData.totalPoints || granTotalPuntos,
+      payment: userData.payment || userData.payment_active,
+      payment_active: userData.payment_active || userData.payment,
+      active: userData.active || false,
+      package_name: userData.package_name || '',
+      user_detail: userDetail
     };
+
+    console.log('📌 Enviando al modal (datos filtrados):', {
+      userModel: userForModal,
+      user_detail: userDetail,
+      points: pts,
+      sendTree: sendTree
+    });
+
+    // 🔥 DECISIÓN CLAVE: SI ES SOCIO, ENVÍO EL ÁRBOL. SI ES YO, NO LO ENVÍO.
+    const treeToSend = sendTree ? this.listPoints : [];
 
     this.nzModalService.create({
       nzTitle: title,
@@ -456,12 +492,9 @@ export class TreeUsersPageComponent implements OnInit {
       nzWidth: '450px',
       nzData: {
         userModel: userForModal,
-        listPoints: this.listPoints,
+        listPoints: treeToSend, // ✅ Ahora el árbol se envía solo cuando es necesario
         paquetes: packs,
-        paymentOrder: userForModal.payment || userForModal.payment_active,
-        pointTotal: personales,
-        pointRed: redTotal,
-        granTotalPuntos: granTotalPuntos
+        paymentOrder: userForModal.payment || userForModal.payment_active
       }
     });
   }

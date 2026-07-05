@@ -1,8 +1,7 @@
-<!-- ✅ REEMPLAZAR TODO EL CONTENIDO CON ESTO -->
-
 <div class="image-upload-container">
-  <!-- Input para seleccionar imagen -->
-  <div class="upload-area" (click)="fileInput.click()">
+  
+  <!-- Área de carga -->
+  <div class="upload-area" (click)="!previewImage ? fileInput.click() : null">
     <input 
       #fileInput
       type="file"
@@ -11,13 +10,14 @@
       style="display: none;"
     >
     
-    <!-- Vista previa de la imagen -->
+    <!-- Placeholder cuando no hay imagen -->
     <div *ngIf="!previewImage" class="upload-placeholder">
       <i nz-icon nzType="upload" nzTheme="outline" style="font-size: 48px; color: #d9d9d9;"></i>
       <p>Haz clic para seleccionar una imagen</p>
       <p style="font-size: 12px; color: #999;">Formatos: JPG, PNG, GIF</p>
     </div>
     
+    <!-- Vista previa de la imagen -->
     <div *ngIf="previewImage" class="image-preview">
       <img [src]="previewImage" alt="Vista previa" class="preview-img">
       <button 
@@ -33,23 +33,18 @@
     </div>
   </div>
 
-  <!-- Footer del modal -->
-  <div *nzModalFooter>
-    <div nz-row>
-      <div nz-col nzSpan="12" class="text-left">
-        <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
-      </div>
-      <div nz-col nzSpan="12" class="text-right">
-        <button 
-          nz-button 
-          nzType="primary" 
-          (click)="handleOk()" 
-          [nzLoading]="loadingSubmit"
-          [disabled]="!imageCroppedBlob"
-        >
-          Guardar
-        </button>
-      </div>
-    </div>
+  <!-- 🔥 BOTONES CORRECTAMENTE ALINEADOS -->
+  <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; width: 100%;">
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button 
+      nz-button 
+      nzType="primary" 
+      (click)="handleOk()" 
+      [nzLoading]="loadingSubmit"
+      [disabled]="!imageCroppedBlob"
+    >
+      Guardar
+    </button>
   </div>
+
 </div>
