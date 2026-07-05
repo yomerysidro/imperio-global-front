@@ -17,7 +17,7 @@ import { ToolsUserAddModalComponent } from '../../tools/tools-user-add-modal/too
 @Component({
   selector: 'app-profile-page',
   templateUrl: './profile-page.component.html',
-  styleUrls: ['./profile-page.component.scss']
+  styleUrls: ['./profile-page.component.scss'],
 })
 export class ProfilePageComponent implements OnInit {
   @ViewChild('templatePointPersonal', { read: TemplateRef }) templatePointPersonal!: TemplateRef<any>;
@@ -333,33 +333,48 @@ export class ProfilePageComponent implements OnInit {
   }
 
   fileChangeEvent(event: any): void {
-    let modal = this.nzModalService.create({
-      nzContent: ImageCropperUploadComponent,
-      nzTitle: 'Imagen para cortar',
-      nzMaskClosable: false,
-      nzData: { file: event },
-      nzFooter: null
-    });
-
-    modal.afterClose.subscribe((result) => {
-      if (result.file != null) {
-        let formData = new FormData();
-        formData.set('file', result.file as any);
-        this.apiService.postAuthenticationAvatar(formData).subscribe(
-          (response) => {
-            saveSessionStoraheUser({ name: response.data.name, photo: response.data?.file?.path ?? "" });
-            if (response.data.photo != null) {
-              this.avatarUrl = environment.hostUrl + '/storage/' + response.data.file.path;
-            } else {
-              this.avatarUrl = CONSTANTS.IMAGE.FALLBACK;
-            }
-          }, (error) => {
-            this.modalService.error(error?.message ?? 'Error al subir imagen')
-          }
-        )
-      }
-    });
+  // 🔥 Obtener el archivo del evento
+  const file = event.target?.files?.[0];
+  if (!file) {
+    this.modalService.error('No se seleccionó ningún archivo');
+    return;
   }
+
+  let modal = this.nzModalService.create({
+    nzContent: ImageCropperUploadComponent,
+    nzTitle: 'Imagen para cortar',
+    nzMaskClosable: false,
+    nzData: { file: file }, // ✅ Pasamos el archivo, no el evento
+    nzFooter: null
+  });
+
+  modal.afterClose.subscribe((result) => {
+    if (result && result.file != null) {
+      let formData = new FormData();
+      formData.set('file', result.file as any);
+      
+      this.isLoading = true;
+      this.apiService.postAuthenticationAvatar(formData).subscribe(
+        (response) => {
+          this.isLoading = false;
+          saveSessionStoraheUser({ name: response.data.name, photo: response.data?.file?.path ?? "" });
+          if (response.data.photo != null) {
+            this.avatarUrl = environment.hostUrl + '/storage/' + response.data.file.path;
+          } else {
+            this.avatarUrl = CONSTANTS.IMAGE.FALLBACK;
+          }
+          this.modalService.success('Avatar actualizado correctamente');
+          // 🔥 Recargar los datos del usuario para reflejar el cambio
+          this.loadCurrentUser();
+        }, 
+        (error) => {
+          this.isLoading = false;
+          this.modalService.error(error?.message ?? 'Error al subir imagen');
+        }
+      )
+    }
+  });
+}
 
   copyMessage(val: string) {
     this.apiService.postGenerateLinkInvited({}).subscribe(

@@ -1,0 +1,87 @@
+.image-upload-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.upload-area {
+  width: 100%;
+  max-width: 400px;
+  min-height: 200px;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.upload-area:hover {
+  border-color: #1890ff;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+/* --- ESTILOS CORREGIDOS PARA LA IMAGEN (CENTRADA Y REDONDA) --- */
+.image-preview {
+  position: relative;
+  width: 180px;        /* Tamaño fijo del círculo (puedes ajustarlo) */
+  height: 180px;       /* Debe ser igual al width */
+  border-radius: 50%;  /* Hace el contenedor circular */
+  overflow: hidden;    /* Recorta los bordes que sobresalgan */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin: 0 auto;      /* Centra el círculo horizontalmente */
+  background-color: #f5f5f5; /* Color de fondo por si la imagen no carga */
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* 🔥 CRUCIAL: Encaja la imagen en el círculo sin deformarla */
+  display: block;
+}
+
+/* Botón para eliminar la imagen */
+.remove-image-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 10;         /* Asegura que el botón esté encima de la imagen */
+  border-radius: 50%;  /* Botón redondo */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  min-width: unset;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.remove-image-btn:hover {
+  opacity: 0.8;
+}
+
+/* Ajuste para pantallas móviles si el círculo es muy grande */
+@media (max-width: 480px) {
+  .image-preview {
+    width: 140px;
+    height: 140px;
+  }
+}

@@ -25,6 +25,9 @@ export class UserTreeDetailComponent implements OnInit {
   usuarioTotal: number = 0;
   env = environment;
   isNodeActive: boolean = false;
+  
+  sponsorName: string = 'Sin patrocinador';
+  sponsorCode: string = '';
 
   constructor(@Optional() @Inject(NZ_MODAL_DATA) private modalData: any) {
     if (this.modalData) {
@@ -39,28 +42,33 @@ export class UserTreeDetailComponent implements OnInit {
         ? environment.hostUrl + '/storage/' + this.userModel.file.path
         : (this.userModel.photo ? environment.hostUrl + '/storage/' + this.userModel.photo : this.fallback);
 
-      // 2. Lógica de Puntos (Sobrescribimos los @Inputs para evitar duplicidad del padre)
-      const pts = this.safeParse(this.userModel.points);
+      // 2. Obtener el Patrocinador desde el árbol seguro
+      if (this.listPoints && Array.isArray(this.listPoints)) {
+        const sponsorPoint = this.listPoints.find((p: any) => 
+          p.user_code?.toLowerCase() === this.userModel.uuid?.toLowerCase()
+        );
+        if (sponsorPoint && sponsorPoint.sponsor_code) {
+          this.sponsorCode = sponsorPoint.sponsor_code;
+          this.sponsorName = this.sponsorCode;
+        }
+      }
 
-      // Tomamos los valores exactos del objeto points del modelo
-      this.pointTotal = Number(pts?.personal || 0);
-      const grupales = Number(pts?.pointGroup || 0);
-      const infinito = Number(pts?.infinito || 0);
+      // 3. Carga de Puntos exacta del Backend
+      const userDetail = this.userModel.user_detail || {};
+      const pts = this.userModel.points || {};
 
-      this.pointRed = grupales + infinito;
-
-      // El Gran Total es estrictamente la suma de puntos (no dinero)
+      this.pointTotal = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
+      this.pointRed = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
       this.granTotalPuntos = this.pointTotal + this.pointRed;
 
-      // CORRECCIÓN CLAVE: Eliminamos "|| !!this.userModel?.active" para que no haya falsos verdes.
-      // Solo será verde si el backend evaluó que en este mes (o días de gracia) está en estado 2 (PAGADO).
+      // 4. Estado activo
       this.isNodeActive = (this.userModel?.payment?.state == 2) || 
                           (this.userModel?.payment_active?.state == 2) || 
                           (this.paymentOrder?.state == 2) || 
                           !!this.userModel?.active || 
                           (this.userModel?.estado_visual?.toUpperCase() === 'ACTIVO');
 
-      // 3. Reset y Cálculo de Red (Contadores de personas)
+      // 5. Contadores de Red (Confía en la data estructural si el árbol local es menor)
       const uuid = this.userModel.uuid || this.userModel.id?.toString();
       if (uuid) {
         this.usuarioTotal = 0;
@@ -68,14 +76,15 @@ export class UserTreeDetailComponent implements OnInit {
         this.usuarioDirectos = 0;
         this.nodeTreeParse(uuid, true);
 
-        // Si el árbol no encuentra hijos reales, aseguramos consistencia visual
+        // 🔥 CORRECCIÓN: Si el parse local da 0 pero el backend sabe que hay red, conservamos el del backend
         if (this.usuarioTotal === 0) {
-          this.pointRed = 0;
-          this.granTotalPuntos = this.pointTotal;
+          this.usuarioTotal = this.userModel.red_total ?? 0;
+          this.usuarioDirectos = this.userModel.directos ?? 0;
+          this.usuarioActivos = this.userModel.activos ?? 0;
         }
       }
 
-      // 4. Nombre del Paquete
+      // 6. Nombre del Paquete
       this.paquetes = [];
       const nombrePack = this.userModel.package_name || this.userModel.payment?.payment_order?.pack?.title;
 
@@ -92,10 +101,6 @@ export class UserTreeDetailComponent implements OnInit {
     this.avatarUrl = this.fallback;
   }
 
-  /**
-   * @param code ID del usuario a buscar sus hijos
-   * @param isFirstLevel Si es true, incrementa el contador de Directos
-   */
   private nodeTreeParse(code: string, isFirstLevel: boolean = false) {
     if (!this.listPoints) return;
 
@@ -110,9 +115,7 @@ export class UserTreeDetailComponent implements OnInit {
       processedCodes.add(point.user_code);
 
       this.usuarioTotal++;
-
-      // CORRECCIÓN ESTRICTA: Solo confiar en la variable filtrada por el ciclo actual del backend
-      const isActive = !!point.active;
+      const isActive = point.state == 1 || !!point.active;
 
       if (isActive) this.usuarioActivos++;
       if (isFirstLevel) this.usuarioDirectos++;
@@ -121,7 +124,6 @@ export class UserTreeDetailComponent implements OnInit {
     });
   }
 
-  // Helper para parsear JSON si viene como string
   private safeParse(pts: any): any {
     if (!pts) return null;
     if (typeof pts === 'string') {
