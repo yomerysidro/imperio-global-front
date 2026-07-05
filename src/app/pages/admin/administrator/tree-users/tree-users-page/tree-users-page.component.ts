@@ -204,52 +204,86 @@ export class TreeUsersPageComponent implements OnInit {
   }
 
   /**
-   * Parsea la lista plana de puntos en una estructura de árbol recursiva
-   */
-  private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
-    let tree: Array<IECONode> = [];
+ * Parsea la lista plana de puntos en una estructura de árbol recursiva
+ * 🔥 CORREGIDO: Solo marca como activo si el estado del pago es 2 y es el mes actual o gracia.
+ */
+private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
+  let tree: Array<IECONode> = [];
 
-    const childrenPoints = listPoints.filter(p => {
-      const isMatch = p.sponsor_code?.toLowerCase() === code.toLowerCase();
-      const isValidType = p.type === 'B' || p.type === 'COMPRA' || p.is_legacy === true;
-      return isMatch && isValidType;
+  const childrenPoints = listPoints.filter(p => {
+    const isMatch = p.sponsor_code?.toLowerCase() === code.toLowerCase();
+    const isValidType = p.type === 'B' || p.type === 'COMPRA' || p.is_legacy === true;
+    return isMatch && isValidType;
+  });
+  
+  const processedCodes = new Set();
+
+  childrenPoints.forEach((point) => {
+    if (processedCodes.has(point.user_code)) return;
+    processedCodes.add(point.user_code);
+
+    const uHijo = point.user || point.user_point;
+    if (!uHijo) return;
+
+    const image = uHijo?.file?.path
+      ? environment.hostUrl + '/storage/' + uHijo.file.path
+      : this.fallback;
+
+    // 🔥 CORRECCIÓN CRÍTICA: Verificar el estado del pago y la fecha
+    let isNodeActive = false;
+
+    // 1. Obtener el pago del usuario (puede venir en payment o payment_active)
+    const paymentObj = uHijo.payment || uHijo.payment_active || point.payment;
+
+    if (paymentObj) {
+      // 2. Verificar si el estado es PAGADO (2)
+      const isPaid = (paymentObj.state === 2 || paymentObj.state === '2');
+
+      if (isPaid) {
+        // 3. Obtener la fecha del pago
+        const paymentDate = paymentObj.created_at || paymentObj.updated_at;
+        if (paymentDate) {
+          const date = new Date(paymentDate);
+          const now = new Date();
+
+          const paymentMonth = date.getMonth();
+          const paymentYear = date.getFullYear();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+
+          // Calcular mes anterior para período de gracia
+          const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+          const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+          const isCurrentMonth = (paymentMonth === currentMonth && paymentYear === currentYear);
+          const isGracePeriod = (paymentMonth === prevMonth && paymentYear === prevYear && now.getDate() <= 2);
+
+          // ✅ SOLO si está pagado y es el mes actual o gracia, está activo
+          if (isCurrentMonth || isGracePeriod) {
+            isNodeActive = true;
+          }
+        }
+      }
+    }
+
+    // 🔥 Si no cumple con la condición estricta, isNodeActive se queda en false (inactivo)
+
+    tree.push({
+      data: {
+        id: point.user_code,
+        photo: image,
+        name: uHijo.name,
+        email: uHijo.email
+      },
+      selected: true,
+      active: isNodeActive, // ✅ Ahora solo será verde si cumple la condición
+      children: this.nodeTreeParse(listPoints, point.user_code),
+      admin: !!uHijo.is_admin
     });
-    
-    const processedCodes = new Set();
+  });
 
-    childrenPoints.forEach((point) => {
-      if (processedCodes.has(point.user_code)) return;
-      processedCodes.add(point.user_code);
-
-      const uHijo = point.user || point.user_point;
-      if (!uHijo) return;
-
-      const image = uHijo?.file?.path
-        ? environment.hostUrl + '/storage/' + uHijo.file.path
-        : this.fallback;
-
-      const isNodeActive = !!point.active || 
-                           !!uHijo?.active || 
-                           (uHijo?.payment_active?.state == 2) || 
-                           (uHijo?.payment?.state == 2) || 
-                           (uHijo?.estado_visual?.toUpperCase() === 'ACTIVO');
-
-      tree.push({
-        data: {
-          id: point.user_code,
-          photo: image,
-          name: uHijo.name,
-          email: uHijo.email
-        },
-        selected: true,
-        active: isNodeActive,
-        children: this.nodeTreeParse(listPoints, point.user_code),
-        admin: !!uHijo.is_admin
-      });
-    });
-
-    return tree;
-  }
+  return tree;
+}
 
   /**
    * BUSCA UN USUARIO EN EL ÁRBOL DE MANERA RECURSIVA
