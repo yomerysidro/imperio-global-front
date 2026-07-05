@@ -84,9 +84,7 @@ export class TreeUsersPageComponent implements OnInit {
             p.type === 'B' || p.type === 'COMPRA' || p.is_legacy === true
           );
 
-          console.log('📊 Puntos filtrados para el árbol:', this.listPoints.length);
-          console.log('📊 Total puntos recibidos:', allPoints.length);
-
+ 
           const myId = user?.uuid || getCodeUuid() || '';
           
           // 🔥 Construir árbol REAL (sin placeholders para los contadores)
@@ -100,17 +98,7 @@ export class TreeUsersPageComponent implements OnInit {
           this.usuarioActivos = user?.activos !== undefined ? user.activos : realStats.active;
           this.usuarioTotal = user?.red_total !== undefined ? user.red_total : realStats.total;
 
-          console.log('📊 Contadores del backend:', {
-            directos: user?.directos,
-            activos: user?.activos,
-            red_total: user?.red_total
-          });
-          console.log('📊 Contadores calculados localmente:', {
-            directos: realChildren.length,
-            activos: realStats.active,
-            total: realStats.total
-          });
-
+        
           // 🔥 SOLO USAR PLACEHOLDERS PARA EL ÁRBOL VISUAL (no para contadores)
           let childrenForDisplay = realChildren;
           if (childrenForDisplay.length === 0) {
@@ -358,22 +346,18 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     }
 
     // 🔥 CORRECCIÓN: Primero intentar buscar por código (uuid) usando getUsersFindAll
-    console.log('📡 Buscando usuario por código (uuid):', codeStr);
     this.apiService.getUsersFindAll({ code: codeStr, limit: 1, page: 1 }).subscribe({
       next: (res) => {
         if (res.success && res.data?.items && res.data.items.length > 0) {
           const userData = res.data.items[0];
-          console.log('✅ Usuario encontrado por código:', userData);
           this.openModal(userData, `Detalle: ${userData.name || codeStr}`, true);
         } else {
           // Si falla por código, intentar por ID numérico (si es número)
           const numericId = parseInt(codeStr, 10);
           if (!isNaN(numericId)) {
-            console.log('📡 Intentando buscar por ID numérico:', numericId);
             this.apiService.getUserById(numericId).subscribe({
               next: (resById) => {
                 if (resById.success && resById.data) {
-                  console.log('✅ Usuario encontrado por ID:', resById.data);
                   this.openModal(resById.data, `Detalle: ${resById.data.name || codeStr}`, true);
                 } else {
                   console.warn('⚠️ Usuario no encontrado por ningún método:', codeStr);
@@ -396,11 +380,9 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
         // Intentar por ID numérico como fallback
         const numericId = parseInt(codeStr, 10);
         if (!isNaN(numericId)) {
-          console.log('📡 Fallback: Intentando buscar por ID numérico:', numericId);
           this.apiService.getUserById(numericId).subscribe({
             next: (resById) => {
               if (resById.success && resById.data) {
-                console.log('✅ Usuario encontrado por ID (fallback):', resById.data);
                 this.openModal(resById.data, `Detalle: ${resById.data.name || codeStr}`, true);
               } else {
                 this.fallbackOpenModal(codeStr);
@@ -441,16 +423,10 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     const userCode = userData.id || userData.uuid || '';
     const userCodeStr = String(userCode);
 
-    console.log('📌 ABRIENDO MODAL PARA CÓDIGO:', userCodeStr);
-    console.log('📌 Datos completos del usuario:', userData);
-    console.log('📌 Enviar árbol de red:', sendTree);
 
     // 🔥 OBTENER PUNTOS DESDE USER_DETAIL (ENVIADO POR EL BACKEND)
     const userDetail = userData.user_detail || {};
     const pts = userData.points || {};
-
-    console.log('📌 user_detail RECIBIDO EN OPENMODAL:', userDetail);
-    console.log('📌 points RECIBIDOS EN OPENMODAL:', pts);
 
     let personales = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
     let redTotal = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
@@ -509,12 +485,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       user_detail: userDetail
     };
 
-    console.log('📌 Enviando al modal (datos filtrados):', {
-      userModel: userForModal,
-      user_detail: userDetail,
-      points: pts,
-      sendTree: sendTree
-    });
+   
 
     // 🔥 DECISIÓN CLAVE: SI ES SOCIO, ENVÍO EL ÁRBOL. SI ES YO, NO LO ENVÍO.
     const treeToSend = sendTree ? this.listPoints : [];
