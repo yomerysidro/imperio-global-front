@@ -30,6 +30,7 @@ export interface UserModel {
   is_admin?: boolean | number;
   totalPoints?: number;
   active?: boolean;
+  manual_reactivation_active?: boolean;
 
   // Nuevas propiedades inyectadas por el Backend
   bonos_totales_historico?: number; 
