@@ -76,7 +76,7 @@ export class ToolsUsersReactiveModalComponent implements OnInit {
 
   public modalDesactive(): void{
     this.modalService.confirm(
-      "¿Desea activar este usuario?",
+      "¿Desea reactivar los puntos residuales de este socio para el mes actual?",
       () => {
         this.loadingDesactive = true;
         this.apiService.postUsercodeActiveResidual({userCode : this.userModel?.uuid , products: this._cartList.map( p => {

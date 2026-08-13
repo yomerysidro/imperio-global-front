@@ -159,7 +159,13 @@ export class TreeUsersPageComponent implements OnInit {
               name: user?.name,
               admin: !!user?.is_admin
             },
-            active: (user?.payment?.state == 2) || (user?.payment_active?.state == 2) || !!user?.active || (user?.estado_visual?.toUpperCase() === 'ACTIVO'),
+            // Corporativo no depende del pago mensual: siempre se muestra activo.
+            active: !!user?.is_admin ||
+              user?.name?.trim().toLowerCase() === 'corporativo' ||
+              (user?.payment?.state == 2) ||
+              (user?.payment_active?.state == 2) ||
+              !!user?.active ||
+              (user?.estado_visual?.toUpperCase() === 'ACTIVO'),
             selected: true,
             children: childrenForDisplay
           };
@@ -261,6 +267,11 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     }
 
     // 🔥 Si no cumple con la condición estricta, isNodeActive se queda en false (inactivo)
+
+    // Corporativo no depende de pagos mensuales y siempre permanece activo.
+    if (!!uHijo.is_admin || uHijo.name?.trim().toLowerCase() === 'corporativo') {
+      isNodeActive = true;
+    }
 
     tree.push({
       data: {
@@ -486,7 +497,10 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       totalPoints: userData.totalPoints || granTotalPuntos,
       payment: userData.payment || userData.payment_active,
       payment_active: userData.payment_active || userData.payment,
-      active: userData.active || false,
+      is_admin: !!(userData.is_admin || userData.admin),
+      active: !!(userData.is_admin || userData.admin) ||
+        userData.name?.trim().toLowerCase() === 'corporativo' ||
+        !!userData.active,
       package_name: userData.package_name || '',
       user_detail: userDetail
     };

@@ -109,8 +109,22 @@
         <button nz-button nzType="primary" class="m-b-20" (click)="modalUserOptions(1)">Modificar Datos de usuario</button>
         <button nz-button nzType="primary" class="m-b-20 ant-btn-warning" (click)="modalUserOptions(2)">Modificar Patrocinador de usuario</button>
         <button nz-button nzType="primary" nzDanger class="m-b-20" (click)="modalUserOptions(3)">Eliminar a usuario registrado</button>
-        <ng-container *ngIf="userModel.payment?.state == CONSTANTS.PAYMENT_ORDER.TERMINADO">
+        <ng-container *ngIf="canReactivatePoints">
           <button nz-button nzType="primary" class="m-b-20 ant-btn-success" (click)="modalUserOptions(4)">Activar Usuarios con Plan : Genera residual</button>
+        </ng-container>
+        <ng-container *ngIf="canDeactivatePoints">
+          <div class="deactivate-points-section">
+            <button
+              nz-button
+              nzType="primary"
+              nzDanger
+              class="deactivate-points-button"
+              [nzLoading]="loadingDesactive"
+              (click)="deactivateUser()">
+              <i nz-icon nzType="poweroff" nzTheme="outline"></i>
+              <span>Desactivar puntos</span>
+            </button>
+          </div>
         </ng-container>
         <ng-container *ngIf="userModel.payment?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
           <button nz-button nzType="primary" class="m-b-20 ant-btn-info" (click)="onPaymentOfflineConfirm(userModel.uuid)">Activar Usuario: Pago Efectivo</button>

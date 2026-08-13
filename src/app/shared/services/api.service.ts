@@ -217,6 +217,10 @@ export class ApiService {
     return this.httpService.post<IResponse<any>>( '/users/desactive' , command ).pipe(tap( res => res ));
   }
 
+  public getUserReactivationStatus(userCode: string): Observable<IResponse<any>> {
+    return this.httpService.get<IResponse<any>>(`/users/reactivation-status/${userCode}`).pipe(tap(res => res));
+  }
+
   public postUsercodeActiveResidual( command: any ): Observable<IResponse<any>>{
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
     return this.httpService.post<IResponse<any>>( '/users/active-residual' , command ).pipe(tap( res => res ));
