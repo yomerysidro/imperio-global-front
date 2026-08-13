@@ -213,7 +213,7 @@ export class ToolsUsersPageComponent implements OnInit {
   public onDetailUser(userModel: UserModel, tplContent: TemplateRef<{}>): void {
     this.userModel = userModel;
     this.canReactivatePoints = false;
-    this.canDeactivatePoints = false;
+    this.canDeactivatePoints = userModel.manual_reactivation_active === true;
     this.loadReactivationActions(userModel.uuid);
 
     const modal = this.nzModalService.create({
@@ -249,11 +249,11 @@ export class ToolsUsersPageComponent implements OnInit {
       (response) => {
         const isUserActive = !!response?.data?.is_active;
         this.canReactivatePoints = !isUserActive && !!response?.data?.actions?.can_reactivate;
-        this.canDeactivatePoints = !!response?.data?.actions?.can_deactivate;
+        this.canDeactivatePoints = response?.data?.manual_reactivation_active === true;
       },
       () => {
         this.canReactivatePoints = false;
-        this.canDeactivatePoints = false;
+        this.canDeactivatePoints = this.userModel?.manual_reactivation_active === true;
       }
     );
   }
