@@ -48,6 +48,8 @@ export class ToolsUsersPageComponent implements OnInit {
 
   planList: Array<any> = [];
   loadingDesactive: boolean = false;
+  canReactivatePoints: boolean = false;
+  canDeactivatePoints: boolean = false;
   constructor(
     private apiService: ApiService,
     private modalService: ModalService,
@@ -209,6 +211,11 @@ export class ToolsUsersPageComponent implements OnInit {
   }
 
   public onDetailUser(userModel: UserModel, tplContent: TemplateRef<{}>): void {
+    this.userModel = userModel;
+    this.canReactivatePoints = false;
+    this.canDeactivatePoints = false;
+    this.loadReactivationActions(userModel.uuid);
+
     const modal = this.nzModalService.create({
       nzTitle: null,
       nzContent: tplContent,
@@ -221,8 +228,6 @@ export class ToolsUsersPageComponent implements OnInit {
       },
     });
 
-    this.userModel = userModel;
-
     // modal.afterOpen.subscribe( () => {
     //   this.avatarUrl = userModel.file?.path ? environment.hostUrl + '/storage/' + userModel.file?.path : CONSTANTS.IMAGE.FALLBACK;
     //   this.validateForm.patchValue({
@@ -232,7 +237,25 @@ export class ToolsUsersPageComponent implements OnInit {
     //   this.userModel = userModel;
     // })
 
-    modal.afterClose.subscribe(() => this.onSearch())
+    modal.afterClose.subscribe(() => {
+      this.canReactivatePoints = false;
+      this.canDeactivatePoints = false;
+      this.onSearch();
+    })
+  }
+
+  private loadReactivationActions(userCode: string): void {
+    this.apiService.getUserReactivationStatus(userCode).subscribe(
+      (response) => {
+        const isUserActive = !!response?.data?.is_active;
+        this.canReactivatePoints = !isUserActive && !!response?.data?.actions?.can_reactivate;
+        this.canDeactivatePoints = !!response?.data?.actions?.can_deactivate;
+      },
+      () => {
+        this.canReactivatePoints = false;
+        this.canDeactivatePoints = false;
+      }
+    );
   }
 
   public modalDesactive(): void {
@@ -254,7 +277,33 @@ export class ToolsUsersPageComponent implements OnInit {
     )
   }
 
+  public deactivateUser(): void {
+    this.modalService.confirm(
+      "¿Desea desactivar los puntos de esta activación mensual? No se modificará el usuario, su red, su paquete, su historial ni su rango.",
+      () => {
+        this.loadingDesactive = true;
+        this.apiService.postUsercodeDesactive({ userCode: this.userModel?.uuid }).subscribe(
+          () => {
+            this.loadingDesactive = false;
+            this.nzModalService.closeAll();
+            this.modalService.success("Puntos de la activación mensual desactivados correctamente");
+            this.onSearch();
+          },
+          (error) => {
+            this.loadingDesactive = false;
+            this.modalService.error(error?.message ?? "No se pudieron desactivar los puntos");
+          }
+        );
+      }
+    );
+  }
+
   public modalUserOptions(tab: number): void {
+    if (tab == 4 && !this.canReactivatePoints) {
+      this.modalService.warning("Este socio todavía está activo. Podrá reactivar sus puntos cuando termine su periodo mensual y quede inactivo.");
+      return;
+    }
+
     if (tab == 2) {
       if (this.userModel?.payment == null) {
         this.modalService.warning("Este usuario debe de tener un plan comprado, para continuar.")

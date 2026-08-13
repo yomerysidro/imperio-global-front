@@ -62,10 +62,12 @@ export class UserTreeDetailComponent implements OnInit {
       this.granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? this.pointRed);
 
       // 4. Estado activo
-      this.isNodeActive = (this.userModel?.payment?.state == 2) || 
-                          (this.userModel?.payment_active?.state == 2) || 
-                          (this.paymentOrder?.state == 2) || 
-                          !!this.userModel?.active || 
+      this.isNodeActive = !!this.userModel?.is_admin ||
+                          this.userModel?.name?.trim().toLowerCase() === 'corporativo' ||
+                          (this.userModel?.payment?.state == 2) ||
+                          (this.userModel?.payment_active?.state == 2) ||
+                          (this.paymentOrder?.state == 2) ||
+                          !!this.userModel?.active ||
                           (this.userModel?.estado_visual?.toUpperCase() === 'ACTIVO');
 
       // 5. Contadores de Red (Confía en la data estructural si el árbol local es menor)

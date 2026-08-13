@@ -3,3 +3,28 @@
 -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
 box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
 }
+
+.deactivate-points-section {
+  margin-top: 12px;
+  padding-top: 18px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.deactivate-points-button {
+  min-width: 190px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 5px 14px rgba(255, 77, 79, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  i {
+    margin-right: 7px;
+  }
+
+  &:hover:not([disabled]) {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px rgba(255, 77, 79, 0.3);
+  }
+}
