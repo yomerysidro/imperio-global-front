@@ -59,7 +59,7 @@ export class UserTreeDetailComponent implements OnInit {
 
       this.pointTotal = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
       this.pointRed = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
-      this.granTotalPuntos = this.pointTotal + this.pointRed;
+      this.granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? this.pointRed);
 
       // 4. Estado activo
       this.isNodeActive = (this.userModel?.payment?.state == 2) || 

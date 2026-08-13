@@ -57,6 +57,7 @@ export class ProfilePageComponent implements OnInit {
   granTotalPuntos: number = 0;
   activePackages: any[] = [];
   totalPoints: number = 0;
+  totalComisiones: number = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -151,13 +152,16 @@ export class ProfilePageComponent implements OnInit {
         this.pointProducto = this.pointPatrocinio * 0.5;
 
         // 5. 🔥 TOTAL DE PUNTOS PARA EL RANGO = PERSONALES + RED + RESIDUALES (SIN PATROCINIO)
-        this.totalPoints = this.pointPersonal + this.pointGroup + this.pointResudial;
+        this.totalPoints = Number(pts.total_general ?? userDetail.total_puntos ?? this.pointGroup);
 
         // 6. 🔥 GRAN TOTAL DE GANANCIAS = BONO PATROCINIO + RESIDUAL + INFINITO (PARA EL RESUMEN GLOBAL)
-        this.granTotalPuntos = this.pointPatrocinio + this.pointResudial + this.pointInfinity;
+        this.pointInfinity = Number(pts.infinito ?? 0);
+        this.totalComisiones = Number(
+          pts.total_comisiones ?? (this.pointPatrocinio + this.pointResudial + this.pointInfinity)
+        );
+        this.granTotalPuntos = this.totalComisiones;
 
         // 7. OTROS PUNTOS
-        this.pointInfinity = Number(pts.infinito ?? 0);
         this.pointAfiliado = Number(pts.pointAfiliado ?? 0);
         this.totalPointsPersonalGlobal = Number(pts.personalGlobal ?? 0);
 
@@ -194,7 +198,7 @@ export class ProfilePageComponent implements OnInit {
   // GRAN TOTAL DE GANANCIAS (sin barrera)
   // ============================================
   getTotalEarnings(): number {
-    return this.pointServicio + this.pointProducto + this.pointResudial + this.pointInfinity;
+    return this.totalComisiones;
   }
 
   // ============================================

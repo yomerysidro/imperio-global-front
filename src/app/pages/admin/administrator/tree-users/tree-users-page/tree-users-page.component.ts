@@ -78,10 +78,16 @@ export class TreeUsersPageComponent implements OnInit {
           this.currentUser = user;
 
           // 🔥 FILTRAR SOLO PUNTOS DE TIPO COMPRA (B) Y LEGACY
-          const allPoints = Array.isArray(points) ? points : [];
+          const allPoints = Array.isArray(pointsData?.volume_records)
+            ? pointsData.volume_records
+            : Array.isArray(pointsData?.point_records)
+              ? pointsData.point_records
+              : Array.isArray(points)
+                ? points
+                : [];
           
           this.listPoints = allPoints.filter(p => 
-            p.type === 'B' || p.type === 'COMPRA' || p.is_legacy === true
+            p.type === 'B' || p.type === 'G' || p.type === 'COMPRA' || p.is_legacy === true
           );
 
  
@@ -118,11 +124,11 @@ export class TreeUsersPageComponent implements OnInit {
 
           // 🔥 PUNTOS DEL USUARIO
           if (user?.points) {
-            this.puntosPersonales = user.points.personal || 0;
-            this.puntosRed = user.points.pointGroup || 0;
-            this.puntosTotales = user.totalPoints || user.points.compra?.total_puntos || 0;
-            this.puntosPatrocinio = user.points.patrocinioTotal || user.points.patrocinio || 0;
-            this.puntosResidual = user.points.residual || 0;
+            this.puntosPersonales = Number(user.points.personal ?? 0);
+            this.puntosRed = Number(user.points.pointGroup ?? 0);
+            this.puntosTotales = Number(user.points.total_general ?? user.totalPoints ?? 0);
+            this.puntosPatrocinio = Number(user.points.patrocinioTotal ?? user.points.patrocinio ?? 0);
+            this.puntosResidual = Number(user.points.residual ?? 0);
           } else {
             this.puntosPersonales = 0;
             this.puntosRed = 0;
@@ -200,7 +206,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
 
   const childrenPoints = listPoints.filter(p => {
     const isMatch = p.sponsor_code?.toLowerCase() === code.toLowerCase();
-    const isValidType = p.type === 'B' || p.type === 'COMPRA' || p.is_legacy === true;
+    const isValidType = p.type === 'B' || p.type === 'G' || p.type === 'COMPRA' || p.is_legacy === true;
     return isMatch && isValidType;
   });
   
