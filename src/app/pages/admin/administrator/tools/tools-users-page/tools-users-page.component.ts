@@ -92,17 +92,7 @@ export class ToolsUsersPageComponent implements OnInit {
         if (usersList.success) {
           this.totalRecord = usersList.data.pagination.total;
           // FILTRO DE INTEGRIDAD: Limpiamos los puntos fantasma de la tabla
-          this.tableProducts = usersList.data.items.map(user => {
-            const pts = user.points;
-            if (pts) {
-              // Si el Back dice que tiene puntos grupales pero el contador de red total es 0, limpiamos
-              if (Number(pts.pointGroup) > 0 && (user.red_total === 0 || !user.red_total)) {
-                pts.pointGroup = 0;
-                user.totalPoints = Number(pts.patrocinio || 0) + Number(pts.personal || 0) + Number(pts.compra?.total_puntos || 0);
-              }
-            }
-            return user;
-          });
+          this.tableProducts = usersList.data.items;
         }
         this.tableProductLoading = false;
 
@@ -150,7 +140,7 @@ export class ToolsUsersPageComponent implements OnInit {
     const red = Number(pts?.pointGroup || 0);
     
     // Gran Total (Lo que ves en la tabla principal)
-    const granTotal = userModel?.totalPoints || (patrocinioTotal + residualTotal + personales + red);
+    const granTotal = Number(pts?.total_general ?? userModel?.totalPoints ?? red);
 
     this.nzModalService.create({
       nzTitle: 'Detalle del Usuario',
@@ -161,7 +151,7 @@ export class ToolsUsersPageComponent implements OnInit {
         listPoints: this._listPoints,
         paymentOrder: userModel?.payment,
         pointTotal: personales,       
-        pointRed: red + patrocinioTotal, // Se suma para la vista de red acumulada
+        pointRed: red,
         granTotalPuntos: granTotal,  
         paquetes: pts?.compra?.detalles || []
       }

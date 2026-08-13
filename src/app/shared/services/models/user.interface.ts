@@ -37,6 +37,9 @@ export interface UserModel {
   activos?: number;
   package_name?: string;
   red_total?: number;
+  volume_records?: Array<any>;
+  commission_records?: Array<any>;
+  point_records?: Array<any>;
   user_detail?: UserDetail; // 🔥 NUEVO: datos detallados del usuario
 }
 
@@ -71,6 +74,8 @@ export interface UserPoint {
   patrocinioRequest: number;
   patrocinioServicio: number;
   residualServicio: number;
+  total_general?: number;
+  total_comisiones?: number;
 }
 
 export interface RangeModel {
