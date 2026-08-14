@@ -316,7 +316,7 @@ export class ToolsUsersPageComponent implements OnInit {
         break;
       case 2: this.tabTitle = "Modificar Patrocinador de Usuario";
         break;
-      case 4: this.tabTitle = "Reactivar puntos";
+      case 4: this.tabTitle = "Reactivar, Simulando compra en tienda";
         break;
       default: this.tabTitle = titleModalGeneral;
         break;
