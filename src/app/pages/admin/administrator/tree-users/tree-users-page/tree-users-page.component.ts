@@ -9,6 +9,7 @@ import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/user-tree-detail.component';
+import { isUserMembershipActive } from '@shared/utilities/user-activity';
 
 @Component({
   selector: 'app-tree-users-page',
@@ -159,13 +160,7 @@ export class TreeUsersPageComponent implements OnInit {
               name: user?.name,
               admin: !!user?.is_admin
             },
-            // Corporativo no depende del pago mensual: siempre se muestra activo.
-            active: !!user?.is_admin ||
-              user?.name?.trim().toLowerCase() === 'corporativo' ||
-              (user?.payment?.state == 2) ||
-              (user?.payment_active?.state == 2) ||
-              !!user?.active ||
-              (user?.estado_visual?.toUpperCase() === 'ACTIVO'),
+            active: isUserMembershipActive(user),
             selected: true,
             children: childrenForDisplay
           };
@@ -229,49 +224,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       ? environment.hostUrl + '/storage/' + uHijo.file.path
       : this.fallback;
 
-    // 🔥 CORRECCIÓN CRÍTICA: Verificar el estado del pago y la fecha
-    let isNodeActive = false;
-
-    // 1. Obtener el pago del usuario (puede venir en payment o payment_active)
-    const paymentObj = uHijo.payment || uHijo.payment_active || point.payment;
-
-    if (paymentObj) {
-      // 2. Verificar si el estado es PAGADO (2)
-      const isPaid = (paymentObj.state === 2 || paymentObj.state === '2');
-
-      if (isPaid) {
-        // 3. Obtener la fecha del pago
-        const paymentDate = paymentObj.created_at || paymentObj.updated_at;
-        if (paymentDate) {
-          const date = new Date(paymentDate);
-          const now = new Date();
-
-          const paymentMonth = date.getMonth();
-          const paymentYear = date.getFullYear();
-          const currentMonth = now.getMonth();
-          const currentYear = now.getFullYear();
-
-          // Calcular mes anterior para período de gracia
-          const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-          const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-          const isCurrentMonth = (paymentMonth === currentMonth && paymentYear === currentYear);
-          const isGracePeriod = (paymentMonth === prevMonth && paymentYear === prevYear && now.getDate() <= 2);
-
-          // ✅ SOLO si está pagado y es el mes actual o gracia, está activo
-          if (isCurrentMonth || isGracePeriod) {
-            isNodeActive = true;
-          }
-        }
-      }
-    }
-
-    // 🔥 Si no cumple con la condición estricta, isNodeActive se queda en false (inactivo)
-
-    // Corporativo no depende de pagos mensuales y siempre permanece activo.
-    if (!!uHijo.is_admin || uHijo.name?.trim().toLowerCase() === 'corporativo') {
-      isNodeActive = true;
-    }
+    const isNodeActive = isUserMembershipActive(uHijo, point);
 
     tree.push({
       data: {
@@ -498,9 +451,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       payment: userData.payment || userData.payment_active,
       payment_active: userData.payment_active || userData.payment,
       is_admin: !!(userData.is_admin || userData.admin),
-      active: !!(userData.is_admin || userData.admin) ||
-        userData.name?.trim().toLowerCase() === 'corporativo' ||
-        !!userData.active,
+      active: isUserMembershipActive(userData),
       package_name: userData.package_name || '',
       user_detail: userDetail
     };
