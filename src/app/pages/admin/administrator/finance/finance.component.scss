@@ -1,72 +1,66 @@
-.card--shadow{
-  -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
--moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
-}
+$green: #00b517;
+$red: #f5222d;
+$purple: #6563ff;
+$yellow: #fec53d;
+$text: #343a40;
+$muted: #626262;
 
-.excel-report-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+.finance-page { position: relative; padding: 24px; color: $text; }
+.finance-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 24px 28px; border-radius: 16px; background: linear-gradient(135deg, #fff, #f7f7ff); border: 1px solid #ececf5; }
+.finance-header h1 { margin: 2px 0; font-size: 28px; font-weight: 700; }
+.finance-header p { margin: 0; color: $muted; }
+.section-label { color: $purple; font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.header-total { min-width: 160px; padding: 14px 20px; border-radius: 12px; background: $purple; color: #fff; text-align: right; }
+.header-total span { display: block; opacity: .8; }
+.header-total strong { font-size: 28px; }
 
-  > a,
-  > button {
-    width: 100%;
-    min-height: 105px;
-  }
-}
+.summary-grid, .report-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.summary-card { min-width: 0; padding: 22px; border: 1px solid #ededf3; border-radius: 16px; background: #fff; box-shadow: 0 5px 18px rgba(31, 35, 48, .08); }
+.summary-card h2 { margin: 14px 0 18px; font-size: 18px; }
+.card-heading { display: flex; justify-content: space-between; align-items: center; }
+.card-icon { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 12px; font-size: 22px; }
+.sponsorship-card .card-icon { color: #24a867; background: #e9fff3; }
+.residual-card .card-icon { color: #d49b09; background: #fff7df; }
+.global-card .card-icon { color: $purple; background: #efefff; }
+.visibility-button { width: 38px; height: 38px; border: 0; border-radius: 50%; background: #f3f3f6; color: $muted; cursor: pointer; font-size: 18px; }
+.visibility-button:hover { color: $purple; background: #ededff; }
+.status-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; color: $muted; border-bottom: 1px solid #f1f1f4; }
+.status-row strong { color: $text; white-space: nowrap; }
+.status-dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; }
+.status-dot.active { background: $green; }
+.status-dot.inactive { background: $red; }
+.card-total { display: flex; justify-content: space-between; align-items: end; margin-top: 16px; }
+.card-total strong { color: $purple; font-size: 26px; }
+.global-card small { display: block; margin-top: 12px; color: $muted; }
 
-.excel-section-title {
-  margin: 25px 0 15px;
-  color: #343a40;
-  font-weight: 700;
-}
+.reports-section { margin-top: 28px; padding: 24px; border: 1px solid #ededf3; border-radius: 16px; background: #fff; }
+.section-heading h2, .excel-section-title { margin: 3px 0 18px; color: $text; font-weight: 700; }
+.excel-section-title { margin-top: 24px; font-size: 18px; }
+.report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pdf-grid { grid-template-columns: minmax(0, 1fr); }
+.report-card { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; min-height: 105px; padding: 18px; border: 2px solid #e3e3e8; border-radius: 14px; color: $text; transition: .2s ease; }
+.report-card:hover { color: $text; border-color: #bdbdc9; transform: translateY(-2px); box-shadow: 0 7px 18px rgba(31, 35, 48, .1); }
+.report-card.current-report { border-color: $green; background: #f3fff7; }
+.report-icon { display: grid; width: 52px; height: 52px; place-items: center; border-radius: 12px; font-size: 26px; }
+.report-icon.pdf { color: $red; background: #fff0f0; }
+.report-icon.historical { color: $muted; background: #f2f2f7; }
+.report-icon.current { color: $green; background: #e7fbed; }
+.report-card span, .report-card small { display: block; color: $muted; }
+.report-card strong { display: block; margin: 2px 0; font-size: 18px; }
+.download-icon { color: $purple; font-size: 22px; }
+.current-report .download-icon { color: $green; }
 
-.excel-report-card {
-  border: 2px solid #dedede;
-  background: #fff;
-  color: #343a40;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.download-overlay { position: fixed; z-index: 1100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(25, 27, 38, .48); backdrop-filter: blur(2px); }
+.download-overlay-card { display: flex; flex-direction: column; align-items: center; min-width: 320px; max-width: 90vw; padding: 30px; border-radius: 16px; background: #fff; box-shadow: 0 18px 55px rgba(0, 0, 0, .25); text-align: center; }
+.download-overlay-card i { margin-bottom: 14px; color: $purple; font-size: 38px; }
+.download-overlay-card strong { font-size: 17px; }
+.download-overlay-card span { margin-top: 5px; color: $muted; }
 
-  &:hover {
-    color: #343a40;
-    transform: translateY(-2px);
-  }
-
-  .report-kicker {
-    color: #6c757d;
-    font-size: 13px !important;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-}
-
-.current-month-excel {
-  border-color: #00a651;
-  background: #f1fff7;
-  color: #343a40;
-  text-align: left;
-
-  &.is-generating {
-    cursor: wait;
-    opacity: 0.7;
-    pointer-events: none;
-  }
-
-  .excel-icon {
-    color: #00a651;
-    font-size: 34px;
-  }
-
-  .current-report-title {
-    color: #008a43;
-    font-weight: 700;
-  }
-}
-
+@media (max-width: 991px) { .summary-grid { grid-template-columns: 1fr; } }
 @media (max-width: 767px) {
-  .excel-report-actions {
-    grid-template-columns: 1fr;
-  }
+  .finance-page { padding: 14px; }
+  .finance-header { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .header-total { width: 100%; text-align: left; }
+  .report-grid { grid-template-columns: 1fr; }
+  .reports-section { padding: 18px; }
 }
