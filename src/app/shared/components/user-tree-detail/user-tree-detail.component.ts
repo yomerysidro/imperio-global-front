@@ -2,6 +2,7 @@ import { Component, Inject, Input, OnInit, Optional } from '@angular/core';
 import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
+import { isUserMembershipActive } from '@shared/utilities/user-activity';
 
 @Component({
   selector: 'app-user-tree-detail',
@@ -62,13 +63,7 @@ export class UserTreeDetailComponent implements OnInit {
       this.granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? this.pointRed);
 
       // 4. Estado activo
-      this.isNodeActive = !!this.userModel?.is_admin ||
-                          this.userModel?.name?.trim().toLowerCase() === 'corporativo' ||
-                          (this.userModel?.payment?.state == 2) ||
-                          (this.userModel?.payment_active?.state == 2) ||
-                          (this.paymentOrder?.state == 2) ||
-                          !!this.userModel?.active ||
-                          (this.userModel?.estado_visual?.toUpperCase() === 'ACTIVO');
+      this.isNodeActive = isUserMembershipActive(this.userModel, undefined, this.paymentOrder);
 
       // 5. Contadores de Red (Confía en la data estructural si el árbol local es menor)
       const uuid = this.userModel.uuid || this.userModel.id?.toString();
