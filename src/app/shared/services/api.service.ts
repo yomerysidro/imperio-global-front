@@ -249,6 +249,24 @@ export class ApiService {
     return this.httpService.post<IResponse<any>>( '/users/excel-finance' , command ).pipe(tap( res => res ));
   }
 
+  public postCurrentMonthExcelFinance(month: number, year: number): Observable<IResponse<any>> {
+    const parameters = { month, year };
+    const httpParams = new HttpParams({
+      fromObject: {
+        month: month.toString(),
+        year: year.toString()
+      }
+    });
+
+    // Se envían también en el query string para distinguir este reporte en
+    // tiempo real del archivo histórico almacenado por el cierre anterior.
+    return this.httpService.post<IResponse<any>>(
+      '/users/excel-finance',
+      parameters,
+      { params: httpParams }
+    ).pipe(tap(res => res));
+  }
+
   public postUserPdfProfile( command: any ): Observable<IResponse<any>>{
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
     return this.httpService.post<IResponse<any>>( '/users/pdf-profile' , command ).pipe(tap( res => res ));
