@@ -154,9 +154,10 @@
                         </div>
                     </a>
 
+                    <h3 class="excel-section-title">Descargar reportes Excel</h3>
                     <div class="excel-report-actions">
                     <a href="javascript: void(0);" (click)="onDownloadFinanceExcel()"
-                        class="d-flex align-items-center rounded card--shadow m-b-20 p-t-20 p-b-20 pointer ">
+                        class="excel-report-card historical d-flex align-items-center rounded card--shadow m-b-20 p-t-20 p-b-20 pointer ">
                         <div class="p-20">
                             <svg width="36" height="36" viewBox="0 0 36 36" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -167,27 +168,30 @@
                             </svg>
                         </div>
                         <div class="">
-                            <p class="m-b-0 font-size-18" style="color: rgba(60, 60, 67, 0.6);">Descargar Doc Excel {{ oneMonthAgo | date: 'MMMM' : '' : "es-ES" }} {{
+                            <p class="m-b-0 font-size-18 report-kicker">Excel histórico</p>
+                            <p class="m-b-0 font-size-18">Descargar Excel de {{ oneMonthAgo | date: 'MMMM' : '' : "es-ES" }} {{
                         oneMonthAgo | date: 'YYYY' }}</p>
                             <p class="m-0 font-size-18" style="font-weight: 400;">Ver resultados de usuarios</p>
                         </div>
                     </a>
 
-                    <button type="button" (click)="onDownloadCurrentMonthFinanceExcel()"
-                        [disabled]="isGeneratingCurrentMonthExcel"
-                        class="current-month-excel d-flex align-items-center rounded card--shadow m-b-20 p-t-20 p-b-20 pointer">
+                    <a href="javascript: void(0);" (click)="onDownloadCurrentMonthFinanceExcel()"
+                        [class.is-generating]="isGeneratingCurrentMonthExcel"
+                        [attr.aria-disabled]="isGeneratingCurrentMonthExcel"
+                        class="excel-report-card current-month-excel d-flex align-items-center rounded card--shadow m-b-20 p-t-20 p-b-20 pointer">
                         <div class="p-20 excel-icon">
                             <i nz-icon [nzType]="isGeneratingCurrentMonthExcel ? 'loading' : 'file-excel'" nzTheme="outline"></i>
                         </div>
                         <div class="text-left">
+                            <p class="m-b-0 font-size-18 report-kicker">Mes actual</p>
                             <p class="m-b-0 font-size-18 current-report-title">
-                                {{ isGeneratingCurrentMonthExcel ? 'Generando reporte del mes actual…' : 'Descargar Excel del mes actual' }}
+                                {{ isGeneratingCurrentMonthExcel ? 'Generando reporte del mes actual...' : 'Descargar Excel del mes actual' }}
                             </p>
                             <p class="m-0 font-size-18" style="font-weight: 400;">
-                                Reporte del mes actual – {{ currentMonthReportLabel }}
+                                Reporte del mes actual - {{ currentMonthReportLabel }}
                             </p>
                         </div>
-                    </button>
+                    </a>
                     </div>
                 </div>
             </div>
