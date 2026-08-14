@@ -25,6 +25,10 @@ export class FinanceComponent implements OnInit {
   oneMonthAgo: Date;
   isGeneratingCurrentMonthExcel: boolean = false;
   currentMonthReportLabel: string;
+  isDownloading: boolean = false;
+  downloadMessage: string = '';
+  showPatrocinioValues: boolean = true;
+  showResidualValues: boolean = true;
 
   constructor(
     private apiService: ApiService,
@@ -80,68 +84,58 @@ export class FinanceComponent implements OnInit {
   }
 
   public onDownloadFinance(): void{
-    this.apiService.postUserPdfFinance({}).subscribe(
-      (response) => {
-
-        const base64 = response.data.base64;
-        const byteCharacters = atob(base64);
-        const byteNumbers = Array.from(byteCharacters, char => char.charCodeAt(0));
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = response.data.filename || 'archivo.pdf';
-        link.click();
-      }
-    )
+    if (this.isDownloading) return;
+    this.startDownload('Generando y descargando el reporte PDF...');
+    this.apiService.postUserPdfFinance({})
+      .pipe(finalize(() => this.finishDownload()))
+      .subscribe({
+        next: response => this.downloadBase64File(response, 'application/pdf', 'reporte-finanzas.pdf'),
+        error: error => this.showDownloadError(error, 'No se pudo generar el reporte PDF.')
+      });
   }
 
   public onDownloadFinanceExcel(): void{
-    this.apiService.postUserExcelFinance({}).subscribe(
-      (response) => {
-        console.log(response)
-
-        const base64 = response.data.base64;
-        const byteCharacters = atob(base64);
-        const byteNumbers = Array.from(byteCharacters, char => char.charCodeAt(0));
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], {
-          type: response.data.mime
-        });
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = response.data.filename;
-        link.click();
-      }
-    )
+    if (this.isDownloading) return;
+    this.startDownload('Generando y descargando el Excel histórico...');
+    this.apiService.postUserExcelFinance({})
+      .pipe(finalize(() => this.finishDownload()))
+      .subscribe({
+        next: response => this.downloadExcelResponse(response),
+        error: error => this.showDownloadError(error, 'No se pudo descargar el Excel histórico.')
+      });
   }
 
   public onDownloadCurrentMonthFinanceExcel(): void {
-    if (this.isGeneratingCurrentMonthExcel) return;
+    if (this.isDownloading) return;
 
     const now = new Date();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
     this.isGeneratingCurrentMonthExcel = true;
+    this.startDownload('Generando reporte del mes actual...');
 
     this.apiService.postCurrentMonthExcelFinance(month, year)
-      .pipe(finalize(() => this.isGeneratingCurrentMonthExcel = false))
+      .pipe(finalize(() => {
+        this.isGeneratingCurrentMonthExcel = false;
+        this.finishDownload();
+      }))
       .subscribe({
         next: (response) => this.downloadExcelResponse(response),
         error: (error) => {
-          const backendMessage =
-            error?.message ||
-            error?.error?.message ||
-            (typeof error === 'string' ? error : null) ||
-            'No se pudo generar el reporte del mes actual.';
-          this.messageService.error(backendMessage);
+          this.showDownloadError(error, 'No se pudo generar el reporte del mes actual.');
         }
       });
   }
 
   private downloadExcelResponse(response: any): void {
+    this.downloadBase64File(
+      response,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      `reporte-finanzas-${this.currentDate.getFullYear()}-${this.currentDate.getMonth() + 1}.xlsx`
+    );
+  }
+
+  private downloadBase64File(response: any, defaultMime: string, defaultFilename: string): void {
     const base64 = response?.data?.base64;
     if (!base64) {
       this.messageService.error(response?.message || 'El backend no devolvió el archivo solicitado.');
@@ -151,13 +145,29 @@ export class FinanceComponent implements OnInit {
     const byteCharacters = atob(base64);
     const byteNumbers = Array.from(byteCharacters, char => char.charCodeAt(0));
     const blob = new Blob([new Uint8Array(byteNumbers)], {
-      type: response.data.mime || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      type: response.data.mime || defaultMime
     });
     const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = objectUrl;
-    link.download = response.data.filename || `reporte-finanzas-${this.currentDate.getFullYear()}-${this.currentDate.getMonth() + 1}.xlsx`;
+    link.download = response.data.filename || defaultFilename;
     link.click();
-    URL.revokeObjectURL(objectUrl);
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+  }
+
+  private startDownload(message: string): void {
+    this.downloadMessage = message;
+    this.isDownloading = true;
+  }
+
+  private finishDownload(): void {
+    this.isDownloading = false;
+    this.downloadMessage = '';
+  }
+
+  private showDownloadError(error: any, fallback: string): void {
+    const message = error?.message || error?.error?.message ||
+      (typeof error === 'string' ? error : null) || fallback;
+    this.messageService.error(message);
   }
 }
