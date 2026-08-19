@@ -1,29 +1,98 @@
-<div class="p-30 text-center bg-primary ">
-  <h1 class="text-white">NUESTRO PLANES DE AFILIACIÓN:
-    INDUSTRIA NETWORKER</h1>
-    <h4 class="text-white">Llevamos la abundancia a tu hogar</h4>
-</div>
+<section class="affiliation-plans">
+  <header class="plans-hero">
+    <span class="plans-eyebrow">OPORTUNIDAD IMPERIO GLOBAL</span>
+    <h1>Planes de afiliación</h1>
+    <p>Elige el pack que mejor se adapte a tu meta y empieza a construir tu negocio.</p>
+    <div class="hero-highlights">
+      <span><i nz-icon nzType="check-circle" nzTheme="fill"></i> Productos de calidad</span>
+      <span><i nz-icon nzType="check-circle" nzTheme="fill"></i> Puntos por afiliación</span>
+      <span><i nz-icon nzType="check-circle" nzTheme="fill"></i> Oportunidad de crecimiento</span>
+    </div>
+  </header>
 
-<div class="text-center p-t-20">
-  <h1 class="m-b-40">Inicia tu negocio como franquiciante y gana</h1>
-  <nz-row [nzGutter]="[24, 24]" class="m-b-20 justify-content-center">
-    <nz-col *ngFor="let plan of planList | slice:0:3; let i = index" [nzLg]="8" [nzMd]="12" [nzXs]="24" class="m-b-10">
-      <div class="plan-card">
-        <div class="mb-4">
-          <img [src]="env.hostUrl + '/storage/' + plan.file.path" alt="" class="img-fluid rounded">
+  <div class="plans-content">
+    <div class="section-heading">
+      <span>INDUSTRIA NETWORKER</span>
+      <h2>Inicia tu negocio como franquiciante</h2>
+      <p>Compara nuestros packs y selecciona el ideal para comenzar.</p>
+    </div>
+
+    <nz-row [nzGutter]="[24, 24]" class="plans-grid" nzJustify="center">
+      <nz-col *ngFor="let plan of planList | slice:0:3; let i = index" [nzLg]="8" [nzMd]="12" [nzXs]="24">
+        <article class="plan-card">
+          <div class="plan-image">
+            <img [src]="env.hostUrl + '/storage/' + plan.file.path" [alt]="'Pack ' + plan.title">
+          </div>
+          <div class="plan-details">
+            <div class="plan-heading">
+              <div>
+                <span class="plan-label">PACK DE AFILIACIÓN</span>
+                <h3>{{ plan.title }}</h3>
+              </div>
+              <span class="points-pill">{{ plan.points }} pts</span>
+            </div>
+            <div class="plan-actions">
+              <button class="detail-button" type="button" (click)="showPlanDetail(plan)">
+                <i nz-icon nzType="eye"></i> Detalles
+              </button>
+              <button class="buy-button" type="button" (click)="onPaymentPlan(plan)">
+                Comprar <i nz-icon nzType="shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+      </nz-col>
+    </nz-row>
+
+    <aside class="plans-info">
+      <div class="info-icon"><i nz-icon nzType="rise"></i></div>
+      <div>
+        <span>CRECE CON IMPERIO GLOBAL</span>
+        <h3>Afíliate y desarrolla diferentes fuentes de ingreso</h3>
+        <p>Bono de venta directa, bono flash, bono de red de mercadeo y venta de reconsumo.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<nz-modal
+  [(nzVisible)]="isDetailVisible"
+  nzTitle="Detalle del pack"
+  [nzFooter]="null"
+  [nzWidth]="720"
+  [nzMaskClosable]="true"
+  (nzOnCancel)="closePlanDetail()">
+  <ng-container *nzModalContent>
+    <div class="detail-modal" *ngIf="selectedPlan as plan">
+      <div class="detail-image">
+        <img [src]="env.hostUrl + '/storage/' + plan.file.path" [alt]="'Detalle del pack ' + plan.title">
+      </div>
+      <div class="detail-content">
+        <span class="detail-kicker">PACK DE AFILIACIÓN</span>
+        <h2>{{ plan.title }}</h2>
+        <div class="detail-data">
+          <div>
+            <small>Inversión</small>
+            <strong>S/ {{ plan.price | number : '1.2-2' }}</strong>
+          </div>
+          <div>
+            <small>Puntos del pack</small>
+            <strong>{{ plan.points }} puntos</strong>
+          </div>
         </div>
-        <div class="text-center">
-          <button class="btn p-5 btn-primary bg-rojo btn-md" (click)="onPaymentPlan( plan )">Comprar</button>
+        <div class="detail-benefits">
+          <h3>Beneficios incluidos</h3>
+          <p *ngFor="let benefit of getPlanBenefits(plan)">
+            <i nz-icon nzType="check-circle" nzTheme="fill"></i> {{ benefit }}
+          </p>
+        </div>
+        <div class="detail-actions">
+          <button type="button" class="detail-close" (click)="closePlanDetail()">Cerrar</button>
+          <button type="button" class="detail-buy" (click)="buySelectedPlan()">
+            Comprar este pack <i nz-icon nzType="arrow-right"></i>
+          </button>
         </div>
       </div>
-    </nz-col>
-  </nz-row>
-  <nz-row class="m-b-20">
-    <nz-col [nzXs]="24" class="m-b-10">
-      <div class="text-center rounded-lg p-10" style="background-color: #F5F7FA;">
-        <h3 style="color: #717171;">Afíliate y gana a través Bono de venta directa, Bono flash, Bono de red de mercadeo, venta de reconsumo</h3>
-        <h2>Más información +</h2>
-      </div>
-    </nz-col>
-  </nz-row>
-</div>
+    </div>
+  </ng-container>
+</nz-modal>
