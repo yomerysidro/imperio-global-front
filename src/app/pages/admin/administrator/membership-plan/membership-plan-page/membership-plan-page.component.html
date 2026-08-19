@@ -17,8 +17,8 @@
       <p>Compara nuestros packs y selecciona el ideal para comenzar.</p>
     </div>
 
-    <nz-row [nzGutter]="[24, 24]" class="plans-grid" nzJustify="center">
-      <nz-col *ngFor="let plan of planList | slice:0:3; let i = index" [nzLg]="8" [nzMd]="12" [nzXs]="24">
+    <nz-row [nzGutter]="[24, 24]" class="plans-grid" nzJustify="start">
+      <nz-col *ngFor="let plan of planList; let i = index" [nzLg]="8" [nzMd]="12" [nzXs]="24">
         <article class="plan-card">
           <div class="plan-image">
             <img [src]="env.hostUrl + '/storage/' + plan.file.path" [alt]="'Pack ' + plan.title">
