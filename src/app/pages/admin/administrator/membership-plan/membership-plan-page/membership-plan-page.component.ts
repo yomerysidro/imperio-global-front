@@ -22,6 +22,8 @@ export class MembershipPlanPageComponent implements OnInit {
   // customOptions: OwlOptions = { ... };
 
   planList: Array<PackModel> = [];
+  selectedPlan: PackModel | null = null;
+  isDetailVisible: boolean = false;
   env = environment;
 
   userModel : UserModel;
@@ -62,6 +64,7 @@ export class MembershipPlanPageComponent implements OnInit {
       let modal = this.nZmodal.create({
         nzTitle: "Pagar",
         nzContent: PaymentReservationModalComponent,
+        nzWidth: 680,
         nzFooter: null,
         nzData:{
           planSelected: plan,
@@ -73,5 +76,49 @@ export class MembershipPlanPageComponent implements OnInit {
       modal.afterClose.subscribe( (r)=> {
       })
     }
+  }
+
+  public showPlanDetail(plan: PackModel): void {
+    this.selectedPlan = plan;
+    this.isDetailVisible = true;
+  }
+
+  public closePlanDetail(): void {
+    this.isDetailVisible = false;
+    this.selectedPlan = null;
+  }
+
+  public buySelectedPlan(): void {
+    if (!this.selectedPlan) return;
+    const plan = this.selectedPlan;
+    this.closePlanDetail();
+    this.onPaymentPlan(plan);
+  }
+
+  public getPlanBenefits(plan: PackModel): string[] {
+    const title = (plan?.title || '').toLowerCase();
+
+    if (title.includes('diamante')) {
+      return [
+        '10 productos incluidos',
+        '45% de descuento',
+        'Libro educativo',
+        'Oficina virtual'
+      ];
+    }
+
+    if (title.includes('empresario')) {
+      return [
+        '4 productos incluidos',
+        '45% de descuento',
+        'Oficina virtual'
+      ];
+    }
+
+    if (title.includes('servicio') || title.includes('digital')) {
+      return ['Oficina virtual'];
+    }
+
+    return ['Acceso a los beneficios correspondientes al pack'];
   }
 }

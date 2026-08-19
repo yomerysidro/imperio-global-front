@@ -1,8 +1,18 @@
-.container-form{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #f7f8f9;
-  padding: 15px;
-}
+$blue: #215ee9;
+$deep-blue: #123eaa;
+$ink: #15213b;
+$muted: #6e7d96;
+
+:host { display: block; color: $ink; }
+.payment-modal-heading { display: flex; align-items: center; gap: 15px; margin: -4px 0 22px; padding-bottom: 18px; border-bottom: 1px solid #e9edf5; .payment-icon { display: grid; flex: 0 0 48px; height: 48px; place-items: center; border-radius: 14px; color: #fff; background: $blue; font-size: 21px; box-shadow: 0 8px 18px rgba(33,94,233,.24); } .payment-kicker { color: $blue; font-size: 10px; font-weight: 800; letter-spacing: 1.4px; } h2 { margin: 2px 0; color: $ink; font-size: 22px; font-weight: 800; } p { margin: 0; color: $muted; font-size: 12px; } }
+.purchase-summary { padding: 18px 20px 12px; border: 1px solid #e5eaf4; border-radius: 15px; background: #f8faff; hr { margin: 13px 0; border: 0; border-top: 1px solid #dfe6f2; } .text-right p { color: $ink !important; font-weight: 700; } }
+.sponsor-section { align-items: center; margin: 20px 0 4px !important; padding: 17px 18px; border-radius: 14px; background: rgba($blue,.07); p:first-child { color: $ink !important; } p:last-child { color: $muted !important; font-size: 11px !important; } }
+.payment-actions { display: grid; grid-template-columns: minmax(0,1fr) 28px minmax(0,1fr); align-items: stretch; gap: 10px; margin-top: 20px; }
+.payment-option { min-width: 0; }
+.payment-separator { display: flex; align-items: center; justify-content: center; margin: 0 !important; hr { display: none; } span { position: static; color: $muted; font-size: 10px; font-weight: 800; } }
+.payment-separator--wide { margin: 14px 0 !important; span { display: block; width: 100%; text-align: center; } hr { display: block; width: 100%; border: 0; border-top: 1px solid #e4e9f3 !important; } }
+.btn-payment { width: 100%; min-height: 76px; height: 100%; padding: 11px 14px; border: 0; border-radius: 13px; background: $blue; white-space: normal; box-shadow: 0 8px 20px rgba(33,94,233,.22); transition: .2s ease; p:first-child { font-size: 14px; font-weight: 800; letter-spacing: .4px; } p:last-child { margin-top: 3px !important; font-size: 11px; line-height: 1.3; opacity: .88; } &:hover { transform: translateY(-2px); background: $deep-blue; box-shadow: 0 11px 25px rgba(33,94,233,.3); } }
+.offline-payment { .btn-payment { min-height: 64px; } }
+.container-form { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 18px; border-radius: 16px; background: #f7f9fe; }
+::ng-deep .ant-input { min-height: 40px; border-radius: 9px; }
+@media (max-width: 575px) { .payment-modal-heading { align-items: flex-start; h2 { font-size: 19px; } } .purchase-summary { padding: 15px; } .payment-actions { grid-template-columns: 1fr; gap: 10px; } .payment-separator { min-height: 16px; } .btn-payment { min-height: 66px; } }
