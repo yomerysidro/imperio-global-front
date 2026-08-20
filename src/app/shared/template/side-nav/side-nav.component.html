@@ -19,10 +19,13 @@
                   <span>{{item.title}}</span>
                   <i class="ant-menu-submenu-arrow"></i>
               </a>
-              <a [routerLink]="item.path" (click)="closeMobileMenu()" *ngIf="item.submenu.length === 0">
-                  <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [theme]="item.iconTheme"></i>
+              <a [routerLink]="item.path" (click)="closeMobileMenu()" *ngIf="item.submenu.length === 0" class="menu-link"
+                 nz-tooltip [nzTooltipTitle]="isFolded ? item.title : null" nzTooltipPlacement="right">
+                  <span class="menu-icon">
+                    <i *ngIf="item.iconType == 'nzIcon'" nz-icon [nzType]="item.icon" [theme]="item.iconTheme"></i>
+                  </span>
                   <i *ngIf="item.iconType == 'fontawesome'" class="m-r-10" [ngClass]="[item.iconTheme , item.icon]"></i>
-                  <span>{{item.title}}</span>
+                  <span class="menu-text">{{item.title}}</span>
               </a>
 
               <!-- Second Level -->
@@ -65,8 +68,12 @@
               </ul>
           </li>
         </ng-container>
-        <li [ngClass]="['ant-menu-item']">
-          <a href="javascript:void(0);" (click)="onLogout()"><i nz-icon nzType="logout" nzTheme="outline"></i> <span>Cerrar sesión</span></a>
+        <li [ngClass]="['ant-menu-item']" class="logout-item">
+          <a href="javascript:void(0);" (click)="onLogout()" class="menu-link"
+             nz-tooltip [nzTooltipTitle]="isFolded ? 'Cerrar sesión' : null" nzTooltipPlacement="right">
+            <span class="menu-icon"><i nz-icon nzType="logout" nzTheme="outline"></i></span>
+            <span>Cerrar sesión</span>
+          </a>
         </li>
     </ul>
   </div>

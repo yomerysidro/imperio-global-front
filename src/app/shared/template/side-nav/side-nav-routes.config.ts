@@ -5,7 +5,7 @@ export const ROUTES: SideNavInterface[] = [
         title: 'Mis Datos',
         iconType: 'nzIcon',
         iconTheme: 'outline',
-        icon: 'usergroup-add',
+        icon: 'user',
         submenu: [],
         show: true
     },
@@ -14,7 +14,7 @@ export const ROUTES: SideNavInterface[] = [
       title: 'Planes de afiliación',
       iconType: 'nzIcon',
       iconTheme: 'outline',
-      icon: 'credit-card',
+      icon: 'appstore',
       submenu: [],
       show: true
     },
@@ -23,7 +23,7 @@ export const ROUTES: SideNavInterface[] = [
       title: 'Árbol de afiliados',
       iconType: 'nzIcon',
       iconTheme: 'outline',
-      icon: 'pie-chart',
+      icon: 'apartment',
       submenu: [],
       show: true
     },
@@ -32,7 +32,7 @@ export const ROUTES: SideNavInterface[] = [
       title: 'Tienda de productos',
       iconType: 'nzIcon',
       iconTheme: 'outline',
-      icon: 'home',
+      icon: 'shopping',
       submenu: [],
       show: true
     },
