@@ -1,23 +1,72 @@
 <nz-card class="stats-card">
   <nz-row>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item">
-      <h1 class="stat-number">{{ usuarioTotal }}</h1>
-      <p class="stat-label">Red Total</p>
+      <div class="stat-icon network-icon"><i class="fa-solid fa-network-wired"></i></div>
+      <div class="stat-data">
+        <h1 class="stat-number">{{ usuarioTotal }}</h1>
+        <p class="stat-label">Red Total</p>
+      </div>
     </nz-col>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
-      <h1 class="stat-number">{{ usuarioDirectos }}</h1>
-      <p class="stat-label">Directos</p>
+      <div class="stat-icon direct-icon"><i class="fa-solid fa-user-plus"></i></div>
+      <div class="stat-data">
+        <h1 class="stat-number">{{ usuarioDirectos }}</h1>
+        <p class="stat-label">Directos</p>
+      </div>
     </nz-col>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
-      <h1 class="stat-number active-color">{{ usuarioActivos }}</h1>
-      <p class="stat-label">Activos</p>
+      <div class="stat-icon active-icon"><i class="fa-solid fa-user-check"></i></div>
+      <div class="stat-data">
+        <h1 class="stat-number active-color">{{ usuarioActivos }}</h1>
+        <p class="stat-label">Activos</p>
+      </div>
     </nz-col>
   </nz-row>
 </nz-card>
 
+<div #treeContainer class="tree-shell" [class.is-fullscreen]="isFullScreen">
 <nz-card class="tree-main-card">
   <nz-row>
     <nz-col [nzSpan]="24" class="tree-header">
+      <div class="tree-toolbar">
+        <div class="tree-search">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input
+            nz-input
+            [(ngModel)]="treeSearch"
+            (keyup.enter)="searchTreeNode()"
+            placeholder="Buscar por ID o correo"
+            aria-label="Buscar afiliado por ID o correo" />
+          <button type="button" class="search-button" (click)="searchTreeNode()">
+            Buscar
+          </button>
+          <button *ngIf="treeSearch || highlightedNodeCode" type="button" class="clear-button" (click)="clearTreeSearch()" title="Limpiar búsqueda">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="tree-controls" aria-label="Controles del árbol">
+          <button type="button" (click)="zoomOut()" title="Alejar" aria-label="Alejar">
+            <i class="fa-solid fa-magnifying-glass-minus"></i>
+          </button>
+          <span class="zoom-value">{{ zoomPercent }}%</span>
+          <button type="button" (click)="zoomIn()" title="Acercar" aria-label="Acercar">
+            <i class="fa-solid fa-magnifying-glass-plus"></i>
+          </button>
+          <button type="button" (click)="resetTreeView()" title="Restablecer vista" aria-label="Restablecer vista">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+          <button type="button" (click)="toggleFullScreen()" [title]="isFullScreen ? 'Salir de pantalla completa' : 'Pantalla completa'" [attr.aria-label]="isFullScreen ? 'Salir de pantalla completa' : 'Pantalla completa'">
+            <i class="fa-solid" [class.fa-compress]="isFullScreen" [class.fa-expand]="!isFullScreen"></i>
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="searchMessage" class="search-message" [class.not-found]="!highlightedNodeCode">
+        <i class="fa-solid" [class.fa-circle-check]="highlightedNodeCode" [class.fa-circle-exclamation]="!highlightedNodeCode"></i>
+        {{ searchMessage }}
+      </p>
+
       <div class="sponsor-box">
         <div class="sponsor-info">
           <span class="label">Tu patrocinador es</span>
@@ -27,10 +76,12 @@
         <div class="tree-legend">
           <div class="legend-item">
             <span class="dot active"></span>
+            <i class="fa-solid fa-circle-check legend-icon"></i>
             <small>Activo</small>
           </div>
           <div class="legend-item">
             <span class="dot inactive"></span>
+            <i class="fa-solid fa-circle-xmark legend-icon"></i>
             <small>Inactivo</small>
           </div>
         </div>
@@ -38,12 +89,18 @@
     </nz-col>
 
     <nz-col [nzSpan]="24" class="tree-content">
-      <div class="tree-viewport">
+      <div #treeViewport class="tree-viewport">
         <ng-container *ngIf="isChart">
-          <app-tree-view #treeView [data]="data" [template]="treeTemplate"></app-tree-view>
+          <div class="tree-canvas" [style.transform]="'scale(' + treeZoom + ')'">
+            <app-tree-view #treeView [data]="data" [template]="treeTemplate"></app-tree-view>
+          </div>
 
           <ng-template #treeTemplate let-node>
-            <div class="node-wrapper" [class.is-active]="node.isActive" (click)="onSeletedUser(node.data.id)">
+            <div class="node-wrapper"
+              [attr.data-node-code]="node.data.id"
+              [class.is-active]="node.isActive"
+              [class.search-highlight]="highlightedNodeCode === node.data.id"
+              (click)="onSeletedUser(node.data.id)">
 
               <div class="node-avatar" [class.is-active]="node.isActive">
                 <img *ngIf="node.data.photo" [src]="node.data.photo" class="avatar-img" alt="avatar" (error)="node.data.photo = null" />
@@ -67,3 +124,4 @@
     </nz-col>
   </nz-row>
 </nz-card>
+</div>

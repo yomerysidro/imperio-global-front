@@ -45,7 +45,14 @@ export class FinanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.refreshCurrentPeriod();
     this.loadOption();
+  }
+
+  private refreshCurrentPeriod(): void {
+    this.currentDate = new Date();
+    const monthName = new Intl.DateTimeFormat('es-PE', { month: 'long' }).format(this.currentDate);
+    this.currentMonthReportLabel = `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} ${this.currentDate.getFullYear()}`;
   }
 
   public loadOption(): void{

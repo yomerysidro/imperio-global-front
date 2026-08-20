@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
 import { ECONode, IECONode, Orientation } from '@shared/interfaces/econode.type';
@@ -10,6 +10,7 @@ import { CONSTANTS } from '@shared/constants/constants';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/user-tree-detail.component';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
+import { OverlayContainer } from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-tree-users-page',
@@ -17,6 +18,9 @@ import { isUserMembershipActive } from '@shared/utilities/user-activity';
   styleUrls: ['./tree-users-page.component.scss']
 })
 export class TreeUsersPageComponent implements OnInit {
+  @ViewChild('treeViewport') treeViewport?: ElementRef<HTMLElement>;
+  @ViewChild('treeContainer') treeContainer?: ElementRef<HTMLElement>;
+
   Orientation = Orientation;
   nodeSelected: ECONode | null = null;
   isChart: boolean = false;
@@ -43,9 +47,20 @@ export class TreeUsersPageComponent implements OnInit {
   listPoints: Array<any> = [];
   private currentUser: UserModel | null = null;
 
+  treeSearch: string = '';
+  searchMessage: string = '';
+  highlightedNodeCode: string = '';
+  treeZoom: number = 1;
+  isFullScreen: boolean = false;
+
+  get zoomPercent(): number {
+    return Math.round(this.treeZoom * 100);
+  }
+
   constructor(
     private apiService: ApiService,
-    private nzModalService: NzModalService
+    private nzModalService: NzModalService,
+    private overlayContainer: OverlayContainer
   ) { }
 
   ngOnInit(): void {
@@ -158,6 +173,7 @@ export class TreeUsersPageComponent implements OnInit {
               id: myId,
               photo: image,
               name: user?.name,
+              email: user?.email,
               admin: !!user?.is_admin
             },
             active: isUserMembershipActive(user),
@@ -172,6 +188,91 @@ export class TreeUsersPageComponent implements OnInit {
         console.error("Error al cargar la red", err);
       }
     });
+  }
+
+  public searchTreeNode(): void {
+    const term = this.treeSearch.trim().toLowerCase();
+    if (!term) {
+      this.searchMessage = 'Ingresa un ID o correo para buscar.';
+      this.highlightedNodeCode = '';
+      return;
+    }
+
+    const node = this.findTreeNodeByTerm(this.data, term);
+    if (!node || String(node.data?.id || '').startsWith('-')) {
+      this.highlightedNodeCode = '';
+      this.searchMessage = 'No se encontró ningún afiliado con ese ID o correo.';
+      return;
+    }
+
+    this.highlightedNodeCode = String(node.data.id);
+    this.searchMessage = `Afiliado encontrado: ${node.data.email || node.data.id}`;
+    setTimeout(() => this.centerHighlightedNode(), 0);
+  }
+
+  public clearTreeSearch(): void {
+    this.treeSearch = '';
+    this.searchMessage = '';
+    this.highlightedNodeCode = '';
+  }
+
+  public zoomIn(): void {
+    this.treeZoom = Math.min(1.5, Number((this.treeZoom + 0.1).toFixed(1)));
+  }
+
+  public zoomOut(): void {
+    this.treeZoom = Math.max(0.6, Number((this.treeZoom - 0.1).toFixed(1)));
+  }
+
+  public resetTreeView(): void {
+    this.treeZoom = 1;
+    this.clearTreeSearch();
+    const viewport = this.treeViewport?.nativeElement;
+    viewport?.scrollTo({ top: 0, left: Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2), behavior: 'smooth' });
+  }
+
+  public async toggleFullScreen(): Promise<void> {
+    const container = this.treeContainer?.nativeElement;
+    if (!container) return;
+
+    if (!document.fullscreenElement) {
+      await container.requestFullscreen();
+      this.moveOverlayToFullScreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  }
+
+  @HostListener('document:fullscreenchange')
+  public onFullScreenChange(): void {
+    this.isFullScreen = document.fullscreenElement === this.treeContainer?.nativeElement;
+    if (this.isFullScreen) {
+      this.moveOverlayToFullScreen();
+    } else {
+      this.restoreOverlayContainer();
+    }
+  }
+
+  private findTreeNodeByTerm(node: IECONode, term: string): IECONode | null {
+    if (!node) return null;
+    const id = String(node.data?.id || '').toLowerCase();
+    const email = String(node.data?.email || '').toLowerCase();
+    if (id === term || email === term || id.includes(term) || email.includes(term)) return node;
+
+    for (const child of node.children || []) {
+      const found = this.findTreeNodeByTerm(child, term);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  private centerHighlightedNode(): void {
+    const viewport = this.treeViewport?.nativeElement;
+    if (!viewport || !this.highlightedNodeCode) return;
+
+    const nodes = Array.from(viewport.querySelectorAll<HTMLElement>('[data-node-code]'));
+    const target = nodes.find(element => element.dataset.nodeCode === this.highlightedNodeCode);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
   }
 
   /**
@@ -302,6 +403,10 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
    * 🔥 CORREGIDO: Evento al hacer clic en un nodo del árbol
    */
   public onSeletedUser(usercode: string): void {
+    this.openSelectedUser(usercode);
+  }
+
+  private openSelectedUser(usercode: string): void {
     if (!usercode || usercode.startsWith("-")) return;
 
     const codeStr = String(usercode);
@@ -320,7 +425,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       next: (res) => {
         if (res.success && res.data?.items && res.data.items.length > 0) {
           const userData = res.data.items[0];
-          this.openModal(userData, `Detalle: ${userData.name || codeStr}`, true);
+          this.openModal(userData, `Detalle: ${userData.email || userData.name || codeStr}`, true);
         } else {
           // Si falla por código, intentar por ID numérico (si es número)
           const numericId = parseInt(codeStr, 10);
@@ -328,7 +433,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
             this.apiService.getUserById(numericId).subscribe({
               next: (resById) => {
                 if (resById.success && resById.data) {
-                  this.openModal(resById.data, `Detalle: ${resById.data.name || codeStr}`, true);
+                  this.openModal(resById.data, `Detalle: ${resById.data.email || resById.data.name || codeStr}`, true);
                 } else {
                   console.warn('⚠️ Usuario no encontrado por ningún método:', codeStr);
                   this.fallbackOpenModal(codeStr);
@@ -353,7 +458,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
           this.apiService.getUserById(numericId).subscribe({
             next: (resById) => {
               if (resById.success && resById.data) {
-                this.openModal(resById.data, `Detalle: ${resById.data.name || codeStr}`, true);
+                this.openModal(resById.data, `Detalle: ${resById.data.email || resById.data.name || codeStr}`, true);
               } else {
                 this.fallbackOpenModal(codeStr);
               }
@@ -376,7 +481,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
   private fallbackOpenModal(codeStr: string): void {
     const fallbackUser = this.findUserInTree(codeStr) || this.findUserInListPoints(codeStr);
     if (fallbackUser) {
-      this.openModal(fallbackUser, `Detalle: ${fallbackUser.name || codeStr}`, true);
+      this.openModal(fallbackUser, `Detalle: ${fallbackUser.email || fallbackUser.name || codeStr}`, true);
     } else {
       console.error('❌ Usuario no encontrado en ninguna fuente:', codeStr);
     }
@@ -389,6 +494,10 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
    * @param sendTree Indica si debe enviar el árbol de la red (true para socios, false para perfil propio)
    */
   private openModal(user: any, title: string, sendTree: boolean = true) {
+    if (document.fullscreenElement === this.treeContainer?.nativeElement) {
+      this.moveOverlayToFullScreen();
+    }
+
     const userData = user.data || user;
     const userCode = userData.id || userData.uuid || '';
     const userCodeStr = String(userCode);
@@ -473,6 +582,19 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
         paymentOrder: userForModal.payment || userForModal.payment_active
       }
     });
+  }
+
+  private moveOverlayToFullScreen(): void {
+    const container = this.treeContainer?.nativeElement;
+    if (!container) return;
+    container.appendChild(this.overlayContainer.getContainerElement());
+  }
+
+  private restoreOverlayContainer(): void {
+    const overlay = this.overlayContainer.getContainerElement();
+    if (overlay.parentElement !== document.body) {
+      document.body.appendChild(overlay);
+    }
   }
 
   /**
