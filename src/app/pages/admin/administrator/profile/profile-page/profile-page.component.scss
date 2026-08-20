@@ -8,11 +8,11 @@ $primary-glow: rgba(17, 11, 191, 0.12);
 $primary-gradient: linear-gradient(135deg, #1861ff 0%, #1890ff 100%);
 $primary-glow-strong: rgba(17, 11, 191, 0.25);
 
-$card-bg: #626262;
-$card-bg-dark: #1a1a1a;
-$card-badge-green: #ebebeb;
-$card-icon-color: #b0b0b0;
-$card-text-white: #ffffff;
+$card-bg: #ffffff;
+$card-bg-dark: #ffffff;
+$card-badge-green: #186dff;
+$card-icon-color: #186dff;
+$card-text-white: #102a56;
 
 .text-electric { color: $primary !important; }
 
@@ -30,10 +30,10 @@ $card-text-white: #ffffff;
 // ============================================
 .dashboard-header-premium {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 18px 24px;
-  box-shadow: 0 2px 16px $primary-glow;
-  border: 1.5px solid rgba(17, 11, 191, 0.15);
+  border-radius: 22px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 28px rgba(24, 109, 255, 0.12);
+  border: 1px solid rgba(24, 109, 255, 0.18);
   position: relative;
   overflow: hidden;
   margin-bottom: 16px;
@@ -42,13 +42,48 @@ $card-text-white: #ffffff;
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 3px;
+    height: 4px;
     background: $primary-gradient;
   }
 
+  &::after {
+    content: '';
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    top: -95px;
+    right: 18%;
+    border-radius: 50%;
+    background: rgba(24, 109, 255, 0.06);
+    pointer-events: none;
+  }
+
+  .dashboard-heading-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-heading-icon {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    background: $primary-gradient;
+    border-radius: 15px;
+    box-shadow: 0 7px 18px rgba(24, 109, 255, 0.3);
+
+    i { font-size: 21px; }
+  }
+
   .dashboard-title-premium {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     color: #0a0840;
     margin: 0;
     display: flex;
@@ -64,19 +99,30 @@ $card-text-white: #ffffff;
     .dashboard-badge-premium {
       font-size: 10px;
       font-weight: 700;
-      background: $primary-gradient;
-      color: white;
-      padding: 3px 14px;
+      background: rgba(24, 109, 255, 0.1);
+      color: $primary;
+      border: 1px solid rgba(24, 109, 255, 0.2);
+      padding: 4px 12px;
       border-radius: 20px;
       letter-spacing: .5px;
     }
   }
 
   .dashboard-subtitle-premium {
-    color: #6c757d;
+    color: #60708a;
     font-size: 12px;
     margin: 4px 0 0 0;
-    i { margin-right: 5px; color: $primary; }
+    i {
+      margin-right: 6px;
+      color: $primary;
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(24, 109, 255, 0.08);
+      border-radius: 6px;
+    }
   }
 
   .status-indicator {
@@ -222,18 +268,61 @@ $card-text-white: #ffffff;
   }
 
   .profile-form-premium {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+
     .form-label-premium {
       font-size: 12px !important;
-      font-weight: 600 !important;
-      color: #4a5568 !important;
-      margin-bottom: 4px !important;
+      font-weight: 700 !important;
+      color: #18345f !important;
+      margin-bottom: 7px !important;
       display: flex;
       align-items: center;
-      gap: 6px;
-      i { color: $primary; font-size: 12px; }
+      gap: 8px;
+
+      .field-icon {
+        width: 22px;
+        height: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 22px;
+        color: $primary;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+
+        i {
+          color: inherit;
+          font-size: 15px;
+        }
+      }
+
+      .required-mark {
+        color: #ff4d4f;
+        font-size: 14px;
+        line-height: 1;
+        margin-left: 3px;
+        display: inline-block;
+      }
+    }
+
+    .profile-fields-row {
+      > nz-col {
+        min-width: 0;
+      }
+
+      nz-form-label {
+        white-space: nowrap;
+      }
     }
 
     .input-premium {
+      width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box;
       height: 38px !important;
       border-radius: 12px !important;
       border: 1.5px solid rgba(17, 11, 191, 0.2) !important;
@@ -241,6 +330,11 @@ $card-text-white: #ffffff;
       padding: 0 14px !important;
       background: #fafaff !important;
       transition: all 0.3s ease !important;
+
+      &:hover {
+        border-color: rgba(24, 109, 255, 0.55) !important;
+        background: #ffffff !important;
+      }
 
       &:focus {
         border-color: $primary !important;
@@ -256,6 +350,11 @@ $card-text-white: #ffffff;
       background: #fafaff !important;
       overflow: hidden;
       transition: all 0.3s ease !important;
+
+      &:hover {
+        border-color: rgba(24, 109, 255, 0.55) !important;
+        background: #ffffff !important;
+      }
 
       &:focus-within {
         border-color: $primary !important;
@@ -290,6 +389,24 @@ $card-text-white: #ffffff;
         box-shadow: 0 0 0 3px $primary-glow !important;
       }
     }
+
+    nz-select {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    nz-select .ant-select-arrow {
+      right: 11px;
+      color: $primary;
+      font-size: 11px;
+      line-height: 1;
+      transform: none;
+    }
+
+    nz-select:hover .ant-select-selector {
+      border-color: rgba(24, 109, 255, 0.55) !important;
+      background: #ffffff !important;
+    }
     .ant-select-selection-item {
       display: flex !important;
       align-items: center !important;
@@ -302,10 +419,11 @@ $card-text-white: #ffffff;
 // STAT CARDS ESTILO IMAGEN
 // ============================================
 .stat-card-premium {
-  background: $card-bg;
-  border-radius: 14px;
+  background: linear-gradient(145deg, #f1f4f8 0%, #e5eaf1 100%);
+  border-radius: 16px;
   padding: 0;
-  border: none;
+  border: 1px solid rgba(24, 109, 255, 0.18);
+  box-shadow: 0 5px 18px rgba(24, 109, 255, 0.09);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -319,16 +437,35 @@ $card-text-white: #ffffff;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba(24, 109, 255, 0.45);
+    box-shadow: 0 10px 26px rgba(24, 109, 255, 0.2);
   }
 
   &.bono-card {
+    background: linear-gradient(145deg, #edf3f1 0%, #dfe9e5 100%);
+    border-color: rgba(4, 120, 87, 0.34);
+    box-shadow: 0 5px 18px rgba(4, 120, 87, 0.12);
+
+    &:hover {
+      border-color: rgba(4, 120, 87, 0.65);
+      box-shadow: 0 10px 26px rgba(4, 120, 87, 0.22);
+    }
+
+    .stat-card-icon i {
+      color: #047857 !important;
+      filter: drop-shadow(0 4px 6px rgba(4, 120, 87, 0.25));
+    }
+
     .stat-card-value {
       font-size: 14px !important;
+      color: #065f46;
     }
-    .stat-card-badge {
+    .stat-card-content .stat-card-badge,
+    .stat-card-content .stat-card-badge.active {
       font-size: 9px !important;
       padding: 5px 10px;
+      background: linear-gradient(135deg, #065f46 0%, #047857 100%) !important;
+      color: #ffffff !important;
     }
   }
 
@@ -340,15 +477,19 @@ $card-text-white: #ffffff;
     width: auto;
     height: auto;
     background: transparent !important;
+    border: 0;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 16px;
-    padding-bottom: 4px;
+    padding: 0;
+    margin-top: 16px;
+    margin-bottom: 7px;
 
     i {
-      font-size: 28px;
+      font-size: 29px;
       color: $card-icon-color !important;
+      filter: drop-shadow(0 4px 6px rgba(24, 109, 255, 0.2));
     }
   }
 
@@ -378,7 +519,7 @@ $card-text-white: #ffffff;
       margin-top: auto;
       padding: 6px 10px;
       background: $card-badge-green;
-      color: #000000;
+      color: #ffffff;
       font-size: 11px;
       font-weight: 600;
       text-align: center;
@@ -393,7 +534,8 @@ $card-text-white: #ffffff;
         background: #e53935;
       }
       &.active {
-        background: $card-badge-green;
+        background: $card-badge-green !important;
+        color: #ffffff !important;
       }
     }
 
@@ -433,12 +575,13 @@ $card-text-white: #ffffff;
 // GRAND TOTAL PREMIUM
 // ============================================
 .grand-total-premium {
+  background: linear-gradient(145deg, #eef2f6 0%, #dfe5ec 100%);
   border-radius: 18px;
   overflow: hidden;
-  border: 1.5px solid rgba(17, 11, 191, 0.3);
+  border: 1.5px solid rgba(24, 109, 255, 0.32);
   transition: all 0.4s ease;
   height: 100%;
-  box-shadow: 0 4px 30px rgba(17, 11, 191, 0.25);
+  box-shadow: 0 8px 28px rgba(20, 48, 88, 0.16);
 
   &:hover {
     box-shadow: 0 8px 50px rgba(17, 11, 191, 0.4);
@@ -446,8 +589,9 @@ $card-text-white: #ffffff;
   }
 
   .grand-total-header-premium {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 18px;
+    background: linear-gradient(135deg, #0b4edb 0%, #1878ff 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -465,17 +609,18 @@ $card-text-white: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(0, 47, 255, 0.15);
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.16);
         border-radius: 12px;
       }
-      .grand-total-title { font-size: 13px; font-weight: 700; color: #090808; }
-      .grand-total-subtitle { font-size: 10px; color: rgba(0, 0, 0, 0.45); }
+      .grand-total-title { font-size: 15px; font-weight: 800; color: #ffffff; }
+      .grand-total-subtitle { font-size: 11px; color: rgba(255, 255, 255, 0.78); }
     }
 
     .grand-total-amount-premium {
       font-size: 20px;
       font-weight: 700;
-      color: rgb(9, 5, 5);
+      color: #ffffff;
       letter-spacing: 0.5px;
     }
   }
@@ -490,6 +635,7 @@ $card-text-white: #ffffff;
 
       .grand-total-item {
         text-align: center;
+        flex: 1;
 
         .grand-total-item-label {
           display: flex;
@@ -497,8 +643,20 @@ $card-text-white: #ffffff;
           gap: 4px;
           justify-content: center;
           font-size: 12px;
-          color: #2f18ff;
-          i { font-size: 12px; }
+          color: #184d92;
+
+          i {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #ffffff;
+            background: #186dff;
+            border-radius: 9px;
+            box-shadow: 0 4px 10px rgba(24, 109, 255, 0.22);
+          }
         }
 
         .grand-total-item-value {
@@ -508,9 +666,24 @@ $card-text-white: #ffffff;
           color: #000000;
           margin-top: 2px;
         }
+
+        &.bonuses-item {
+          .grand-total-item-label i { background: #087ea4; box-shadow: 0 4px 10px rgba(8, 126, 164, 0.24); }
+          .grand-total-item-value { color: #086986; }
+        }
+
+        &.residual-item {
+          .grand-total-item-label i { background: #047857; box-shadow: 0 4px 10px rgba(4, 120, 87, 0.24); }
+          .grand-total-item-value { color: #046c4e; }
+        }
+
+        &.infinity-item {
+          .grand-total-item-label i { background: #d97706; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.24); }
+          .grand-total-item-value { color: #b45309; }
+        }
       }
 
-      .grand-total-divider { width: 1px; height: 30px; background: rgba(255, 255, 255, 0.1); }
+      .grand-total-divider { width: 1px; height: 30px; background: rgba(25, 55, 94, 0.18); }
     }
   }
 
@@ -528,7 +701,12 @@ $card-text-white: #ffffff;
         font-size: 10px;
         color: rgba(0, 0, 0, 0.6);
         strong { color: #0066ff; font-weight: 600; }
-        i { margin-right: 4px; color: #0033ff; }
+        i {
+          margin-right: 6px;
+          color: #0866ff;
+          font-size: 12px;
+          filter: drop-shadow(0 2px 3px rgba(8, 102, 255, 0.22));
+        }
       }
 
       .rank-progress-percent { font-size: 12px; font-weight: 700; color: #0066ff; }
@@ -536,7 +714,7 @@ $card-text-white: #ffffff;
 
     .rank-progress-bar-mini {
       height: 3px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(23, 53, 91, 0.15);
       border-radius: 2px;
       overflow: hidden;
       margin-bottom: 6px;
@@ -552,11 +730,11 @@ $card-text-white: #ffffff;
 
     .rank-auto-note {
       font-size: 9px;
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(21, 45, 77, 0.62);
       display: flex;
       align-items: center;
       gap: 4px;
-      i { font-size: 10px; color: rgba(255, 255, 255, 0.2); }
+      i { font-size: 10px; color: $primary; }
     }
   }
 }

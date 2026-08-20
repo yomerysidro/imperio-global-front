@@ -3,9 +3,12 @@
   <!-- HEADER CON BOTÓN GUARDAR -->
   <div class="dashboard-header-premium">
     <div class="d-flex justify-content-between align-items-center flex-wrap">
-      <div>
+      <div class="dashboard-heading-group">
+        <div class="dashboard-heading-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div>
         <h1 class="dashboard-title-premium">
-          <i class="fa-solid fa-gauge-high text-electric"></i>
           Panel de Control
           <span class="dashboard-badge-premium">Resumen</span>
         </h1>
@@ -13,6 +16,7 @@
           <i class="fa-regular fa-calendar"></i>
           {{ currentDate | date: 'dd/MM/yyyy' }} · Actualizado en tiempo real
         </p>
+        </div>
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="status-indicator">
@@ -67,7 +71,7 @@
 
             <nz-form-item>
               <nz-form-label nzFor="address" class="form-label-premium">
-                <i class="fa-solid fa-house"></i>
+                <span class="field-icon"><i class="fa-solid fa-map-location-dot"></i></span>
                 Dirección de domicilio
               </nz-form-label>
               <nz-form-control>
@@ -77,9 +81,9 @@
             </nz-form-item>
 
             <nz-form-item>
-              <nz-form-label nzFor="email" nzRequired class="form-label-premium">
-                <i class="fa-solid fa-envelope"></i>
-                Correo electrónico
+              <nz-form-label nzFor="email" class="form-label-premium">
+                <span class="field-icon"><i class="fa-solid fa-at"></i></span>
+                Correo electrónico <span class="required-mark">*</span>
               </nz-form-label>
               <nz-form-control>
                 <nz-input-group [nzSuffix]="emailSuffix" class="input-premium-group">
@@ -90,11 +94,11 @@
               </nz-form-control>
             </nz-form-item>
 
-            <nz-row [nzGutter]="[12, 0]">
+            <nz-row [nzGutter]="[10, 0]" class="profile-fields-row">
               <nz-col [nzSpan]="12">
                 <nz-form-item>
                   <nz-form-label nzFor="city" class="form-label-premium">
-                    <i class="fa-solid fa-location-dot"></i>
+                    <span class="field-icon"><i class="fa-solid fa-city"></i></span>
                     Ciudad
                   </nz-form-label>
                   <nz-form-control>
@@ -105,7 +109,7 @@
               <nz-col [nzSpan]="12">
                 <nz-form-item>
                   <nz-form-label nzFor="phoneNumber" class="form-label-premium">
-                    <i class="fa-solid fa-phone"></i>
+                    <span class="field-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
                     Teléfono
                   </nz-form-label>
                   <nz-form-control>
@@ -116,11 +120,11 @@
               </nz-col>
             </nz-row>
 
-            <nz-row [nzGutter]="[12, 0]">
+            <nz-row [nzGutter]="[10, 0]" class="profile-fields-row">
               <nz-col [nzSpan]="12">
                 <nz-form-item>
                   <nz-form-label nzFor="country" class="form-label-premium">
-                    <i class="fa-solid fa-globe"></i>
+                    <span class="field-icon"><i class="fa-solid fa-earth-americas"></i></span>
                     País
                   </nz-form-label>
                   <nz-form-control>
@@ -132,11 +136,11 @@
               <nz-col [nzSpan]="12">
                 <nz-form-item>
                   <nz-form-label nzFor="gender" class="form-label-premium">
-                    <i class="fa-solid fa-venus-mars"></i>
+                    <span class="field-icon"><i class="fa-solid fa-id-card"></i></span>
                     Sexo
                   </nz-form-label>
                   <nz-form-control>
-                    <nz-select formControlName="gender" class="input-premium" placeholder="Selecciona">
+                    <nz-select formControlName="gender" class="select-premium" placeholder="Selecciona">
                       <nz-option nzLabel="Masculino" nzValue="M"></nz-option>
                       <nz-option nzLabel="Femenino" nzValue="F"></nz-option>
                     </nz-select>
@@ -260,7 +264,7 @@
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
           <div class="stat-card-premium bono-card">
             <div class="stat-card-icon">
-              <i class="fa-solid fa-money-check-dollar"></i>
+              <i class="fa-solid fa-hand-holding-dollar"></i>
             </div>
             <div class="stat-card-content">
               <div class="stat-card-value">S/ {{ pointPatrocinio | number:'1.2-2' }}</div>
@@ -276,7 +280,7 @@
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
           <div class="stat-card-premium bono-card">
             <div class="stat-card-icon">
-              <i class="fa-solid fa-money-check-dollar"></i>
+              <i class="fa-solid fa-money-bill-transfer"></i>
             </div>
             <div class="stat-card-content">
               <div class="stat-card-value">S/ {{ pointResudial | number:'1.2-2' }}</div>
@@ -296,7 +300,7 @@
           <div class="grand-total-premium">
             <div class="grand-total-header-premium">
               <div class="grand-total-title-group">
-                <i class="fa-solid fa-money-check-dollar"></i>
+                <i class="fa-solid fa-sack-dollar"></i>
                 <div>
                   <div class="grand-total-title">Ganancia Total</div>
                   <div class="grand-total-subtitle">Resumen de ganancias</div>
@@ -310,23 +314,23 @@
 
             <div class="grand-total-body-premium">
               <div class="grand-total-grid">
-                <div class="grand-total-item">
+                <div class="grand-total-item bonuses-item">
                   <span class="grand-total-item-label">
-                    <i class="fa-solid fa-wallet"></i>
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
                     Bonos
                   </span>
                   <span class="grand-total-item-value">S/ {{ bonosTotalesHistorico | number:'1.2-2' }}</span>
                 </div>
                 <div class="grand-total-divider"></div>
-                <div class="grand-total-item">
+                <div class="grand-total-item residual-item">
                   <span class="grand-total-item-label">
-                    <i class="fa-solid fa-coins"></i>
+                    <i class="fa-solid fa-money-bill-transfer"></i>
                     Residual
                   </span>
                   <span class="grand-total-item-value">S/ {{ pointResudial | number:'1.2-2' }}</span>
                 </div>
                 <div class="grand-total-divider"></div>
-                <div class="grand-total-item">
+                <div class="grand-total-item infinity-item">
                   <span class="grand-total-item-label">
                     <i class="fa-solid fa-infinity"></i>
                     Infinito
@@ -339,7 +343,7 @@
             <div class="grand-total-footer">
               <div class="rank-progress-mini">
                 <span class="rank-progress-label">
-                  <i class="fa-solid fa-crown"></i>
+                    <i class="fa-solid fa-bullseye"></i>
                   Faltan <strong>{{ getPointsToNextRank() }}</strong> puntos para <strong>{{ getNextRank() }}</strong>
                 </span>
                 <span class="rank-progress-percent">{{ getRankProgress() }}%</span>
@@ -359,7 +363,7 @@
       <!-- FILA 4: HISTORIAL Y DESCARGAS -->
       <nz-row [nzGutter]="[16, 16]">
 
-        <nz-col [nzXl]="12" [nzLg]="12" [nzMd]="24" [nzXs]="24">
+        <nz-col [nzSpan]="24">
           <div class="history-card-premium" (click)="onDownloadPdfProfile()">
             <div class="history-card-icon">
               <i class="fa-solid fa-file-pdf"></i>
@@ -376,24 +380,6 @@
             </div>
             <div class="history-card-arrow">
               <i class="fa-solid fa-chevron-right"></i>
-            </div>
-          </div>
-        </nz-col>
-
-        <nz-col [nzXl]="12" [nzLg]="12" [nzMd]="24" [nzXs]="24">
-          <div class="info-card-premium">
-            <div class="info-card-content">
-              <div class="info-card-icon">
-                <i class="fa-solid fa-circle-info"></i>
-              </div>
-              <div class="info-card-text">
-                <p class="info-card-title">Información importante</p>
-                <p class="info-card-description">
-                  *Todos los planes de afiliación y puntos duran hasta el último día de cada mes, luego se deben
-                  renovar. Ejemplo: Si compra un plan de afiliación el día 29 de Octubre, su plan de afiliación durará
-                  hasta el último día de Octubre, luego deberá renovar. Para cobrar por sus puntos debe estar Activo.
-                </p>
-              </div>
             </div>
           </div>
         </nz-col>

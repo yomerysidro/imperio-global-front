@@ -88,6 +88,33 @@
 
         .nav-left {
             margin-left: 10px;
+
+            .menu-toggle-button {
+                width: 44px;
+                height: 44px;
+                padding: 0 !important;
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                color: $white !important;
+                background: #0866ff;
+                border: 1px solid rgba(255, 255, 255, 0.45);
+                border-radius: 12px !important;
+                box-shadow: 0 6px 16px rgba(8, 102, 255, 0.28);
+
+                .anticon {
+                    font-size: 22px;
+                }
+
+                &:hover,
+                &:focus,
+                &:active {
+                    color: #0866ff !important;
+                    background: $white !important;
+                    border-color: #0866ff;
+                    transform: translateY(-1px);
+                }
+            }
         }
 
         .nav-right {

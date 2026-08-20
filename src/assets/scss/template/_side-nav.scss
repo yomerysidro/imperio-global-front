@@ -18,7 +18,112 @@
     }
 
     .side-nav-menu {
-        margin-bottom: $header-height;
+        margin-bottom: 0;
+        min-height: calc(100vh - #{$header-height});
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 12px;
+
+        > .ant-menu-item {
+            height: 52px;
+            line-height: 52px;
+            margin: 6px 10px;
+            width: calc(100% - 20px);
+            border-radius: 12px;
+            border-bottom: 1px solid rgba(8, 102, 255, 0.14);
+
+            > .menu-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                height: 100%;
+                font-weight: 600;
+
+                .menu-text {
+                    position: relative;
+                    display: inline-flex;
+                    align-items: center;
+                    height: 100%;
+                }
+
+                .menu-icon {
+                    width: 34px;
+                    height: 34px;
+                    flex: 0 0 34px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #0866ff;
+                    background: rgba(8, 102, 255, 0.1);
+                    border: 1px solid rgba(8, 102, 255, 0.18);
+                    border-radius: 10px;
+                    transition: all 0.2s ease;
+
+                    .anticon {
+                        margin-right: 0;
+                        font-size: 18px;
+                    }
+                }
+            }
+
+            &:hover > .menu-link .menu-icon,
+            &.ant-menu-item-selected > .menu-link .menu-icon {
+                color: $white;
+                background: #0866ff;
+                border-color: #0866ff;
+                box-shadow: 0 5px 14px rgba(8, 102, 255, 0.3);
+                transform: translateY(-1px);
+            }
+
+            &.ant-menu-item-selected {
+                background: transparent !important;
+
+                &:after {
+                    border-right: 0 !important;
+                }
+
+                > .menu-link,
+                > .menu-link .menu-text {
+                    color: #0866ff !important;
+                    opacity: 1 !important;
+                    visibility: visible;
+                }
+            }
+        }
+
+        > .logout-item {
+            margin-top: auto;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0957d9 0%, #073b9a 100%);
+            box-shadow: 0 6px 16px rgba(7, 59, 154, 0.22);
+
+            > .menu-link {
+                color: $white;
+
+                .menu-icon {
+                    color: $white;
+                    background: rgba(255, 255, 255, 0.16);
+                    border-color: rgba(255, 255, 255, 0.28);
+                }
+            }
+
+            &:hover {
+                background: linear-gradient(135deg, #0866ff 0%, #0646bd 100%);
+                box-shadow: 0 8px 20px rgba(8, 102, 255, 0.3);
+
+                > .menu-link {
+                    color: $white;
+
+                    .menu-icon {
+                        color: $white;
+                        background: rgba(255, 255, 255, 0.22);
+                        border-color: rgba(255, 255, 255, 0.35);
+                        box-shadow: none;
+                    }
+                }
+            }
+        }
 
         &:not(.ant-menu-inline-collapsed) {
             .dropdown-menu {
@@ -34,6 +139,20 @@
         }
 
         &.ant-menu-inline-collapsed {
+
+            > .ant-menu-item {
+                padding: 0 12px !important;
+
+                > .menu-link {
+                    justify-content: center;
+                    gap: 0;
+
+                    > span:not(.menu-icon),
+                    > i:not(.menu-icon) {
+                        display: none !important;
+                    }
+                }
+            }
 
             .ant-menu-submenu {
                 position: relative;
