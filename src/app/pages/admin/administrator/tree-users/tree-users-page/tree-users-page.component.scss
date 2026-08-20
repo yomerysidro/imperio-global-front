@@ -7,25 +7,91 @@ $text-muted: #8c8c8c;
 
 /* ── 1. STATS CARD ─────────────────────────────────────── */
 .stats-card {
-  border: 0 !important;
+  border: 1px solid rgba(67, 121, 238, 0.18) !important;
   border-radius: 20px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+  box-shadow: 0 10px 30px rgba(38, 73, 128, 0.1) !important;
   margin-bottom: 20px;
-  background: #fff;
+  background: linear-gradient(145deg, #f5f7fa 0%, #e8edf3 100%);
+  overflow: hidden;
 
   .stat-item {
-    padding: 15px;
-    text-align: center;
-    .stat-number {
-      font-size: 32px; font-weight: 900; margin: 0; color: $text-main;
-      &.active-color { color: $active-green; }
+    min-height: 104px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    text-align: left;
+    transition: background 0.25s ease;
+
+    &:hover { background: rgba(255, 255, 255, 0.58); }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      border-radius: 15px;
+
+      i { font-size: 21px; }
+
+      &.network-icon {
+        background: linear-gradient(135deg, #1769ff, #0748bd);
+        box-shadow: 0 7px 16px rgba(23, 105, 255, 0.28);
+      }
+
+      &.direct-icon {
+        background: linear-gradient(135deg, #087ea4, #075b78);
+        box-shadow: 0 7px 16px rgba(8, 126, 164, 0.25);
+      }
+
+      &.active-icon {
+        background: linear-gradient(135deg, #07965f, #047047);
+        box-shadow: 0 7px 16px rgba(7, 150, 95, 0.25);
+      }
     }
-    .stat-label { color: $text-muted; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-top: 5px; }
-    @media (min-width: 992px) { &.border-left { border-left: 1px solid #f0f0f0; } }
+
+    .stat-data { min-width: 86px; }
+
+    .stat-number {
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 900;
+      margin: 0;
+      color: #15345f;
+      &.active-color { color: #047857; }
+    }
+
+    .stat-label {
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      font-weight: 800;
+      margin: 7px 0 0;
+    }
+
+    @media (min-width: 992px) { &.border-left { border-left: 1px solid rgba(67, 121, 238, 0.15); } }
+    @media (max-width: 991px) { border-bottom: 1px solid rgba(67, 121, 238, 0.12); }
   }
 }
 
 /* ── 2. TREE CARD & VIEWPORT ──────────────────────────── */
+.tree-shell {
+  width: 100%;
+
+  &.is-fullscreen {
+    padding: 16px;
+    background: #eef2f6;
+
+    .tree-main-card { height: calc(100vh - 32px); }
+    .tree-viewport { height: calc(100vh - 205px); max-height: none; }
+  }
+}
+
 .tree-main-card {
   border: 0 !important;
   border-radius: 20px !important;
@@ -38,6 +104,118 @@ $text-muted: #8c8c8c;
     border-bottom: 1px solid #f8fafc;
     z-index: 100;
     position: relative;
+
+    .tree-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+
+      .tree-search {
+        width: 310px;
+        max-width: 100%;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 5px 4px 13px;
+        background: #f4f7fb;
+        border: 1px solid rgba(67, 121, 238, 0.2);
+        border-radius: 13px;
+        transition: all 0.2s ease;
+
+        &:focus-within {
+          width: 440px;
+          background: #fff;
+          border-color: $primary-blue;
+          box-shadow: 0 0 0 3px rgba(67, 121, 238, 0.1);
+        }
+
+        .search-icon { color: $primary-blue; font-size: 14px; }
+
+        input {
+          min-width: 0;
+          height: 32px;
+          padding: 0 4px;
+          border: 0 !important;
+          background: transparent;
+          box-shadow: none !important;
+          font-size: 13px;
+        }
+
+        button {
+          height: 32px;
+          border: 0;
+          border-radius: 9px;
+          cursor: pointer;
+        }
+
+        .search-button {
+          padding: 0 16px;
+          color: #fff;
+          background: linear-gradient(135deg, #1769ff, #0748bd);
+          font-size: 12px;
+          font-weight: 700;
+        }
+
+        .clear-button {
+          width: 32px;
+          flex: 0 0 32px;
+          color: #64748b;
+          background: transparent;
+          &:hover { color: #e5484d; background: rgba(229, 72, 77, 0.08); }
+        }
+      }
+
+      .tree-controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+
+        button {
+          width: 38px;
+          height: 38px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #24518f;
+          background: #f2f5f9;
+          border: 1px solid rgba(67, 121, 238, 0.18);
+          border-radius: 11px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            color: #fff;
+            background: $primary-blue;
+            border-color: $primary-blue;
+            transform: translateY(-1px);
+          }
+        }
+
+        .zoom-value {
+          min-width: 45px;
+          color: #334e76;
+          font-size: 11px;
+          font-weight: 800;
+          text-align: center;
+        }
+      }
+    }
+
+    .search-message {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: -5px 0 12px;
+      color: #047857;
+      font-size: 11px;
+      font-weight: 700;
+
+      &.not-found { color: #d14343; }
+    }
 
     .sponsor-box {
       display: flex;
@@ -55,12 +233,24 @@ $text-muted: #8c8c8c;
       .tree-legend {
         display: flex; gap: 15px;
         .legend-item {
-          display: flex; align-items: center; gap: 6px;
-          .dot { width: 10px; height: 10px; border-radius: 50%; 
-            &.active { background: $active-green; box-shadow: 0 0 5px $active-green; }
-            &.inactive { background: $inactive-red; box-shadow: 0 0 5px $inactive-red; }
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          background: #f5f7fa;
+          border: 1px solid #e4e9ef;
+          border-radius: 20px;
+
+          .dot { display: none; }
+
+          .legend-icon {
+            font-size: 14px;
+
+            &.fa-circle-check { color: $active-green; }
+            &.fa-circle-xmark { color: $inactive-red; }
           }
-          small { font-weight: 600; color: $text-muted; }
+
+          small { font-weight: 700; color: #52647c; }
         }
       }
     }
@@ -70,11 +260,21 @@ $text-muted: #8c8c8c;
     padding: 40px 20px;
     width: 100%;
     overflow: auto; 
-    min-height: 550px;
+    height: clamp(520px, calc(100vh - 300px), 820px);
+    min-height: 520px;
     background: #ffffff;
+    scroll-behavior: smooth;
 
     &::-webkit-scrollbar { width: 6px; height: 6px; }
     &::-webkit-scrollbar-thumb { background: #d1d9e2; border-radius: 10px; }
+
+    .tree-canvas {
+      width: max-content;
+      min-width: 100%;
+      margin: 0 auto;
+      transform-origin: top center;
+      transition: transform 0.25s ease;
+    }
 
     ::ng-deep app-tree-view { display: block; width: max-content; margin: 0 auto; }
     ::ng-deep .tree { display: flex; justify-content: center; min-width: fit-content; }
@@ -84,6 +284,26 @@ $text-muted: #8c8c8c;
       stroke: #333333 !important;
       stroke-width: 1.5px !important;
       fill: transparent !important;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .tree-header {
+      padding: 15px;
+
+      .tree-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+
+        .tree-search { width: 100%; }
+        .tree-controls { justify-content: center; }
+      }
+    }
+
+    .tree-viewport {
+      height: calc(100vh - 285px);
+      min-height: 460px;
+      padding: 30px 12px;
     }
   }
 }
@@ -102,6 +322,24 @@ $text-muted: #8c8c8c;
   &:hover .node-avatar {
     transform: scale(1.15);
   }
+
+  &.search-highlight {
+    .node-avatar {
+      transform: scale(1.22);
+      border-color: $primary-blue !important;
+      animation: search-pulse 1.4s ease-in-out infinite;
+    }
+
+    .node-id {
+      color: $primary-blue;
+      font-weight: 900;
+    }
+  }
+}
+
+@keyframes search-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(67, 121, 238, 0.16), 0 0 16px rgba(67, 121, 238, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(67, 121, 238, 0.08), 0 0 25px rgba(67, 121, 238, 0.58); }
 }
 
 .node-avatar {
