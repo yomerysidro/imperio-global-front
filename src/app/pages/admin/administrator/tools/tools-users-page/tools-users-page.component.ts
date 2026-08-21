@@ -50,6 +50,9 @@ export class ToolsUsersPageComponent implements OnInit {
   loadingDesactive: boolean = false;
   canReactivatePoints: boolean = false;
   canDeactivatePoints: boolean = false;
+  authUser: any = null;
+  deletingUser: boolean = false;
+  deletionMode: 'user' | 'network' | null = null;
   constructor(
     private apiService: ApiService,
     private modalService: ModalService,
@@ -87,9 +90,18 @@ export class ToolsUsersPageComponent implements OnInit {
       this.apiService.getPointList({}),
       this.apiService.getUsersFindAll({ code: this.codeUser.trim(), name: this.nameUser.trim(), plan: this.planSelected ?? "", limit: this.pageSize, page: this.pageIndex }),
       this.apiService.getPlansSearch({}),
+      this.apiService.getAuthenticationUser()
     ).subscribe(
-      ([listPoints, usersList, planList]) => {
+      ([listPoints, usersList, planList, authResponse]) => {
         this._listPoints = listPoints.data;
+        const authenticatedUser: any = authResponse?.data;
+        this.authUser = authenticatedUser
+          ? {
+              ...authenticatedUser,
+              is_admin: authenticatedUser?.is_admin === true || Number(authenticatedUser?.is_admin) === 1,
+              admin: authenticatedUser?.admin === true || Number(authenticatedUser?.admin) === 1
+            }
+          : null;
 
         if (usersList.success) {
           this.totalRecord = usersList.data.pagination.total;
@@ -211,6 +223,7 @@ export class ToolsUsersPageComponent implements OnInit {
   }
 
   public onDetailUser(userModel: UserModel, tplContent: TemplateRef<{}>): void {
+    this.modalUserOptions(0);
     this.userModel = userModel;
     this.canReactivatePoints = false;
     this.canDeactivatePoints = userModel.manual_reactivation_active === true;
@@ -327,6 +340,119 @@ export class ToolsUsersPageComponent implements OnInit {
   public onClose(): void {
     this.modalUserOptions(0);
     this.nzModalService.closeAll();
+  }
+
+  public get canDeleteSelectedUser(): boolean {
+    const esAdministrador =
+      this.authUser?.is_admin === true || this.authUser?.admin === true;
+
+    if (!esAdministrador || !this.userModel) return false;
+
+    const selectedUser: any = this.userModel;
+    const isProtectedAdmin =
+      selectedUser?.is_admin === true || Number(selectedUser?.is_admin) === 1 ||
+      selectedUser?.admin === true || Number(selectedUser?.admin) === 1;
+    const protectedIdentifiers = [selectedUser?.uuid, selectedUser?.name]
+      .map(value => String(value || '').trim().toLowerCase());
+    const isProtectedAccount = protectedIdentifiers.some(
+      value => value === 'dosb' || value === 'wadz'
+    );
+
+    return !isProtectedAdmin && !isProtectedAccount;
+  }
+
+  public confirmDeleteUser(deleteNetwork: boolean): void {
+    if (this.deletingUser || !this.canDeleteSelectedUser) return;
+
+    const message = deleteNetwork
+      ? '¿Desea eliminar a este usuario y TODA su red?\n\nSe eliminarán permanentemente todos sus descendientes y sus operaciones.\n\nEsta acción no se puede deshacer.'
+      : '¿Desea eliminar únicamente a este usuario?\n\nSe eliminarán su cuenta, órdenes, paquetes asignados y puntos. Sus hijos serán reasignados automáticamente a su patrocinador.\n\nEsta acción no se puede deshacer.';
+
+    this.modalService.confirm(message, () => this.executeUserDeletion(deleteNetwork));
+  }
+
+  private executeUserDeletion(deleteNetwork: boolean): void {
+    if (this.deletingUser || !this.canDeleteSelectedUser) return;
+
+    const userCode = this.userModel?.uuid;
+    if (!userCode) {
+      this.modalService.error('El usuario seleccionado no tiene un código válido.');
+      return;
+    }
+
+    this.deletingUser = true;
+    this.deletionMode = deleteNetwork ? 'network' : 'user';
+
+    const request$ = deleteNetwork
+      ? this.apiService.deleteUserNetwork(userCode)
+      : this.apiService.deleteUser(userCode);
+
+    request$.subscribe({
+      next: response => {
+        if (!response?.success) {
+          this.deletingUser = false;
+          this.deletionMode = null;
+          this.modalService.error(response?.message || 'No se pudo eliminar al usuario.');
+          return;
+        }
+
+        this.refreshUsersAndTreeData(() => {
+          this.deletingUser = false;
+          this.deletionMode = null;
+          this.nzModalService.closeAll();
+          this.modalService.success(response?.message || 'Usuario eliminado correctamente.');
+        });
+      },
+      error: error => {
+        this.deletingUser = false;
+        this.deletionMode = null;
+        this.modalService.error(this.getDeletionErrorMessage(error));
+      }
+    });
+  }
+
+  private refreshUsersAndTreeData(onSuccess: () => void): void {
+    this.tableProductLoading = true;
+    forkJoin({
+      users: this.apiService.getUsersFindAll({
+        code: this.codeUser.trim(),
+        name: this.nameUser.trim(),
+        plan: this.planSelected ?? '',
+        limit: this.pageSize,
+        page: this.pageIndex
+      }),
+      tree: this.apiService.getPointList({})
+    }).subscribe({
+      next: ({ users, tree }) => {
+        if (users?.success) {
+          this.totalRecord = users.data.pagination.total;
+          this.tableProducts = users.data.items;
+        }
+        this._listPoints = tree?.data || [];
+        this.tableProductLoading = false;
+        onSuccess();
+      },
+      error: error => {
+        this.tableProductLoading = false;
+        this.deletingUser = false;
+        this.deletionMode = null;
+        this.modalService.error(error?.message || 'El usuario fue eliminado, pero no se pudieron actualizar los datos.');
+      }
+    });
+  }
+
+  private getDeletionErrorMessage(error: any): string {
+    if (typeof error === 'string') return error;
+
+    const backendMessage = error?.message || error?.error?.message;
+    if (backendMessage) return backendMessage;
+
+    switch (error?.status) {
+      case 403: return 'No tiene permisos de administrador para realizar esta acción.';
+      case 404: return 'El usuario no fue encontrado.';
+      case 422: return 'La cuenta está protegida o no existe un patrocinador válido para reasignar a sus hijos.';
+      default: return 'Error interno. No se realizó una eliminación parcial.';
+    }
   }
 
   public onBack(time: number): void {

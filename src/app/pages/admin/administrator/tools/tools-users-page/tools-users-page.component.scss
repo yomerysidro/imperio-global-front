@@ -28,3 +28,39 @@ box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
     box-shadow: 0 7px 18px rgba(255, 77, 79, 0.3);
   }
 }
+
+.user-deletion-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 4px 0 20px;
+  padding: 16px;
+  border: 1px solid rgba(245, 34, 45, 0.18);
+  border-radius: 12px;
+  background: #fffafa;
+
+  button {
+    display: inline-flex;
+    width: 100%;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-weight: 700;
+
+    i {
+      margin-right: 8px;
+    }
+  }
+
+  .delete-network-button {
+    background: #a8071a;
+    border-color: #a8071a;
+
+    &:hover:not([disabled]),
+    &:focus:not([disabled]) {
+      background: #820014;
+      border-color: #820014;
+    }
+  }
+}

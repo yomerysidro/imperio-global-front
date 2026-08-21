@@ -108,7 +108,31 @@
       <nz-col [nzXs]="24" class="m-b-10">
         <button nz-button nzType="primary" class="m-b-20" (click)="modalUserOptions(1)">Modificar Datos de usuario</button>
         <button nz-button nzType="primary" class="m-b-20 ant-btn-warning" (click)="modalUserOptions(2)">Modificar Patrocinador de usuario</button>
-        <button nz-button nzType="primary" nzDanger class="m-b-20" (click)="modalUserOptions(3)">Eliminar a usuario registrado</button>
+        <ng-container *ngIf="canDeleteSelectedUser">
+          <div class="user-deletion-actions">
+            <button
+              nz-button
+              nzType="primary"
+              nzDanger
+              [disabled]="deletingUser"
+              [nzLoading]="deletingUser && deletionMode === 'user'"
+              (click)="confirmDeleteUser(false)">
+              <i *ngIf="!(deletingUser && deletionMode === 'user')" nz-icon nzType="delete" nzTheme="outline"></i>
+              <span>Eliminar solo usuario</span>
+            </button>
+            <button
+              nz-button
+              nzType="primary"
+              nzDanger
+              class="delete-network-button"
+              [disabled]="deletingUser"
+              [nzLoading]="deletingUser && deletionMode === 'network'"
+              (click)="confirmDeleteUser(true)">
+              <i *ngIf="!(deletingUser && deletionMode === 'network')" nz-icon nzType="warning" nzTheme="outline"></i>
+              <span>Eliminar usuario y toda su red</span>
+            </button>
+          </div>
+        </ng-container>
         <ng-container *ngIf="canReactivatePoints">
           <button nz-button nzType="primary" class="m-b-20 ant-btn-success" (click)="modalUserOptions(4)">Reactivar, Simulando compra en tienda</button>
         </ng-container>

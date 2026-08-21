@@ -19,5 +19,38 @@
                 </a>
             </li>
         </ul>
+
+        <ul class="nav-right">
+            <li>
+                <a href="javascript:void(0)" class="header-user" aria-label="Abrir opciones de perfil" title="Mi perfil"
+                   nz-dropdown [nzDropdownMenu]="profileMenu" nzTrigger="click" nzPlacement="bottomRight">
+                    <span class="header-user__info">
+                        <small>Usuario</small>
+                        <strong>{{ userName }}</strong>
+                    </span>
+                    <span class="header-user__avatar">
+                        <i nz-icon nzType="user" nzTheme="outline"></i>
+                    </span>
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
+
+<nz-dropdown-menu #profileMenu="nzDropdownMenu">
+    <ul nz-menu class="profile-dropdown">
+        <li nz-menu-item class="profile-dropdown__identity" nzDisabled>
+            <span class="profile-dropdown__data">
+                <small>Nombre</small>
+                <strong>{{ userName }}</strong>
+                <small class="profile-dropdown__email-label">Correo</small>
+                <span>{{ userEmail }}</span>
+            </span>
+        </li>
+        <li nz-menu-divider></li>
+        <li nz-menu-item class="profile-dropdown__logout" (click)="onLogout()">
+            <i nz-icon nzType="logout" nzTheme="outline"></i>
+            <span>Cerrar sesión</span>
+        </li>
+    </ul>
+</nz-dropdown-menu>
