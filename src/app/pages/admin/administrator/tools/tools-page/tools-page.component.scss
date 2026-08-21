@@ -1,5 +1,193 @@
-.card--shadow{
-  -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
--moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.55);
+.tools-shell {
+  display: block;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff 0%, #f5f8ff 100%);
+  box-shadow: 0 8px 26px rgba(8, 102, 255, 0.09);
+
+  ::ng-deep .ant-card-body {
+    padding: 30px;
+  }
+}
+
+.tools-heading {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 28px;
+  padding: 25px 28px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0646bd 0%, #0866ff 58%, #168cff 100%);
+  box-shadow: 0 10px 25px rgba(8, 102, 255, 0.22);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -75px;
+    right: 7%;
+    width: 165px;
+    height: 165px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.11);
+  }
+
+  h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.35px;
+  }
+
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.tool-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 164px;
+  padding: 30px 58px 30px 26px;
+  overflow: hidden;
+  border: 1px solid rgba(8, 102, 255, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(8, 102, 255, 0.11) 0, rgba(8, 102, 255, 0) 38%),
+    linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+  box-shadow: 0 8px 24px rgba(8, 102, 255, 0.1);
+  color: #252b36;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #0646bd, #0866ff, #60a5ff);
+    transition: height 0.22s ease;
+  }
+
+  &::after {
+    content: '\2192';
+    position: absolute;
+    right: 24px;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(8, 102, 255, 0.09);
+    color: #0866ff;
+    font-size: 18px;
+    transition: transform 0.22s ease, background 0.22s ease, color 0.22s ease;
+  }
+
+  &:hover,
+  &:focus {
+    border-color: #0866ff;
+    box-shadow: 0 12px 28px rgba(8, 102, 255, 0.17);
+    color: #252b36;
+    outline: none;
+    transform: translateY(-3px);
+
+    &::before {
+      height: 6px;
+    }
+
+    &::after {
+      background: #0866ff;
+      color: #ffffff;
+      transform: translateX(3px);
+    }
+
+    .tool-card__icon {
+      background: #0866ff;
+      box-shadow: 0 8px 18px rgba(8, 102, 255, 0.25);
+
+      i { color: #ffffff; }
+    }
+  }
+}
+
+.tool-card__icon {
+  display: grid;
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  margin-right: 20px;
+  place-items: center;
+  border: 1px solid rgba(8, 102, 255, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(8, 102, 255, 0.13), rgba(8, 102, 255, 0.05));
+  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.55);
+  transition: background 0.22s ease, box-shadow 0.22s ease;
+
+  i {
+    color: #0866ff;
+    font-size: 32px;
+    transition: color 0.22s ease;
+  }
+}
+
+.tool-card__content {
+  min-width: 0;
+
+  p:first-child {
+    margin-bottom: 5px !important;
+    color: #0866ff !important;
+    font-size: 13px !important;
+    font-weight: 800;
+    letter-spacing: 0.45px;
+    text-transform: uppercase;
+  }
+
+  p:last-child {
+    color: #343a40;
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 767px) {
+  .tools-shell ::ng-deep .ant-card-body {
+    padding: 20px;
+  }
+
+  .tools-heading h2 {
+    font-size: 24px;
+  }
+
+  .tools-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .tool-card {
+    min-height: 138px;
+    padding: 24px 52px 24px 18px;
+  }
+
+  .tool-card__icon {
+    flex-basis: 54px;
+    width: 54px;
+    height: 54px;
+    margin-right: 14px;
+  }
+
+  .tool-card::after {
+    right: 16px;
+  }
 }

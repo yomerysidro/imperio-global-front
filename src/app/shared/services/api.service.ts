@@ -217,6 +217,14 @@ export class ApiService {
     return this.httpService.post<IResponse<any>>( '/users/desactive' , command ).pipe(tap( res => res ));
   }
 
+  public deleteUser(userCode: string): Observable<IResponse<any>> {
+    return this.httpService.delete<IResponse<any>>(`/users/${encodeURIComponent(userCode)}`).pipe(tap(res => res));
+  }
+
+  public deleteUserNetwork(userCode: string): Observable<IResponse<any>> {
+    return this.httpService.delete<IResponse<any>>(`/users/${encodeURIComponent(userCode)}/network`).pipe(tap(res => res));
+  }
+
   public getUserReactivationStatus(userCode: string): Observable<IResponse<any>> {
     return this.httpService.get<IResponse<any>>(`/users/reactivation-status/${userCode}`).pipe(tap(res => res));
   }
