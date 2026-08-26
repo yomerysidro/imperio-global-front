@@ -97,16 +97,23 @@ export class ToolsUsersPageComponent implements OnInit {
     )
   }
 
+  public onFilterSearch(): void {
+    // Un filtro nuevo debe comenzar en la primera pagina. Si conserva una
+    // pagina posterior, el total puede ser 1 mientras `items` llega vacio.
+    this.pageIndex = 1;
+    this.onSearch();
+  }
+
   public loadData(): void {
     this.tableProductLoading = true;
     forkJoin(
-      this.apiService.getPointList({}),
+      this.apiService.getPointListUser(),
       this.apiService.getUsersFindAll({ code: this.codeUser.trim(), name: this.nameUser.trim(), plan: this.planSelected ?? "", limit: this.pageSize, page: this.pageIndex }),
       this.apiService.getPlansSearch({}),
       this.apiService.getAuthenticationUser()
     ).subscribe(
       ([listPoints, usersList, planList, authResponse]) => {
-        this._listPoints = listPoints.data;
+        this._listPoints = this.extractNetworkRecords(listPoints?.data);
         const authenticatedUser: any = authResponse?.data;
         this.authUser = authenticatedUser
           ? {
@@ -151,6 +158,41 @@ export class ToolsUsersPageComponent implements OnInit {
   public onSeletedUSer(usercode: string, userModel: any): void {
     if (usercode == "-1") return;
 
+    // La fila de /users/find-all es un resumen y puede no contener puntos ni
+    // contadores de red. Cargamos el mismo detalle que utiliza el modal del
+    // arbol antes de mostrarlo.
+    const userId = Number(userModel?.id);
+    if (Number.isInteger(userId) && userId > 0) {
+      this.apiService.getUserById(userId).subscribe({
+        next: response => {
+          const detail = response?.success && response?.data
+            ? { ...userModel, ...response.data }
+            : userModel;
+          this.openUserDetailModal(usercode, detail);
+        },
+        error: () => this.openUserDetailModal(usercode, userModel)
+      });
+      return;
+    }
+
+    this.openUserDetailModal(usercode, userModel);
+  }
+
+  private openUserDetailModal(usercode: string, userModel: any): void {
+
+    const networkStats = this.getNetworkStats(usercode);
+    // Los endpoints de listado/detalle pueden responder contadores en cero
+    // aunque la estructura de puntos sí contenga descendientes. Para este
+    // modal la estructura es la fuente de verdad, igual que en el arbol.
+    if (networkStats.total > 0) {
+      userModel = {
+        ...userModel,
+        red_total: networkStats.total,
+        directos: networkStats.direct,
+        activos: networkStats.active
+      };
+    }
+
     // Calculamos todos los puntos incluyendo servicios para el Modal
     const pts = userModel?.points;
     
@@ -189,9 +231,9 @@ export class ToolsUsersPageComponent implements OnInit {
 
   public listPoints(): void {
     this.tableProductLoading = true;
-    this.apiService.getPointList({}).subscribe(
+    this.apiService.getPointListUser().subscribe(
       (response) => {
-        this._listPoints = response.data;
+        this._listPoints = this.extractNetworkRecords(response?.data);
         this.onSearch();
       }, (error) => {
       }
@@ -456,14 +498,14 @@ export class ToolsUsersPageComponent implements OnInit {
         limit: this.pageSize,
         page: this.pageIndex
       }),
-      tree: this.apiService.getPointList({})
+      tree: this.apiService.getPointListUser()
     }).subscribe({
       next: ({ users, tree }) => {
         if (users?.success) {
           this.totalRecord = users.data.pagination.total;
           this.tableProducts = users.data.items;
         }
-        this._listPoints = tree?.data || [];
+        this._listPoints = this.extractNetworkRecords(tree?.data);
         this.tableProductLoading = false;
         onSuccess();
       },
@@ -490,12 +532,57 @@ export class ToolsUsersPageComponent implements OnInit {
     }
   }
 
+  private extractNetworkRecords(data: any): any[] {
+    const records = Array.isArray(data?.volume_records)
+      ? data.volume_records
+      : Array.isArray(data?.point_records)
+        ? data.point_records
+        : Array.isArray(data?.points)
+          ? data.points
+          : Array.isArray(data)
+            ? data
+            : [];
+
+    return records.filter(point =>
+      point?.type === 'B' ||
+      point?.type === 'G' ||
+      point?.type === 'COMPRA' ||
+      point?.is_legacy === true
+    );
+  }
+
+  private getNetworkStats(rootCode: string): { total: number; direct: number; active: number } {
+    const normalizedRoot = String(rootCode || '').toLowerCase();
+    if (!normalizedRoot) return { total: 0, direct: 0, active: 0 };
+
+    const visited = new Set<string>();
+    let direct = 0;
+    let active = 0;
+
+    const traverse = (sponsorCode: string, firstLevel: boolean): void => {
+      this._listPoints
+        .filter(point => String(point?.sponsor_code || '').toLowerCase() === sponsorCode)
+        .forEach(point => {
+          const childCode = String(point?.user_code || '').toLowerCase();
+          if (!childCode || visited.has(childCode) || childCode === normalizedRoot) return;
+
+          visited.add(childCode);
+          if (firstLevel) direct++;
+          if (isUserMembershipActive(point?.user || point?.user_point || point, point)) active++;
+          traverse(childCode, false);
+        });
+    };
+
+    traverse(normalizedRoot, true);
+    return { total: visited.size, direct, active };
+  }
+
   public onBack(time: number): void {
     this.modalUserOptions(0)
   }
 
   public onChangePlan(plan: any): void {
-    this.onSearch();
+    this.onFilterSearch();
   }
 
   public onPaymentOfflineConfirm(uuid: string): void {

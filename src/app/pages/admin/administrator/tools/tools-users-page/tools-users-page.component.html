@@ -12,12 +12,12 @@
         <div class="filter-label"><i nz-icon nzType="filter" nzTheme="outline"></i><span>Filtros</span></div>
         <div class="filter-controls">
         <nz-input-group [nzPrefix]="suffixTemplateInfo" class="search-control">
-          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar por código ID" appDelayedInput (delayedInput)="onSearch()"/>
+          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar por código ID" appDelayedInput (delayedInput)="onFilterSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfo><i nz-icon nzType="search"></i></ng-template>
 
         <nz-input-group [nzPrefix]="suffixTemplateInfoName" class="search-control">
-          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar por nombre" appDelayedInput (delayedInput)="onSearch()"/>
+          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar por nombre" appDelayedInput (delayedInput)="onFilterSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
 

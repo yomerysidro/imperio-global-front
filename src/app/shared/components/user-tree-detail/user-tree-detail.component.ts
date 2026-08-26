@@ -62,9 +62,14 @@ export class UserTreeDetailComponent implements OnInit {
       const userDetail = this.userModel.user_detail || {};
       const pts = this.userModel.points || {};
 
-      this.pointTotal = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
-      this.pointRed = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
-      this.granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? this.pointRed);
+      // Algunos listados entregan estos valores al modal por separado y no
+      // incluyen `user_detail`/`points`. En ese caso conservamos los @Input
+      // recibidos en vez de reemplazarlos por cero.
+      this.pointTotal = Number(userDetail.puntos_personales ?? pts.personal ?? this.pointTotal ?? 0);
+      this.pointRed = Number(userDetail.puntos_red ?? pts.pointGroup ?? this.pointRed ?? 0);
+      this.granTotalPuntos = Number(
+        userDetail.total_puntos ?? pts.total_general ?? this.granTotalPuntos ?? (this.pointTotal + this.pointRed)
+      );
       this.gananciaPatrocinio = Number(userDetail.ganancia_patrocinio ?? pts.patrocinio ?? 0);
       this.gananciaResidual = Number(userDetail.ganancia_residual ?? pts.residual ?? 0);
       this.bonoInfinito = Number(userDetail.bono_infinito ?? pts.infinito ?? 0);
