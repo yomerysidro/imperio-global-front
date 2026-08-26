@@ -4,6 +4,7 @@ import { CONSTANTS } from '@shared/constants/constants';
 import { ApiService } from '@shared/services/api.service';
 import { UserModel } from '@shared/services/models/user.interface';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -16,6 +17,7 @@ export class ProfileInvitedModalComponent implements OnInit {
   @Input() codeInvited: string;
 
   avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
+  fallback: string = CONSTANTS.IMAGE.FALLBACK;
   linkInited: string;
 
   multipleUsers: any[] = [];
@@ -26,7 +28,8 @@ export class ProfileInvitedModalComponent implements OnInit {
   constructor(
     @Optional() @Inject(NZ_MODAL_DATA) private modalData: any,
     private apiService: ApiService,
-    private modalRef: NzModalRef
+    private modalRef: NzModalRef,
+    private messageService: NzMessageService
   ) {
     if (this.modalData) {
       Object.assign(this, this.modalData);
@@ -35,11 +38,29 @@ export class ProfileInvitedModalComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.linkInited = environment.serveUrl + "/guest/" + this.codeInvited
+    this.linkInited = environment.serveUrl + "/guest/" + this.codeInvited;
+    this.avatarUrl = this.userModel?.file?.path
+      ? environment.hostUrl + '/storage/' + this.userModel.file.path
+      : CONSTANTS.IMAGE.FALLBACK;
     this.loadData();
   }
 
-  copyMessage(val: string){
+  async copyMessage(val: string, type: 'link' | 'id' = 'link'): Promise<void> {
+    if (!val) return;
+
+    try {
+      await navigator.clipboard.writeText(val);
+    } catch {
+      this.copyWithFallback(val);
+    }
+
+    this.messageService.success(
+      type === 'link' ? 'Enlace copiado' : 'ID copiado',
+      { nzDuration: 2500 }
+    );
+  }
+
+  private copyWithFallback(val: string): void {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
     selBox.style.left = '0';
@@ -58,7 +79,6 @@ export class ProfileInvitedModalComponent implements OnInit {
       this.apiService.getUsersSearch({})
     ).subscribe(
       ([users]) => {
-        console.log(users)
         this.listUsers = users.data.filter( u => u.payment == null );
     })
   }

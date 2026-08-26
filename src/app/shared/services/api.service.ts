@@ -217,6 +217,13 @@ export class ApiService {
     return this.httpService.post<IResponse<any>>( '/users/desactive' , command ).pipe(tap( res => res ));
   }
 
+  public getPublicSponsorVerify(code: string): Observable<IResponse<any>> {
+    const httpParams = new HttpParams({
+      fromObject: { code }
+    });
+    return this.httpService.get<IResponse<any>>('/auth/sponsor-verify', { params: httpParams }).pipe(tap(res => res));
+  }
+
   public deleteUser(userCode: string): Observable<IResponse<any>> {
     return this.httpService.delete<IResponse<any>>(`/users/${encodeURIComponent(userCode)}`).pipe(tap(res => res));
   }
@@ -397,6 +404,16 @@ export class ApiService {
       fromObject: { code: code, limit: 1, page: 1 }
     });
     return this.httpService.get<IResponse< IResponsePaginationModel< Array<UserModel> >>>(url, { params: httpParams }).pipe(tap(res => res));
+  }
+
+  public getCommissionSummary(month: number, year: number): Observable<IResponse<any>> {
+    const httpParams = new HttpParams({
+      fromObject: {
+        month: month.toString(),
+        year: year.toString()
+      }
+    });
+    return this.httpService.get<IResponse<any>>('/users/commission-summary', { params: httpParams }).pipe(tap(res => res));
   }
 
     // 🔥 Este método ya existe en tu servicio

@@ -1,0 +1,33 @@
+.invitation-modal { margin: -8px -4px 2px; color: #25324a; }
+.invitation-hero { display: flex; gap: 15px; margin-bottom: 18px; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, #0756d9, #168cff); color: #fff; box-shadow: 0 10px 25px rgba(8,102,255,.2); }
+.hero-icon { display: grid; flex: 0 0 46px; width: 46px; height: 46px; place-items: center; border-radius: 13px; background: rgba(255,255,255,.18); font-size: 22px; }
+.invitation-hero span { color: rgba(255,255,255,.75); font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+.invitation-hero h2 { margin: 1px 0 4px; color: #fff; font-size: 21px; font-weight: 800; }
+.invitation-hero p { margin: 0; color: rgba(255,255,255,.85); font-size: 12px; line-height: 1.55; }
+
+.sponsor-card { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; padding: 14px; border: 1px solid #e1e9f5; border-radius: 14px; background: #f8fbff; }
+.sponsor-card img { width: 56px; height: 56px; border: 3px solid #fff; border-radius: 50%; object-fit: cover; box-shadow: 0 3px 10px rgba(24,50,89,.14); }
+.sponsor-details { flex: 1; min-width: 0; }
+.sponsor-details small, .section-title small { display: block; color: #7b8799; font-size: 11px; }
+.sponsor-details strong { display: block; overflow: hidden; color: #25324a; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.sponsor-meta { display: flex; flex-wrap: wrap; gap: 5px 14px; margin-top: 3px; color: #627087; font-size: 11px; }
+.copy-id-button { display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center; border: 0; border-radius: 10px; background: #e8f1ff; color: #0866ff; cursor: pointer; }
+
+.link-section, .users-section { margin-top: 16px; }
+.section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.section-title > i { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 9px; background: #e8f1ff; color: #0866ff; font-size: 16px; }
+.section-title strong { display: block; font-size: 13px; }
+.link-box { display: flex; align-items: center; gap: 10px; padding: 9px 9px 9px 13px; border: 1px solid #dce6f3; border-radius: 12px; background: #fff; }
+.link-box span { flex: 1; min-width: 0; overflow: hidden; color: #526075; font-family: monospace; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.link-box button, .send-button { height: 38px; border-radius: 9px; font-size: 11px; font-weight: 700; }
+.users-section { padding-top: 16px; border-top: 1px solid #edf1f6; }
+.users-select { width: 100%; }
+.users-select ::ng-deep .ant-select-selector { min-height: 42px !important; border-radius: 10px !important; }
+.send-button { width: 100%; margin-top: 12px; }
+
+@media (max-width: 575px) {
+  .invitation-hero { padding: 15px; }
+  .link-box { align-items: stretch; flex-direction: column; }
+  .link-box span { padding: 5px 2px; white-space: normal; word-break: break-all; }
+  .link-box button { width: 100%; }
+}

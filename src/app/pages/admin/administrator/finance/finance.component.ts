@@ -13,14 +13,14 @@ export class FinanceComponent implements OnInit {
 
   currentDate: Date = new Date();
 
-  patrocinioUserActive: number = 0;
-  patrocinioUserInactive: number = 0;
-
-  residualUserActive: number = 0;
-  residualUserInactive: number = 0;
-
-  infinitoUser: number = 0;
-  totalPoint: number = 0;
+  patrocinio: number = 0;
+  residual: number = 0;
+  residualProducto: number = 0;
+  residualServicio: number = 0;
+  infinito: number = 0;
+  total: number = 0;
+  selectedPeriod: string = '';
+  loadingSummary: boolean = false;
 
   oneMonthAgo: Date;
   isGeneratingCurrentMonthExcel: boolean = false;
@@ -46,54 +46,48 @@ export class FinanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshCurrentPeriod();
-    this.loadOption();
+    this.loadCommissionSummary();
   }
 
   private refreshCurrentPeriod(): void {
     this.currentDate = new Date();
-    const monthName = new Intl.DateTimeFormat('es-PE', { month: 'long' }).format(this.currentDate);
-    this.currentMonthReportLabel = `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} ${this.currentDate.getFullYear()}`;
+    this.selectedPeriod = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}`;
+    this.updatePeriodLabel();
   }
 
-  public loadOption(): void{
-    this.apiService.getPointList().subscribe(
-      (res) => {
-        const pointsData = res.data;
-        
+  public onPeriodChange(event: Event): void {
+    this.selectedPeriod = (event.target as HTMLInputElement).value;
+    if (!this.selectedPeriod) return;
+    const { month, year } = this.getSelectedPeriod();
+    this.currentDate = new Date(year, month - 1, 1);
+    this.updatePeriodLabel();
+    this.loadCommissionSummary();
+  }
 
-        const patrocinioPoint = pointsData.filter( f => f.type == "P" );
-        const residualPoint = pointsData.filter( f => f.type == "R" );
-
-        patrocinioPoint.forEach( (point) => {
-          let activeUser = point?.user_point?.payment_active != null ? true : false;
-          if(activeUser){
-            this.patrocinioUserActive = this.patrocinioUserActive + point.point;
-          }else{
-            this.patrocinioUserInactive = this.patrocinioUserInactive + point.point;
-          }
-        })
-
-        residualPoint.forEach( (point) => {
-          let activeUser = point?.user_point?.payment_active != null ? true : false;
-          if(activeUser){
-            this.residualUserActive = this.residualUserActive + point.point;
-          }else{
-            this.residualUserInactive = this.residualUserInactive + point.point;
-          }
-        })
-
-        pointsData.forEach( (point) => {
-          this.totalPoint = this.totalPoint + point.point;
-        })
-
-      }
-    )
+  public loadCommissionSummary(): void {
+    const { month, year } = this.getSelectedPeriod();
+    this.loadingSummary = true;
+    this.apiService.getCommissionSummary(month, year)
+      .pipe(finalize(() => this.loadingSummary = false))
+      .subscribe({
+        next: response => {
+          const data = response?.data || {};
+          this.patrocinio = Number(data.patrocinio ?? 0);
+          this.residual = Number(data.residual ?? 0);
+          this.residualProducto = Number(data.residualProducto ?? 0);
+          this.residualServicio = Number(data.residualServicio ?? 0);
+          this.infinito = Number(data.infinito ?? 0);
+          this.total = Number(data.bono_total ?? 0);
+        },
+        error: error => this.showDownloadError(error, 'No se pudo cargar el resumen de comisiones.')
+      });
   }
 
   public onDownloadFinance(): void{
     if (this.isDownloading) return;
     this.startDownload('Generando y descargando el reporte PDF...');
-    this.apiService.postUserPdfFinance({})
+    const { month, year } = this.getSelectedPeriod();
+    this.apiService.postUserPdfFinance({ month, year })
       .pipe(finalize(() => this.finishDownload()))
       .subscribe({
         next: response => this.downloadBase64File(response, 'application/pdf', 'reporte-finanzas.pdf'),
@@ -103,8 +97,9 @@ export class FinanceComponent implements OnInit {
 
   public onDownloadFinanceExcel(): void{
     if (this.isDownloading) return;
-    this.startDownload('Generando y descargando el Excel histórico...');
-    this.apiService.postUserExcelFinance({})
+    const { month, year } = this.getSelectedPeriod();
+    this.startDownload('Generando y descargando el Excel del periodo seleccionado...');
+    this.apiService.postCurrentMonthExcelFinance(month, year)
       .pipe(finalize(() => this.finishDownload()))
       .subscribe({
         next: response => this.downloadExcelResponse(response),
@@ -115,9 +110,7 @@ export class FinanceComponent implements OnInit {
   public onDownloadCurrentMonthFinanceExcel(): void {
     if (this.isDownloading) return;
 
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+    const { month, year } = this.getSelectedPeriod();
     this.isGeneratingCurrentMonthExcel = true;
     this.startDownload('Generando reporte del mes actual...');
 
@@ -140,6 +133,16 @@ export class FinanceComponent implements OnInit {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       `reporte-finanzas-${this.currentDate.getFullYear()}-${this.currentDate.getMonth() + 1}.xlsx`
     );
+  }
+
+  private getSelectedPeriod(): { month: number; year: number } {
+    const [year, month] = this.selectedPeriod.split('-').map(Number);
+    return { month, year };
+  }
+
+  private updatePeriodLabel(): void {
+    const monthName = new Intl.DateTimeFormat('es-PE', { month: 'long' }).format(this.currentDate);
+    this.currentMonthReportLabel = `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)} ${this.currentDate.getFullYear()}`;
   }
 
   private downloadBase64File(response: any, defaultMime: string, defaultFilename: string): void {

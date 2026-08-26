@@ -12,10 +12,14 @@
       <span class="section-label">Panel financiero</span>
       <h1>Finanzas Imperio</h1>
       <p><i class="fa-regular fa-calendar-days"></i> {{ currentMonthReportLabel }}</p>
+      <label class="period-selector">
+        <span>Periodo</span>
+        <input type="month" [value]="selectedPeriod" (change)="onPeriodChange($event)">
+      </label>
     </div>
     <div class="header-total">
       <span>Ganancias totales</span>
-      <strong>S/. {{ patrocinioUserActive + patrocinioUserInactive + residualUserActive + residualUserInactive }}</strong>
+      <strong>S/. {{ total | number:'1.2-2' }}</strong>
     </div>
   </header>
 
@@ -29,9 +33,8 @@
         </button>
       </div>
       <h2>Ganancias Totales de Patrocinios</h2>
-      <div class="status-row"><span><i class="status-dot active"></i>Ganancias Usuarios activos</span><strong>{{ showPatrocinioValues ? patrocinioUserActive + ' Soles' : '••••' }}</strong></div>
-      <div class="status-row"><span><i class="status-dot inactive"></i>Ganancias Usuarios inactivos</span><strong>{{ showPatrocinioValues ? patrocinioUserInactive + ' Soles' : '••••' }}</strong></div>
-      <div class="card-total"><span>Ganancia Total patrocinio</span><strong>S/. {{ showPatrocinioValues ? patrocinioUserActive + patrocinioUserInactive : '••••' }}</strong></div>
+      <div class="status-row"><span>Comisiones registradas</span><strong>{{ showPatrocinioValues ? (patrocinio | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
+      <div class="card-total"><span>Ganancia Total patrocinio</span><strong>S/. {{ showPatrocinioValues ? (patrocinio | number:'1.2-2') : '••••' }}</strong></div>
     </article>
 
     <article class="summary-card residual-card">
@@ -43,18 +46,18 @@
         </button>
       </div>
       <h2>Ganancias Totales de Residuales</h2>
-      <div class="status-row"><span><i class="status-dot active"></i>Ganancias Usuarios activos</span><strong>{{ showResidualValues ? residualUserActive + ' Soles' : '••••' }}</strong></div>
-      <div class="status-row"><span><i class="status-dot inactive"></i>Ganancias Usuarios inactivos</span><strong>{{ showResidualValues ? residualUserInactive + ' Soles' : '••••' }}</strong></div>
-      <div class="card-total"><span>Ganancia Total residual</span><strong> S/. {{ showResidualValues ? residualUserActive + residualUserInactive : '••••' }}</strong></div>
+      <div class="status-row"><span>Residual de productos</span><strong>{{ showResidualValues ? (residualProducto | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
+      <div class="status-row"><span>Residual de servicios</span><strong>{{ showResidualValues ? (residualServicio | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
+      <div class="card-total"><span>Ganancia Total residual</span><strong> S/. {{ showResidualValues ? (residual | number:'1.2-2') : '••••' }}</strong></div>
     </article>
 
     <article class="summary-card global-card">
       <div class="card-heading"><div class="card-icon"><i nz-icon nzType="bar-chart" nzTheme="outline"></i></div></div>
       <h2>Resumen Global de Ganancias</h2>
-      <div class="status-row"><span>Ganancia Total Patrocinio</span><strong> S/. {{ patrocinioUserActive + patrocinioUserInactive }}</strong></div>
-      <div class="status-row"><span>Ganancia Total Residual</span><strong> S/. {{ residualUserActive + residualUserInactive }}</strong></div>
-      <div class="card-total"><span>Total de la red</span><strong> S/. {{ patrocinioUserActive + patrocinioUserInactive + residualUserActive + residualUserInactive }}</strong></div>
-      <small>Bono infinito de usuarios activos: {{ infinitoUser }}</small>
+      <div class="status-row"><span>Ganancia Total Patrocinio</span><strong> S/. {{ patrocinio | number:'1.2-2' }}</strong></div>
+      <div class="status-row"><span>Ganancia Total Residual</span><strong> S/. {{ residual | number:'1.2-2' }}</strong></div>
+      <div class="status-row"><span>Bono infinito</span><strong> S/. {{ infinito | number:'1.2-2' }}</strong></div>
+      <div class="card-total"><span>Total de comisiones</span><strong> S/. {{ total | number:'1.2-2' }}</strong></div>
     </article>
   </section>
 
@@ -73,13 +76,13 @@
     <div class="report-grid">
       <a href="javascript:void(0)" class="report-card" (click)="onDownloadFinanceExcel()">
         <div class="report-icon historical"><i nz-icon nzType="file-excel" nzTheme="outline"></i></div>
-        <div><span>Excel histórico</span><strong>{{ oneMonthAgo | date: 'MMMM yyyy' : '' : 'es-ES' | titlecase }}</strong><small>Resultados del cierre anterior</small></div>
+        <div><span>Excel del periodo</span><strong>{{ currentMonthReportLabel }}</strong><small>Mismo libro de comisiones del panel</small></div>
         <i nz-icon nzType="download" nzTheme="outline" class="download-icon"></i>
       </a>
 
       <a href="javascript:void(0)" class="report-card current-report" (click)="onDownloadCurrentMonthFinanceExcel()">
         <div class="report-icon current"><i nz-icon nzType="file-excel" nzTheme="outline"></i></div>
-        <div><span>Excel del mes actual</span><strong>{{ currentMonthReportLabel }}</strong><small>Reporte generado en tiempo real</small></div>
+        <div><span>Actualizar Excel del periodo</span><strong>{{ currentMonthReportLabel }}</strong><small>Reporte generado desde el libro real</small></div>
         <i nz-icon nzType="download" nzTheme="outline" class="download-icon"></i>
       </a>
     </div>

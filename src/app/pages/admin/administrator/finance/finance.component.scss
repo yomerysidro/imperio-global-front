@@ -12,6 +12,8 @@ $muted: #626262;
 .finance-header h1 { margin: 3px 0; color: #fff; font-size: 30px; font-weight: 800; letter-spacing: -.4px; }
 .finance-header p { display: flex; align-items: center; gap: 7px; margin: 0; color: rgba(255,255,255,.82); font-weight: 600; }
 .finance-header p i { color: #fff; }
+.period-selector { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: rgba(255,255,255,.85); font-size: 12px; font-weight: 700; }
+.period-selector input { padding: 6px 9px; border: 1px solid rgba(255,255,255,.4); border-radius: 8px; background: rgba(255,255,255,.95); color: $text; }
 .section-label { color: $purple; font-size: 12px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; }
 .finance-header .section-label { color: rgba(255,255,255,.78); }
 .header-total { min-width: 190px; padding: 15px 20px; border-radius: 14px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); color: #fff; text-align: right; backdrop-filter: blur(8px); }

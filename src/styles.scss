@@ -758,3 +758,18 @@ perfect-scrollbar>.ps {
 .ant-upload-text-icon{
   display: none;
 }
+/* Toasts compactos alineados en la esquina superior derecha. */
+.ant-message {
+  padding-right: 18px;
+  text-align: right;
+}
+
+.ant-message-notice {
+  text-align: right;
+}
+
+.ant-message-notice-content {
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+}

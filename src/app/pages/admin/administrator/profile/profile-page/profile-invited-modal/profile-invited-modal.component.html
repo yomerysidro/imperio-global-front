@@ -1,40 +1,51 @@
-<nz-row class="m-b-20">
-    <nz-col [nzSm]="24" [nzXs]="24">
-        <div class="text-center m-b-20">
-            <p style="color: #4379EE;" class="fs-16 fw-600">{{ userModel?.name }}</p>
-            <label for="fileupload" class="position-relative m-b-20">
-            <img [src]="avatarUrl" alt="" class="rounded-circle img-fluid" style="max-width: 120px; height: 120px;">
-            <input type="file" name="fileupload" id="fileupload" class="d-none" accept=".png,.jpg,.jpeg"/>
-            </label>
-            <div class="p-l-20">
-            <!-- <h3>{{ userModel?.name }}</h3> -->
-            <p class="m-0 fs-16 notranslate">ID: <span class="text-uppercase">{{ userModel?.uuid }}</span> / Fecha: {{ userModel?.creatxlssed | date: 'dd/MM/YYYY' }} &nbsp;&nbsp;&nbsp;<a href="javascrip: void(0);" (click)="copyMessage(userModel?.uuid)"><i nz-icon nzType="copy" nzTheme="outline"></i></a></p>
-            </div>
-        </div>
-    </nz-col>
-    <nz-col [nzSm]="24" [nzXs]="24">
-        <div class="text-center m-b-20">
-            <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
-                <input type="text" nz-input placeholder="input search text" [(ngModel)]="linkInited" [disabled]="true"/>
-            </nz-input-group>
-            <ng-template #suffixIconButton>
-                <button nz-button nzType="primary" nzSearch (click)="copyMessage(linkInited)"><i nz-icon nzType="copy" nzTheme="outline"></i></button>
-            </ng-template>
-        </div>
-    </nz-col>
-    <nz-col [nzSm]="24" [nzXs]="24">
-        <div><p>Selecionar los usuarios que te gustaria invitar</p></div>
-    </nz-col>
-    <nz-col [nzSm]="24" [nzXs]="24">
-        <div class="m-b-20">
-            <nz-select [(ngModel)]="multipleUsers" nzMode="multiple" nzPlaceHolder="Seleccionar Usuarios" style="width: 100%;">
-                <ng-container *ngFor="let option of listUsers">
-                    <nz-option  [nzLabel]="option.name + ' - ' +option.uuid" [nzValue]="option.uuid"></nz-option>
-                </ng-container>
-            </nz-select>
-        </div>
-        <div class="m-b-20">
-            <button nz-button nzType="primary" (click)="onSendEmail()" [nzLoading]="loading"><i nz-icon nzType="mail" nzTheme="outline"></i> Enviar correos de invitación</button>
-        </div>
-    </nz-col>
-</nz-row>
+<div class="invitation-modal">
+  <header class="invitation-hero">
+    <div class="hero-icon"><i nz-icon nzType="user-add" nzTheme="outline"></i></div>
+    <div>
+      <span>Invitación personal</span>
+      <h2>Haz crecer tu red</h2>
+      <p>Copia el enlace y compártelo con tus invitados. Al registrarse, quedarán asociados automáticamente a tu red.</p>
+    </div>
+  </header>
+
+  <section class="sponsor-card">
+    <img [src]="avatarUrl" alt="Foto de {{ userModel?.name }}" (error)="avatarUrl = fallback">
+    <div class="sponsor-details">
+      <small>Patrocinador</small>
+      <strong>{{ userModel?.name }}</strong>
+      <div class="sponsor-meta">
+        <span>ID: <b class="text-uppercase">{{ userModel?.uuid }}</b></span>
+        <span>Fecha: {{ (userModel?.created_at || userModel?.creatxlssed) | date: 'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+    <button type="button" class="copy-id-button" (click)="copyMessage(userModel?.uuid, 'id')" title="Copiar ID">
+      <i nz-icon nzType="copy" nzTheme="outline"></i>
+    </button>
+  </section>
+
+  <section class="link-section">
+    <div class="section-title">
+      <i nz-icon nzType="link" nzTheme="outline"></i>
+      <div><strong>Tu enlace de invitación</strong><small>Cópialo y compártelo con las personas que deseas invitar.</small></div>
+    </div>
+    <div class="link-box">
+      <span>{{ linkInited }}</span>
+      <button nz-button nzType="primary" type="button" (click)="copyMessage(linkInited, 'link')">
+        <i nz-icon nzType="copy" nzTheme="outline"></i> Copiar enlace
+      </button>
+    </div>
+  </section>
+
+  <section class="users-section">
+    <div class="section-title">
+      <i nz-icon nzType="team" nzTheme="outline"></i>
+      <div><strong>Invitar usuarios</strong><small>También puedes seleccionar usuarios y enviarles la invitación.</small></div>
+    </div>
+    <nz-select [(ngModel)]="multipleUsers" nzMode="multiple" nzPlaceHolder="Seleccionar usuarios" class="users-select">
+      <nz-option *ngFor="let option of listUsers" [nzLabel]="option.name + ' · ' + option.uuid" [nzValue]="option.uuid"></nz-option>
+    </nz-select>
+    <button nz-button nzType="primary" class="send-button" type="button" (click)="onSendEmail()" [nzLoading]="loading" [disabled]="multipleUsers.length === 0">
+      <i nz-icon nzType="mail" nzTheme="outline"></i> Enviar invitaciones
+    </button>
+  </section>
+</div>

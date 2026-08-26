@@ -1,15 +1,5 @@
 <div class="d-flex w-100 align-items-center justify-content-center" style="height: 100vh;">
-    <ng-container *ngIf="loading">
-        <nz-spin>
-        </nz-spin>
-    </ng-container>
-    <ng-container *ngIf="!loading">
-        <nz-result [nzStatus]="status" [nzTitle]="title">
-            <div nz-result-extra>
-                <a routerLink="/auth/login" nz-button nzType="primary">Ir Inicio Sesión</a>
-            </div>
-        </nz-result>
-    </ng-container>
+    <nz-spin></nz-spin>
 </div>
 
 
