@@ -404,8 +404,10 @@ export class ProfilePageComponent implements OnInit {
       (res) => {
         this.nzModalService.create({
           nzContent: ProfileInvitedModalComponent,
-          nzTitle: "Inivitación",
+          nzTitle: "Invitación",
           nzFooter: null,
+          nzWidth: '620px',
+          nzClassName: 'invitation-modal-window',
           nzData: {
             userModel: this.userModel,
             codeInvited: res.data.code

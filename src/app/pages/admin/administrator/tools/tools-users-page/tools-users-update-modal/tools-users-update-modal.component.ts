@@ -78,8 +78,13 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     this.apiService.getUserById(this.userModel.id).subscribe(
       (response) => {
         if (response.success) {
-          // Reemplazamos el modelo incompleto con el modelo completo del backend
-          this.userModel = response.data;
+          // Combinamos el detalle con la fila original. Algunos usuarios sin
+          // compra reciben sponsor_code en el listado, pero el SHOW puede
+          // omitirlo; reemplazar el objeto hacía que se perdiera ese dato.
+          this.userModel = {
+            ...this.userModel,
+            ...response.data
+          };
           // Ahora cargamos los planes y actualizamos el formulario con los datos reales
           this.loadPlansAndPatch();
         } else {
@@ -99,7 +104,10 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     this.apiService.getUserByCode(this.userModel.uuid).subscribe(
       (response) => {
         if (response.success && response.data.items && response.data.items.length > 0) {
-          this.userModel = response.data.items[0];
+          this.userModel = {
+            ...this.userModel,
+            ...response.data.items[0]
+          };
           this.loadPlansAndPatch();
         }
       },
@@ -142,6 +150,12 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         this.currentServiceName = this.serviceOwned ? serviceData?.pack?.title || 'Ninguno' : 'Ninguno';
         this.isSponsordata = !this.productOwned && !this.serviceOwned;
 
+        // En la primera activación mostramos inmediatamente el selector para
+        // que el administrador pueda asignar el pack inicial.
+        if (!this.productOwned) {
+          this.showPackEdit = true;
+        }
+
         this.previousPackId = this.currentPackId;
         this.previousServiceId = this.currentServiceId;
 
@@ -176,12 +190,13 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         }
 
         // --- PATROCINADOR ---
-        let currentSponsor = '';
-        if (this.userModel.payment?.payment_order?.sponsor_code) {
-          currentSponsor = this.userModel.payment.payment_order.sponsor_code;
-        } else if ((this.userModel as any).sponsor_code) {
-          currentSponsor = (this.userModel as any).sponsor_code;
-        }
+        const user: any = this.userModel;
+        const currentSponsor =
+          user.sponsor_code ??
+          user.sponsor_uuid ??
+          user.sponsor?.uuid ??
+          user.payment?.payment_order?.sponsor_code ??
+          '';
 
         // --- PATCH ---
         this.validateForm.patchValue({

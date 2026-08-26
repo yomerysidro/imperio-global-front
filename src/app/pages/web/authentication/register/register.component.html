@@ -23,6 +23,37 @@
           </div>
 
           <form nz-form [formGroup]="frmRegister" nzLayout="vertical" class="login-form w-100">
+
+            <!-- Patrocinador: primer dato obligatorio del registro -->
+            <div class="row g-3 sponsor-row">
+              <div class="col-md-6 sponsor-code-column">
+                <nz-form-item class="mb-3 sponsor-form-item">
+                  <nz-form-control nzErrorTip="El código del patrocinador es obligatorio.">
+                    <div class="floating-input-group">
+                      <input type="text" nz-input formControlName="sponsor_code" class="custom-input text-uppercase" placeholder=" " [readonly]="sponsorFromInvitation" appDelayedInput (delayedInput)="onSearchSponsor()">
+                      <label class="floating-label">Código del patrocinador</label>
+                    </div>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div class="col-md-6 sponsor-name-column">
+                <div class="sponsor-name-box" [class.verified]="sponsorValidated && sponsorName">
+                  <div class="sponsor-status-icon">
+                    <i nz-icon [nzType]="sponsorValidated ? 'check-circle' : 'user'" nzTheme="outline"></i>
+                  </div>
+                  <div class="sponsor-name-content">
+                    <span>Nombre del patrocinador</span>
+                    <strong *ngIf="sponsorName">{{ sponsorName }}</strong>
+                    <small *ngIf="loadingSponsor || invitationLoading">Verificando código...</small>
+                    <small *ngIf="!loadingSponsor && !invitationLoading && !sponsorName">Se mostrará al validar el código</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="invitation-error" *ngIf="invitationInvalid">
+              El enlace de invitación no es válido o ha expirado. Solicita uno nuevo a tu patrocinador.
+            </div>
             
             <!-- FILA 1: Nombre y Email -->
             <div class="row g-3">
@@ -81,14 +112,18 @@
             </div>
 
             <!-- FILA 3: Confirmar Contraseña -->
-            <nz-form-item class="mb-3">
-              <nz-form-control nzErrorTip="Campo obligatorio.">
-                <div class="floating-input-group">
-                  <input type="password" nz-input formControlName="repeatpassword" class="custom-input" placeholder=" ">
-                  <label class="floating-label">Confirmar Contraseña</label>
-                </div>
-              </nz-form-control>
-            </nz-form-item>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <nz-form-item class="mb-3">
+                  <nz-form-control nzErrorTip="Campo obligatorio.">
+                    <div class="floating-input-group">
+                      <input type="password" nz-input formControlName="repeatpassword" class="custom-input" placeholder=" ">
+                      <label class="floating-label">Confirmar Contraseña</label>
+                    </div>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
 
             <!-- Términos y condiciones -->
             <nz-form-item class="mb-3">
@@ -100,7 +135,7 @@
             </nz-form-item>
 
             <!-- Botón Crear cuenta -->
-            <button nz-button class="btn-gradient-primary w-100 border-0 py-2 rounded-pill fw-bold fs-6 mt-2" (click)="onSubmit()">
+            <button nz-button class="btn-gradient-primary w-100 border-0 py-2 rounded-pill fw-bold fs-6 mt-2" [disabled]="isSponsorSubmissionBlocked" (click)="onSubmit()">
               Crear cuenta
             </button>
 

@@ -90,7 +90,8 @@
   
   .custom-input {
     width: 100%;
-    padding: 5px 10px; /* CORREGIDO: Ni muy altos, ni aplastados */
+    height: 44px;
+    padding: 9px 14px;
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
@@ -107,6 +108,48 @@
   }
   
   .custom-input::placeholder { color: transparent; }
+
+  .custom-input:disabled {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.22);
+    cursor: not-allowed;
+  }
+
+  .sponsor-row { align-items: flex-start; margin-bottom: 2px; }
+  .sponsor-code-column, .sponsor-name-column { display: flex; }
+  .sponsor-form-item { width: 100%; }
+  .sponsor-name-box {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 13px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .sponsor-status-icon { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: rgba(255,255,255,.13); color: rgba(255,255,255,.8); font-size: 15px; }
+  .sponsor-name-content { min-width: 0; }
+  .sponsor-name-content span,
+  .sponsor-name-content strong,
+  .sponsor-name-content small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sponsor-name-content span { color: rgba(255,255,255,.62); font-size: 9px; font-weight: 700; letter-spacing: .35px; text-transform: uppercase; }
+  .sponsor-name-content strong { color: #fff; font-size: 13px; line-height: 17px; }
+  .sponsor-name-content small { font-size: 11px; }
+  .sponsor-name-box.verified { border-color: rgba(107, 255, 174, 0.75); background: rgba(31, 185, 105, .16); }
+  .sponsor-name-box.verified .sponsor-status-icon { background: rgba(107,255,174,.18); color: #9effc7; }
+
+  .invitation-error {
+    margin: -2px 0 15px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(185, 28, 28, 0.35);
+    color: #fff;
+    font-size: 12px;
+  }
   
   /* Etiqueta flotante */
   .floating-label {
@@ -232,6 +275,7 @@
       height: 20px;
     }
     .custom-input { padding: 12px 16px; font-size: 14px; }
+    .sponsor-name-box { margin-bottom: 12px; }
     .btn-gradient-primary { min-height: 44px; font-size: 15px; }
     
     .loading-modal {
