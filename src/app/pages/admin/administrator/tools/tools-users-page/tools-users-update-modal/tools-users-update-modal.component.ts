@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from '@env/environment';
-import { ImageCropperUploadComponent } from '@shared/components/image-cropper-upload/image-cropper-upload.component';
 import { CONSTANTS } from '@shared/constants/constants';
 import { ApiService } from '@shared/services/api.service';
 import { PackModel } from '@shared/services/models/packs.interface';
@@ -37,17 +36,21 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
 
   isSponsordata: boolean = false;
 
-  currentPackId: number | null = null;
-  currentServiceId: number | null = null;
+  currentPackId: string | null = null;
+  currentServiceId: string | null = null;
   currentPackName: string = '';
   currentServiceName: string = '';
+  productOwned: boolean = false;
+  productActive: boolean = false;
+  serviceOwned: boolean = false;
+  serviceActive: boolean = false;
 
   showPackEdit: boolean = false;
   showServiceEdit: boolean = false;
 
   // Variable para guardar el estado anterior y saber qué se actualizó
-  private previousPackId: number | null = null;
-  private previousServiceId: number | null = null;
+  private previousPackId: string | null = null;
+  private previousServiceId: string | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -57,6 +60,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   ) {
     this.validateForm = this.fb.group({
       fullname: [null, [Validators.required]],
+      email: [null, [Validators.required, Validators.email]],
       packActive: [null],
       serviceActive: [null],
       sponsorNew: [""]
@@ -64,7 +68,6 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.userModel.payment == null) this.isSponsordata = true;
     // 🔥 Cargamos los datos COMPLETOS del usuario llamando al endpoint /users/{id} (SHOW)
     this.loadUserFullData();
   }
@@ -124,95 +127,26 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
           ? environment.hostUrl + '/storage/' + this.userModel.file?.path
           : CONSTANTS.IMAGE.FALLBACK;
 
-        // --- BÚSQUEDA DEL PRODUCTO ACTIVO ---
-        let activePackId = null;
-        let activePackName = '';
-        
-        if (this.userModel.payment?.payment_order?.pack?.id) {
-          const pack = this.userModel.payment.payment_order.pack;
-          if ((pack as any).category?.toLowerCase() !== 'servicio') {
-            activePackId = pack.id;
-            activePackName = pack.title || '';
-          }
-        }
+        const packsByCategory = (this.userModel as any).packs_by_category || {};
+        const productData = packsByCategory.product;
+        const serviceData = packsByCategory.service;
 
-        if (!activePackId && (this.userModel as any).payment_product_orders) {
-          const productOrders = (this.userModel as any).payment_product_orders || [];
-          const packFound = productOrders.find((o: any) => {
-            return o.pack && (o.pack as any).category?.toLowerCase() !== 'servicio';
-          });
-          if (packFound) {
-            activePackId = packFound.pack_id || packFound.pack?.id;
-            activePackName = packFound.pack?.title || '';
-          }
-        }
+        this.productOwned = productData?.owned === true;
+        this.productActive = productData?.active === true;
+        this.serviceOwned = serviceData?.owned === true;
+        this.serviceActive = serviceData?.active === true;
 
-        if (!activePackId) {
-          const pts = (this.userModel as any).points;
-          if (pts?.compra?.detalles) {
-            const packActivo = pts.compra.detalles.find((d: any) => {
-              const category = (d.category || '').toLowerCase();
-              return category !== 'servicio';
-            });
-            if (packActivo) {
-              activePackId = packActivo.pack_id || packActivo.id;
-              activePackName = packActivo.title || packActivo.pack?.title || '';
-            }
-          }
-        }
+        this.currentPackId = this.productOwned ? productData?.pack?.id || null : null;
+        this.currentPackName = this.productOwned ? productData?.pack?.title || 'Sin plan' : 'Sin plan';
+        this.currentServiceId = this.serviceOwned ? serviceData?.pack?.id || null : null;
+        this.currentServiceName = this.serviceOwned ? serviceData?.pack?.title || 'Ninguno' : 'Ninguno';
+        this.isSponsordata = !this.productOwned && !this.serviceOwned;
 
-        // --- BÚSQUEDA DEL SERVICIO ACTIVO (CORREGIDA) ---
-        let activeServiceId = null;
-        let activeServiceName = '';
-
-        // 🔥 BÚSQUEDA PRINCIPAL: Primero buscamos en payment_services (que viene del endpoint SHOW)
-        const paymentServices = (this.userModel as any).payment_services || [];
-        if (paymentServices.length > 0) {
-          const servicioActivo = paymentServices.find((s: any) => {
-            return s.state === 2 && (s.pack as any).category?.toLowerCase() === 'servicio';
-          });
-          if (servicioActivo) {
-            activeServiceId = servicioActivo.pack_id || servicioActivo.pack?.id;
-            activeServiceName = servicioActivo.pack?.title || '';
-          }
-        }
-
-        // Fallback: Buscar en puntos.detalles si no se encontró en payment_services
-        if (!activeServiceId) {
-          const pts = (this.userModel as any).points;
-          if (pts?.compra?.detalles) {
-            const servicioActivo = pts.compra.detalles.find((d: any) => {
-              const category = (d.category || '').toLowerCase();
-              return category === 'servicio';
-            });
-            if (servicioActivo) {
-              activeServiceId = servicioActivo.pack_id || servicioActivo.id;
-              activeServiceName = servicioActivo.title || servicioActivo.pack?.title || '';
-            }
-          }
-        }
-
-        // Fallback: Buscar en payment_product_orders
-        if (!activeServiceId) {
-          const productOrders = (this.userModel as any).payment_product_orders || [];
-          const servicio = productOrders.find((s: any) => {
-            return s.pack && (s.pack as any).category?.toLowerCase() === 'servicio';
-          });
-          if (servicio) {
-            activeServiceId = servicio.pack_id || servicio.pack?.id;
-            activeServiceName = servicio.pack?.title || '';
-          }
-        }
-
-        // 🔥 GUARDAMOS LOS IDS ACTUALES PARA COMPARAR DESPUÉS
         this.previousPackId = this.currentPackId;
         this.previousServiceId = this.currentServiceId;
 
-        this.currentPackId = activePackId;
-        this.currentPackName = activePackName || 'Sin plan';
-        
-        this.currentServiceId = activeServiceId;
-        this.currentServiceName = activeServiceName || 'Ninguno';
+        const activePackId = this.currentPackId;
+        const activeServiceId = this.currentServiceId;
 
         // --- AGREGAR A LAS LISTAS ---
         if (activePackId) {
@@ -252,6 +186,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         // --- PATCH ---
         this.validateForm.patchValue({
           fullname: this.userModel.name,
+          email: this.userModel.email,
           packActive: activePackId,
           serviceActive: activeServiceId,
           sponsorNew: currentSponsor
@@ -303,35 +238,25 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   public fileChangeEvent(event: any): void {
-    let modal = this.nzModalService.create({
-      nzContent: ImageCropperUploadComponent,
-      nzTitle: 'Imagen para cortar',
-      nzMaskClosable: false,
-      nzWidth: '520px', 
-      nzClassName: 'user-edit-modal-custom', 
-      nzData: { file: event },
-      nzFooter: null
-    });
+    const file = event?.target?.files?.[0];
+    if (!file) return;
 
-    modal.afterClose.subscribe((result) => {
-      if (result?.file != null) {
-        let formData = new FormData();
-        formData.set('file', result.file as any);
-        this.apiService.postAuthenticationAvatar(formData).subscribe(
-          (response) => {
-            saveSessionStoraheUser({ name: response.data.name, photo: response.data?.file?.path ?? "" });
-            this.avatarUrl = environment.hostUrl + '/storage/' + response.data.file.path;
-          }, (error) => this.modalService.error(error?.message ?? 'Error al subir imagen')
-        );
-      }
-    });
+    const formData = new FormData();
+    formData.set('file', file);
+    this.apiService.postAuthenticationAvatar(formData).subscribe(
+      (response) => {
+        saveSessionStoraheUser({ name: response.data.name, photo: response.data?.file?.path ?? "" });
+        this.avatarUrl = environment.hostUrl + '/storage/' + response.data.file.path;
+      },
+      (error) => this.modalService.error(error?.message ?? 'Error al subir imagen')
+    );
   }
 
-  public onPackChange(value: number): void {
+  public onPackChange(value: string | number): void {
     this.validateForm.get('packActive')?.setValue(value === 0 ? null : value);
   }
 
-  public onServiceChange(value: number): void {
+  public onServiceChange(value: string | number): void {
     this.validateForm.get('serviceActive')?.setValue(value === 0 ? null : value);
   }
 
@@ -346,6 +271,11 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   public onSave(): void {
+    if (this.validateForm.invalid) {
+      this.validateForm.markAllAsTouched();
+      return;
+    }
+
     let packValue = this.validateForm.get('packActive')?.value;
     let serviceValue = this.validateForm.get('serviceActive')?.value;
     const sponsorValue = this.validateForm.get('sponsorNew')?.value;
@@ -353,7 +283,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     if (packValue === 0 || packValue === '0' || packValue === null || packValue === undefined) packValue = null;
     if (serviceValue === 0 || serviceValue === '0' || serviceValue === null || serviceValue === undefined) serviceValue = null;
 
-    if (this.userModel.payment == null) {
+    if (!this.productOwned && !this.serviceOwned) {
       if (!packValue && !serviceValue) {
         this.modalService.warning("Seleccione al menos un Producto o una Membresía de Servicio.");
         return;
@@ -369,13 +299,20 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     const payload = {
       userCode: this.userModel.uuid,
       userFullName: this.validateForm.get('fullname')?.value,
+      userEmail: this.validateForm.get('email')?.value,
       packId: packValue,
       serviceId: serviceValue,
       sponsorNew: sponsorValue || ""
     };
 
     this.apiService.postUserModify(payload).subscribe(
-      () => {
+      (response) => {
+        if (!response?.success) {
+          this.loadingSave = false;
+          this.modalService.error(response?.message || "No se pudo actualizar al usuario.");
+          return;
+        }
+
         this.resetLocalState();
         
         // 🔥 MENSAJES DE ÉXITO PERSONALIZADOS
@@ -391,17 +328,19 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
           successMessage = "Servicio activado correctamente.";
         }
         
-        this.modalService.success(successMessage);
         this.loadingSave = false;
 
-        // 🔥 AVISAMOS AL PADRE QUE HUBO UN CAMBIO Y CERRAMOS EL MODAL
-        this.updated.emit(); 
+        // Cerramos primero el editor para que el mensaje de éxito permanezca visible.
+        this.updated.emit();
         this.nzModalService.closeAll();
-        this.back.emit((new Date()).getTime());
+        this.modalService.success(`✓ ${successMessage}`);
       },
       (error) => {
         console.error(error);
-        this.modalService.error("No se pudo procesar la solicitud (Error 404/500)");
+        const errorMessage = typeof error === 'string'
+          ? error
+          : error?.message || error?.error?.message || "No se pudo actualizar al usuario.";
+        this.modalService.error(`✕ ${errorMessage}`);
         this.loadingSave = false;
       }
     );

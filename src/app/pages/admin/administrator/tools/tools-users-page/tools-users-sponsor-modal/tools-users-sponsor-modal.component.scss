@@ -1,0 +1,32 @@
+.sponsor-editor { margin: 0 -20px -20px; background: #fff; }
+.sponsor-title { display: flex; align-items: center; gap: 11px; padding: 14px 20px; border-bottom: 1px solid #e6ebf2; background: #f7faff; }
+.sponsor-title > span { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 10px; background: rgba(8,102,255,.1); color: #0866ff; font-size: 18px; }
+.sponsor-title strong, .sponsor-title small { display: block; }
+.sponsor-title strong { color: #252b36; font-size: 14px; }
+.sponsor-title small { color: #7d8795; font-size: 9px; }
+.sponsor-content { padding: 16px 20px 3px; }
+.user-summary { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; padding: 12px; border: 1px solid rgba(8,102,255,.14); border-radius: 12px; background: linear-gradient(145deg,#fff,#f5f8ff); }
+.user-summary img { width: 48px; height: 48px; border: 2px solid #fff; border-radius: 12px; box-shadow: 0 0 0 2px rgba(8,102,255,.14); object-fit: cover; }
+.user-summary small, .user-summary strong, .user-summary span { display: block; }
+.user-summary small { color: #8490a0; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+.user-summary strong { color: #252b36; font-size: 13px; }
+.user-summary span { color: #6e7988; font-size: 9px; }
+.sponsor-form { margin: 0 !important; }
+.sponsor-form nz-form-item { margin-bottom: 13px; }
+.sponsor-form ::ng-deep .ant-form-item-label { padding-bottom: 4px; }
+.sponsor-form ::ng-deep .ant-form-item-label label { color: #4d5968; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.sponsor-form ::ng-deep .ant-form-item-label i { margin-right: 6px; color: #0866ff; }
+.sponsor-form ::ng-deep .ant-input, .sponsor-form ::ng-deep .ant-input-affix-wrapper { height: 40px; border-color: #e2e8f0; border-radius: 10px; background: #f8faff; }
+.sponsor-form ::ng-deep .ant-input-affix-wrapper .ant-input { height: auto; background: transparent; }
+.sponsor-form ::ng-deep .ant-input:focus, .sponsor-form ::ng-deep .ant-input-affix-wrapper-focused { border-color: #0866ff; background: #fff; box-shadow: 0 0 0 3px rgba(8,102,255,.09); }
+.sponsor-form ::ng-deep .ant-input-suffix img { width: 27px !important; height: 27px !important; object-fit: cover; }
+.sponsor-actions { display: flex; justify-content: flex-end; gap: 9px; padding: 13px 20px; border-top: 1px solid #edf1f6; background: #fafcff; }
+.sponsor-actions button { height: 39px; border-radius: 9px; font-size: 10px; font-weight: 800; }
+.sponsor-actions button i { margin-right: 6px; }
+.back-button { border-color: #dce2ea; color: #5d6878; }
+.save-button { border-color: #0866ff; background: #0866ff; box-shadow: 0 5px 12px rgba(8,102,255,.2); }
+.save-button:hover { border-color: #0646bd; background: #0646bd; }
+@media (max-width:575px) {
+  .sponsor-actions { flex-direction: column-reverse; }
+  .sponsor-actions button { width: 100%; }
+}

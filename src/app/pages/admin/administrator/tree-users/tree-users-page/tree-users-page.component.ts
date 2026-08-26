@@ -20,6 +20,7 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 export class TreeUsersPageComponent implements OnInit {
   @ViewChild('treeViewport') treeViewport?: ElementRef<HTMLElement>;
   @ViewChild('treeContainer') treeContainer?: ElementRef<HTMLElement>;
+  @ViewChild('treeView') treeView?: TreeViewComponent;
 
   Orientation = Orientation;
   nodeSelected: ECONode | null = null;
@@ -55,6 +56,14 @@ export class TreeUsersPageComponent implements OnInit {
 
   get zoomPercent(): number {
     return Math.round(this.treeZoom * 100);
+  }
+
+  get treeCanvasWidth(): number {
+    return Number(this.treeView?.tree?.width || 1) * this.treeZoom;
+  }
+
+  get treeCanvasHeight(): number {
+    return Number(this.treeView?.tree?.height || 1) * this.treeZoom;
   }
 
   constructor(
@@ -182,6 +191,7 @@ export class TreeUsersPageComponent implements OnInit {
           };
 
           this.isChart = true;
+          this.scheduleInitialTreeCenter();
         }
       },
       error: (err) => {
@@ -227,8 +237,7 @@ export class TreeUsersPageComponent implements OnInit {
   public resetTreeView(): void {
     this.treeZoom = 1;
     this.clearTreeSearch();
-    const viewport = this.treeViewport?.nativeElement;
-    viewport?.scrollTo({ top: 0, left: Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2), behavior: 'smooth' });
+    this.scheduleInitialTreeCenter();
   }
 
   public async toggleFullScreen(): Promise<void> {
@@ -251,6 +260,64 @@ export class TreeUsersPageComponent implements OnInit {
     } else {
       this.restoreOverlayContainer();
     }
+    this.scheduleInitialTreeCenter();
+  }
+
+  /**
+   * Espera a que el componente del árbol termine de calcular su ancho y
+   * coloca el nodo raíz en el centro horizontal del área visible.
+   */
+  private scheduleInitialTreeCenter(): void {
+    this.treeZoom = 1;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => this.positionTreeFromLeft());
+    });
+
+    // La librería amplía el lienzo mientras dibuja niveles y conectores.
+    [80, 220, 500].forEach(delay => {
+      setTimeout(() => this.positionTreeFromLeft(), delay);
+    });
+  }
+
+  private positionTreeFromLeft(): void {
+    const viewport = this.treeViewport?.nativeElement;
+    if (!viewport || !this.data?.data?.id) return;
+
+    const rootCode = String(this.data.data.id);
+    const rootNode = Array.from(
+      viewport.querySelectorAll<HTMLElement>('[data-node-code]')
+    ).find(element => element.dataset.nodeCode === rootCode);
+    if (!rootNode) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const rootRect = rootNode.getBoundingClientRect();
+    const desiredLeft = viewport.scrollLeft + rootRect.left - viewportRect.left - 24;
+
+    viewport.scrollLeft = Math.max(0, desiredLeft);
+    viewport.scrollTop = 0;
+  }
+
+  private centerTreeOnRoot(): void {
+    const viewport = this.treeViewport?.nativeElement;
+    if (!viewport || !this.data?.data?.id) return;
+
+    const rootCode = String(this.data.data.id);
+    const rootNode = Array.from(
+      viewport.querySelectorAll<HTMLElement>('[data-node-code]')
+    ).find(element => element.dataset.nodeCode === rootCode);
+
+    if (!rootNode) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const rootRect = rootNode.getBoundingClientRect();
+    const desiredLeft = viewport.scrollLeft
+      + (rootRect.left - viewportRect.left)
+      + (rootRect.width / 2)
+      - (viewport.clientWidth / 2);
+
+    const maximumLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    viewport.scrollLeft = Math.min(maximumLeft, Math.max(0, desiredLeft));
+    viewport.scrollTop = 0;
   }
 
   private findTreeNodeByTerm(node: IECONode, term: string): IECONode | null {
@@ -299,10 +366,7 @@ export class TreeUsersPageComponent implements OnInit {
     return { total, active };
   }
 
-  /**
- * Parsea la lista plana de puntos en una estructura de árbol recursiva
- * 🔥 CORREGIDO: Solo marca como activo si el estado del pago es 2 y es el mes actual o gracia.
- */
+  /** Parsea la lista plana usando la regla mensual común de actividad. */
 private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
   let tree: Array<IECONode> = [];
 
@@ -413,65 +477,41 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     const codeUuid = getCodeUuid();
     const isSelf = codeUuid ? (codeStr.toLowerCase() === codeUuid.toLowerCase()) : false;
 
-    if (isSelf) {
-      this.apiService.getAuthenticationUser().subscribe(res => {
-        this.openModal(res.data, "Tu Detalle", false);
-      });
-      return;
-    }
+    this.apiService.getUserByCode(codeStr).subscribe({
+      next: searchResponse => {
+        const users = searchResponse?.data?.items || [];
+        const selectedUser = users.find(user =>
+          String(user?.uuid || '').toLowerCase() === codeStr.toLowerCase()
+        );
 
-    // 🔥 CORRECCIÓN: Primero intentar buscar por código (uuid) usando getUsersFindAll
-    this.apiService.getUsersFindAll({ code: codeStr, limit: 1, page: 1 }).subscribe({
-      next: (res) => {
-        if (res.success && res.data?.items && res.data.items.length > 0) {
-          const userData = res.data.items[0];
-          this.openModal(userData, `Detalle: ${userData.email || userData.name || codeStr}`, true);
-        } else {
-          // Si falla por código, intentar por ID numérico (si es número)
-          const numericId = parseInt(codeStr, 10);
-          if (!isNaN(numericId)) {
-            this.apiService.getUserById(numericId).subscribe({
-              next: (resById) => {
-                if (resById.success && resById.data) {
-                  this.openModal(resById.data, `Detalle: ${resById.data.email || resById.data.name || codeStr}`, true);
-                } else {
-                  console.warn('⚠️ Usuario no encontrado por ningún método:', codeStr);
-                  this.fallbackOpenModal(codeStr);
-                }
-              },
-              error: (errById) => {
-                console.error('❌ Error al obtener usuario por ID:', errById);
-                this.fallbackOpenModal(codeStr);
-              }
-            });
-          } else {
-            console.warn('⚠️ Usuario no encontrado por código y no es un ID numérico válido:', codeStr);
-            this.fallbackOpenModal(codeStr);
-          }
+        if (!searchResponse?.success || !selectedUser) {
+          return;
         }
-      },
-      error: (err) => {
-        console.error('❌ Error al obtener usuario por código:', err);
-        // Intentar por ID numérico como fallback
-        const numericId = parseInt(codeStr, 10);
-        if (!isNaN(numericId)) {
-          this.apiService.getUserById(numericId).subscribe({
-            next: (resById) => {
-              if (resById.success && resById.data) {
-                this.openModal(resById.data, `Detalle: ${resById.data.email || resById.data.name || codeStr}`, true);
-              } else {
-                this.fallbackOpenModal(codeStr);
-              }
-            },
-            error: (errById) => {
-              console.error('❌ Error al obtener usuario por ID (fallback):', errById);
-              this.fallbackOpenModal(codeStr);
+
+        const numericId = Number(selectedUser.id);
+        if (!Number.isInteger(numericId) || numericId <= 0) {
+          return;
+        }
+
+        this.apiService.getUserById(numericId).subscribe({
+          next: detailResponse => {
+            if (!detailResponse?.success || !detailResponse.data) {
+              return;
             }
-          });
-        } else {
-          this.fallbackOpenModal(codeStr);
-        }
-      }
+
+            const userData = detailResponse.data;
+            const responseCode = String(userData.uuid || '').toLowerCase();
+            if (responseCode !== codeStr.toLowerCase()) {
+              return;
+            }
+
+            const title = isSelf ? 'Tu Detalle' : `Detalle: ${userData.email || userData.name || codeStr}`;
+            this.openModal(userData, title, !isSelf);
+          },
+          error: () => {}
+        });
+      },
+      error: () => {}
     });
   }
 
@@ -499,7 +539,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     }
 
     const userData = user.data || user;
-    const userCode = userData.id || userData.uuid || '';
+    const userCode = userData.uuid || userData.id || '';
     const userCodeStr = String(userCode);
 
 
@@ -511,41 +551,29 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     let redTotal = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
     let granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? 0);
 
-    // 🔥 PAQUETES
-    let packs = [];
-    const userPacks = pts?.compra?.detalles || [];
-    const paymentPack = userData.payment?.payment_order?.pack;
-    
-    if (userPacks.length > 0) {
-      packs = userPacks.map((pack: any) => ({
-        paquete: pack.paquete || pack.title || pack.name || 'Paquete',
-        puntos: pack.puntos || pack.point || 0,
-        fecha: pack.created_at || pack.fecha || new Date().toISOString()
+    // La propiedad del pack es histórica y no depende de su actividad mensual.
+    const categories = userData.packs_by_category || {};
+    const packs = [categories.product, categories.service]
+      .filter((category: any) => category?.owned === true && category?.pack)
+      .map((category: any) => ({
+        paquete: category.pack.title || 'Paquete',
+        puntos: category.pack.points || 0,
+        active: category.active === true
       }));
-    }
-    
-    if (paymentPack && packs.length === 0) {
-      packs.push({
-        paquete: paymentPack.title || 'Membresía Activa',
-        puntos: paymentPack.points || personales || 0,
-        fecha: userData.payment?.created_at || new Date().toISOString()
-      });
-    }
-    
-    if (packs.length === 0 && userData.package_name) {
-      packs.push({
-        paquete: userData.package_name || 'Plan Base',
-        puntos: personales || 0,
-        fecha: userData.created_at || new Date().toISOString()
-      });
-    }
-    
+
+    // Fallbacks solo cuando packs_by_category no entregó ninguna propiedad válida.
     if (packs.length === 0) {
-      packs.push({
-        paquete: 'Sin paquetes activos',
-        puntos: 0,
-        fecha: new Date().toISOString()
-      });
+      const fallbackPack = userData.package_name
+        ? { title: userData.package_name, points: personales }
+        : userData.payment?.payment_order?.pack;
+
+      if (fallbackPack) {
+        packs.push({
+          paquete: fallbackPack.title || 'Paquete',
+          puntos: fallbackPack.points || 0,
+          active: isUserMembershipActive(userData)
+        });
+      }
     }
 
     // 🔥 CREAR OBJETO PARA EL MODAL
@@ -574,7 +602,8 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       nzTitle: title,
       nzContent: UserTreeDetailComponent,
       nzFooter: null,
-      nzWidth: '450px',
+      nzWidth: '540px',
+      nzClassName: 'user-detail-modal',
       nzData: {
         userModel: userForModal,
         listPoints: treeToSend, // ✅ Ahora el árbol se envía solo cuando es necesario

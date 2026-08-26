@@ -86,25 +86,79 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
       return;
     }
 
+    this.loadingSave = true;
+    const command = {userCode : this.userModel?.uuid , sponsorCode: this.validateForm.get('sponsorNew').value };
+
+    this.apiService.postUsercodeChangeSponsor(command).subscribe(
+      (response) => {
+        this.loadingSave = false;
+
+        if( response.success ){
+          this.showSuccess(response.message || "Patrocinador cambiado exitosamente.");
+          return;
+        }
+
+        if( this.hasInvitedUsersMessage(response.message) ){
+          this.confirmChangeSponsorWithNetwork(command);
+          return;
+        }
+
+        this.modalMessage.error(response.message || "No se pudo cambiar el patrocinador.");
+      },
+      (error) => {
+        this.loadingSave = false;
+        const errorMessage = this.getErrorMessage(error);
+
+        if( this.hasInvitedUsersMessage(errorMessage) ){
+          this.confirmChangeSponsorWithNetwork(command);
+          return;
+        }
+
+        this.modalMessage.error(errorMessage || "No se pudo cambiar el patrocinador.");
+      }
+    );
+
+  }
+
+  private confirmChangeSponsorWithNetwork(command: { userCode: string, sponsorCode: string }): void {
     this.modalMessage.confirm(
-      "¿Esta seguro de cambiar este nuevo patrocinador?",
+      "Este usuario tiene invitados debajo de él. ¿Desea mover al usuario con toda su red al nuevo patrocinador?",
       () => {
         this.loadingSave = true;
-        this.apiService.postUsercodeChangeSponsor({userCode : this.userModel?.uuid , sponsorCode: this.validateForm.get('sponsorNew').value }).subscribe(
+        this.apiService.postUsercodeChangeSponsorWithNetwork(command).subscribe(
           (response) => {
+            this.loadingSave = false;
+
             if( response.success ){
-
+              this.showSuccess(response.message || "Usuario y toda su red cambiados de patrocinador exitosamente.");
+              return;
             }
-            this.loadingSave = false;
-            this.modalRef.closeAll();
-          },(error) =>{
-            this.modalRef.closeAll();
-            this.loadingSave = false;
-          }
-        )
-      }
-    )
 
+            this.modalRef.closeAll();
+            this.modalMessage.error(response.message || "No se pudo mover al usuario con toda su red.");
+          },
+          (error) => {
+            this.loadingSave = false;
+            this.modalRef.closeAll();
+            this.modalMessage.error(this.getErrorMessage(error) || "No se pudo mover al usuario con toda su red.");
+          }
+        );
+      }
+    );
+  }
+
+  private hasInvitedUsersMessage(message: string): boolean {
+    return message === "Este usuario tiene invitados debajo de él.";
+  }
+
+  private showSuccess(message: string): void {
+    this.modalRef.closeAll();
+    this.modalMessage.success(message);
+  }
+
+  private getErrorMessage(error: any): string {
+    if( typeof error === 'string' ) return error;
+    return error?.message || error?.error?.message || '';
   }
 
 }

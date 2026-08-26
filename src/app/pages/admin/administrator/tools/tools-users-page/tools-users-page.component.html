@@ -1,36 +1,41 @@
-<nz-card  style="border: 0;">
-  <nz-row class="m-b-20">
-    <nz-col [nzXs]="24" class="m-b-20">
-      <div class="d-flex align-items-center ">
-        <a routerLink="/admin/tools" class="text-black-2" ><i nz-icon nzType="arrow-left" nzTheme="outline" class="font-size-26"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <h3 class="m-0 text-black-2">Usuarios Registrados en tu plataforma MLM</h3>
-      </div>
+<nz-card class="users-shell" [nzBordered]="false">
+  <nz-row>
+    <nz-col [nzXs]="24">
+      <header class="users-heading">
+        <a routerLink="/admin/tools" class="back-button" aria-label="Volver a herramientas"><i nz-icon nzType="arrow-left" nzTheme="outline"></i></a>
+        <div><span class="section-label">Administración de red</span><h2>Usuarios registrados</h2><p>Gestiona los afiliados de tu plataforma MLM.</p></div>
+        <div class="heading-counter"><span>Total de usuarios</span><strong>{{ totalRecord }}</strong></div>
+      </header>
     </nz-col>
-    <nz-col [nzXs]="24" class="m-b-20">
-      <div class="d-flex align-items-center card--shadow p-20">
-        <h4 class="m-0 p-r-20 m-b-10">All ({{ totalRecord }})</h4>
-        <nz-input-group [nzPrefix]="suffixTemplateInfo" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px; margin-bottom: 10px;" >
-          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar usuario por ID" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
+    <nz-col [nzXs]="24">
+      <div class="users-toolbar">
+        <div class="filter-label"><i nz-icon nzType="filter" nzTheme="outline"></i><span>Filtros</span></div>
+        <div class="filter-controls">
+        <nz-input-group [nzPrefix]="suffixTemplateInfo" class="search-control">
+          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar por código ID" appDelayedInput (delayedInput)="onSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfo><i nz-icon nzType="search"></i></ng-template>
 
-        <nz-input-group [nzPrefix]="suffixTemplateInfoName" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px; margin-bottom: 10px;" >
-          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por Nombre" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
+        <nz-input-group [nzPrefix]="suffixTemplateInfoName" class="search-control">
+          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar por nombre" appDelayedInput (delayedInput)="onSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
 
-        <nz-select [(ngModel)]="planSelected" nzPlaceHolder="Todos" class="select--filter m-b-10" style="min-width: 180px;" (ngModelChange)="onChangePlan($event)" [nzAllowClear]="true">
+        <nz-select [(ngModel)]="planSelected" nzPlaceHolder="Todos los planes" class="plan-filter" (ngModelChange)="onChangePlan($event)" [nzAllowClear]="true">
           <nz-option nzValue="-1" nzLabel="Sin Plan"></nz-option>
           <nz-option [nzValue]="item.id" [nzLabel]="item.title" *ngFor="let item of planList"></nz-option>
         </nz-select>
 
-        <button nz-button nzType="primary" (click)="onAddUser()" style="margin-bottom: 10px; margin-left: 10px;">Agregar Usuario</button>
+        <button nz-button nzType="primary" class="add-user-button" (click)="onAddUser()"><i nz-icon nzType="user-add" nzTheme="outline"></i>Agregar usuario</button>
+        </div>
       </div>
     </nz-col>
   </nz-row>
   <nz-row>
-    <nz-col [nzXs]="24" class="m-b-20">
+    <nz-col [nzXs]="24">
+      <div class="users-table-wrap">
       <nz-table
+        class="users-table"
         nzSize="small"
         [nzFrontPagination]="false"
         [nzLoading]="tableProductLoading"
@@ -39,54 +44,62 @@
         [(nzPageIndex)]="pageIndex"
         [(nzPageSize)]="pageSize"
         (nzQueryParams)="onQueryParamsChange($event)"
-        [nzScroll]="{ x: '1240px' }"
+        [nzScroll]="{ x: '1280px' }"
       >
         <thead>
           <tr>
-            <th [nzAlign]="'center'">Image</th>
-            <th [nzAlign]="'center'">Nombre y Apellidos</th>
-            <th [nzAlign]="'center'">Código ID</th>
-            <th [nzAlign]="'center'">Plan Actual</th>
-            <th [nzAlign]="'center'">Estado</th>
-            <th [nzAlign]="'center'">Rango</th>
-            <th [nzAlign]="'center'">Puntos Patrocinio</th>
-            <th [nzAlign]="'center'">Puntos Residuales</th>
-            <th [nzAlign]="'center'">Puntos por plan Actual</th>
-            <th [nzAlign]="'center'">Puntos Grupales</th>
-            <th [nzAlign]="'center'">Bono Infinito</th>
-            <th [nzAlign]="'center'">Puntos Gran total</th>
-            <th [nzAlign]="'center'" nzRight>Ver</th>
-            <th [nzAlign]="'center'" nzRight>Accion</th>
+            <th nzAlign="center" nzWidth="62px" class="image-column">Imagen</th>
+            <th nzAlign="left" nzWidth="145px" class="name-column">Nombre y apellidos</th>
+            <th nzAlign="center" nzWidth="100px" class="code-column">Código ID</th>
+            <th nzAlign="left" nzWidth="140px" class="plan-column">Plan actual</th>
+            <th nzAlign="center" nzWidth="82px" class="status-column">Estado</th>
+            <th nzAlign="center" nzWidth="105px" class="range-column">Rango</th>
+            <th nzAlign="center" nzWidth="78px" class="points-column">Puntos patrocinio</th>
+            <th nzAlign="center" nzWidth="78px" class="points-column">Puntos residuales</th>
+            <th nzAlign="center" nzWidth="78px" class="points-column">Puntos por plan actual</th>
+            <th nzAlign="center" nzWidth="78px" class="points-column">Puntos grupales</th>
+            <th nzAlign="center" nzWidth="72px" class="points-column">Bono infinito</th>
+            <th nzAlign="center" nzWidth="82px" class="points-column total-column">Gran total</th>
+            <th nzAlign="center" nzWidth="64px" class="view-column" nzRight>Ver</th>
+            <th nzAlign="center" nzWidth="58px" class="action-column" nzRight>Acción</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of tableProducts">
-            <td nzAlign="center">
-              <img [src]="item.file != null ? environment.hostUrl + '/storage/' + item.file.path  :CONSTANTS.IMAGE.FALLBACK" alt="" class="rounded-circle" style="width: 50px;">
+            <td nzAlign="center" class="image-column">
+              <img [src]="item.file != null ? environment.hostUrl + '/storage/' + item.file.path  :CONSTANTS.IMAGE.FALLBACK" [alt]="item.name" class="user-avatar">
             </td>
-            <td nzAlign="center">{{ item.name }}</td>
-            <td nzAlign="center">
-              <span class="text-uppercase">{{ item.uuid }}</span>
+            <td nzAlign="left" class="name-column"><strong class="user-name">{{ item.name }}</strong></td>
+            <td nzAlign="center" class="code-column">
+              <span class="user-code text-uppercase">{{ item.uuid }}</span>
             </td>
-            <td nzAlign="center">
-              {{ item?.payment?.payment_order?.pack?.title ?? "Sin Plan" }}
+            <td nzAlign="left" class="plan-column">
+              <div class="owned-packs">
+                <span
+                  class="plan-name"
+                  *ngFor="let pack of getOwnedPackList(item)"
+                  [title]="pack">
+                  {{ pack }}
+                </span>
+                <span class="no-plan" *ngIf="getOwnedPackList(item).length === 0">Sin plan</span>
+              </div>
             </td>
-            <td nzAlign="center">
-              {{ item?.payment?.state == null ? "--" : ( item?.payment?.state == CONSTANTS.PAYMENT_ORDER.PAGADO ? "Activo" : "Inactivo") }}
+            <td nzAlign="center" class="status-column">
+              <span class="user-status" [class.active]="isUserActive(item)" [class.inactive]="!isUserActive(item)">{{ isUserActive(item) ? "Activo" : "Inactivo" }}</span>
             </td>
-            <td nzAlign="center">
+            <td nzAlign="center" class="range-column">
               <b>{{ item?.range == null ? 'Sin Rango' : item?.range.range.title }}</b>
             </td>
-            <td nzAlign="center">{{ (item?.points?.patrocinio ?? 0) | number: '1.1' }}</td>
-            <td nzAlign="center">{{ ((item?.points?.residual ?? 0) + (item?.points?.pointAfiliado ?? 0) + (item?.points?.personalGlobal ?? 0)) | number: '1.1' }}</td>
-            <td nzAlign="center">{{ ((item?.points?.compra ?? 0) + (item?.points?.personal ?? 0)) | number: '1.1'}}</td>
-            <td nzAlign="center">{{ (item?.points?.pointGroup ?? 0)  | number: '1.1' }}</td>
-            <td nzAlign="center">{{ (item?.points?.infinito ?? 0)  | number: '1.1'}}</td>
-            <td nzAlign="center">{{ (item?.totalPoints ?? 0)  | number: '1.1'}}</td>
-            <td nzAlign="center" nzRight>
-              <nz-tag [nzColor]="'#87d068'" class="pointer m-0" (click)="onSeletedUSer(item.uuid, item)">VER</nz-tag>
+            <td nzAlign="center" class="points-column">{{ (item?.points?.patrocinio ?? 0) | number: '1.1' }}</td>
+            <td nzAlign="center" class="points-column">{{ ((item?.points?.residual ?? 0) + (item?.points?.pointAfiliado ?? 0) + (item?.points?.personalGlobal ?? 0)) | number: '1.1' }}</td>
+            <td nzAlign="center" class="points-column">{{ ((item?.points?.compra ?? 0) + (item?.points?.personal ?? 0)) | number: '1.1'}}</td>
+            <td nzAlign="center" class="points-column">{{ (item?.points?.pointGroup ?? 0)  | number: '1.1' }}</td>
+            <td nzAlign="center" class="points-column">{{ (item?.points?.infinito ?? 0)  | number: '1.1'}}</td>
+            <td nzAlign="center" class="points-column total-column">{{ (item?.totalPoints ?? 0)  | number: '1.1'}}</td>
+            <td nzAlign="center" class="view-column" nzRight>
+              <nz-tag class="view-user pointer m-0" (click)="onSeletedUSer(item.uuid, item)"><i nz-icon nzType="eye" nzTheme="outline"></i>VER</nz-tag>
             </td>
-            <td nzAlign="center" nzRight>
+            <td nzAlign="center" class="action-column" nzRight>
               <button nz-button (click)="onDetailUser( item , tplContent)" [nzSize]="'small'" nzShape="circle">
                 <i nz-icon nzType="ellipsis"></i>
               </button>
@@ -95,19 +108,31 @@
           </tr>
         </tbody>
       </nz-table>
+      </div>
     </nz-col>
   </nz-row>
 </nz-card>
 
 <ng-template #tplContent let-params>
-  <div class="text-center m-b-30">
-    <h2 class="font-size-40" style="font-weight: 700; line-height: 1.2;">{{ tabTitle }}</h2>
-  </div>
+  <div class="user-options-content">
+  <header class="options-header">
+    <span class="options-header-icon"><i nz-icon nzType="setting" nzTheme="outline"></i></span>
+    <div>
+      <small>Opciones de usuario</small>
+      <h2>{{ tabTitle }}</h2>
+      <p class="option-description" *ngIf="tabModal == 0">Selecciona la acción que deseas realizar</p>
+      <p class="option-description" *ngIf="tabModal == 1">Actualizar datos del Usuario</p>
+      <p class="option-description" *ngIf="tabModal == 2">Actualizar patrocinador asignado</p>
+      <p class="option-description" *ngIf="tabModal == 4">Reactivar puntos mediante una compra</p>
+      <span class="selected-user" *ngIf="userModel">{{ userModel.name }} · <b class="text-uppercase">{{ userModel.uuid }}</b></span>
+    </div>
+  </header>
+  <div class="options-body">
   <ng-container *ngIf="tabModal == 0">
     <nz-row class="">
-      <nz-col [nzXs]="24" class="m-b-10">
-        <button nz-button nzType="primary" class="m-b-20" (click)="modalUserOptions(1)">Modificar Datos de usuario</button>
-        <button nz-button nzType="primary" class="m-b-20 ant-btn-warning" (click)="modalUserOptions(2)">Modificar Patrocinador de usuario</button>
+      <nz-col [nzXs]="24" class="options-list">
+        <button nz-button nzType="primary" class="m-b-20" (click)="modalUserOptions(1)"><i nz-icon nzType="edit" nzTheme="outline"></i>Modificar datos de usuario</button>
+        <button nz-button nzType="primary" class="m-b-20 ant-btn-warning" (click)="modalUserOptions(2)"><i nz-icon nzType="team" nzTheme="outline"></i>Modificar patrocinador</button>
         <ng-container *ngIf="canDeleteSelectedUser">
           <div class="user-deletion-actions">
             <button
@@ -134,7 +159,7 @@
           </div>
         </ng-container>
         <ng-container *ngIf="canReactivatePoints">
-          <button nz-button nzType="primary" class="m-b-20 ant-btn-success" (click)="modalUserOptions(4)">Reactivar, Simulando compra en tienda</button>
+          <button nz-button nzType="primary" class="m-b-20 ant-btn-success" (click)="modalUserOptions(4)"><i nz-icon nzType="reload" nzTheme="outline"></i>Reactivar mediante compra</button>
         </ng-container>
         <ng-container *ngIf="canDeactivatePoints">
           <div class="deactivate-points-section">
@@ -151,7 +176,7 @@
           </div>
         </ng-container>
         <ng-container *ngIf="userModel.payment?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
-          <button nz-button nzType="primary" class="m-b-20 ant-btn-info" (click)="onPaymentOfflineConfirm(userModel.uuid)">Activar Usuario: Pago Efectivo</button>
+          <button nz-button nzType="primary" class="m-b-20 ant-btn-info" (click)="onPaymentOfflineConfirm(userModel.uuid)"><i nz-icon nzType="dollar-circle" nzTheme="outline"></i>Activar usuario: pago efectivo</button>
         </ng-container>
         
       </nz-col>
@@ -174,11 +199,8 @@
     <app-tools-users-reactive-modal [userModel]="userModel" (back)="onBack($event)"></app-tools-users-reactive-modal>
   </ng-container>
 
-  <nz-row class="">
-    <nz-col [nzXs]="12" class="m-b-20">
-      <button nz-button nzDanger [nzType]="'primary'" (click)="onClose()" ><i nz-icon nzType="close" nzTheme="outline"></i> Cancelar</button>
-    </nz-col>
-  </nz-row>
+  </div>
+  </div>
 </ng-template>
 
 

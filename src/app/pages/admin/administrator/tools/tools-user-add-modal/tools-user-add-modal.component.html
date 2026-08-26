@@ -2,9 +2,14 @@
     nz-form
     [formGroup]="frmRegister"
     nzLayout="vertical"
-    class="login-form container-form-mobile"
+    class="add-user-form"
     >
-    <nz-row>
+    <header class="add-user-header">
+        <span class="header-icon"><i nz-icon nzType="user-add" nzTheme="outline"></i></span>
+        <div><small>Administración de red</small><h2>Agregar nuevo usuario</h2><p>Completa los datos para registrar un afiliado.</p></div>
+    </header>
+    <div class="form-grid">
+    <nz-row class="field-row">
         <nz-col [nzSm]="24" [nzXs]="24">
         <nz-form-item>
             <nz-form-label nzRequired nzFor="userName"
@@ -20,7 +25,7 @@
         </nz-form-item>
         </nz-col>
     </nz-row>
-    <nz-row>
+    <nz-row class="field-row">
         <nz-col [nzSm]="24" [nzXs]="24">
         <nz-form-item>
             <nz-form-label nzRequired nzFor="email"
@@ -39,7 +44,7 @@
         </nz-form-item>
         </nz-col>
     </nz-row>
-    <nz-row>
+    <nz-row class="field-row">
         <nz-col [nzSm]="24" [nzXs]="24">
         <nz-form-item>
             <nz-form-label nzRequired nzFor="dni"
@@ -58,7 +63,7 @@
         </nz-form-item>
         </nz-col>
     </nz-row>
-    <nz-row>
+    <nz-row class="field-row">
         <nz-col [nzSm]="24" [nzXs]="24">
         <nz-form-item>
             <nz-form-label nzRequired nzFor="password"
@@ -82,7 +87,7 @@
         </nz-col>
     </nz-row>
 
-    <nz-row>
+    <nz-row class="field-row">
         <nz-col [nzSm]="24" [nzXs]="24">
 
             
@@ -103,7 +108,7 @@
         </nz-col>
     </nz-row>
 
-    <nz-row>
+    <nz-row class="field-row">
         <nz-col [nzSm]="24" [nzXs]="24">
             <nz-form-item>
                 <nz-form-label nzRequired nzFor="plan"
@@ -118,23 +123,24 @@
         </nz-col>
     </nz-row>
 
-    <nz-row class="pt-4">
+    <nz-row class="submit-row">
         <nz-col [nzSm]="24" [nzXs]="24">
         <nz-form-control>
             <div
-            class="d-flex align-items-center justify-content-between"
+            class="submit-actions"
             >
             <button
                 nz-button
-                class="login-form-button w-100 bg-gray-2 border-0"
+                class="create-user-button"
                 [nzType]="'primary'"
                 (click)="onSubmit()"
                 [nzLoading]="loadingSubmit"
             >
-                Crear cuenta
+                <i nz-icon nzType="user-add" nzTheme="outline"></i>Crear cuenta
             </button>
             </div>
         </nz-form-control>
         </nz-col>
     </nz-row>
+    </div>
 </form>

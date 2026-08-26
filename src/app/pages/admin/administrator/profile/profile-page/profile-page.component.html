@@ -167,11 +167,11 @@
               <i class="fa-solid fa-cubes"></i>
             </div>
             <div class="stat-card-content">
-              <div class="stat-card-value">{{ userModel?.package_name || 'Sin plan' }}</div>
-              <div class="stat-card-badge" [class.active]="userModel?.payment?.state == 2">
+              <div class="stat-card-value">{{ getOwnedPackNames() }}</div>
+              <div class="stat-card-badge" [class.active]="isUserActive()">
                 <i
-                  [class]="userModel?.payment?.state == 2 ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
-                Paquete actual
+                  [class]="isUserActive() ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
+                {{ isUserActive() ? 'Usuario activo' : 'Usuario inactivo' }}
               </div>
             </div>
           </div>
@@ -305,10 +305,18 @@
                   <div class="grand-total-title">Ganancia Total</div>
                   <div class="grand-total-subtitle">Resumen de ganancias</div>
                 </div>
+                <button
+                  type="button"
+                  class="payout-info-button"
+                  (click)="onPointPatrocinio()"
+                  aria-label="Solicitar pago de ganancias"
+                  title="Solicitar pago">
+                  <i nz-icon nzType="info-circle" nzTheme="fill"></i>
+                </button>
               </div>
               <!-- 🔥 CORREGIDO: Solo ganancias (Bonos + Residual + Infinito) -->
               <div class="grand-total-amount-premium">
-                S/ {{ (bonosTotalesHistorico + pointInfinity) | number:'1.2-2' }}
+                S/ {{ totalComisiones | number:'1.2-2' }}
               </div>
             </div>
 
@@ -319,7 +327,7 @@
                     <i class="fa-solid fa-hand-holding-dollar"></i>
                     Bonos
                   </span>
-                  <span class="grand-total-item-value">S/ {{ bonosTotalesHistorico | number:'1.2-2' }}</span>
+                  <span class="grand-total-item-value">S/ {{ pointPatrocinio | number:'1.2-2' }}</span>
                 </div>
                 <div class="grand-total-divider"></div>
                 <div class="grand-total-item residual-item">
@@ -390,3 +398,43 @@
   </nz-row>
 
 </nz-card>
+
+<ng-template #renewPatrocinioModal>
+  <div class="payout-modal-content">
+    <header class="payout-modal-header">
+      <span><i class="fa-solid fa-hand-holding-dollar"></i></span>
+      <div><small>Retiro de ganancias</small><h3>Solicitar pago</h3><p>Selecciona cuánto deseas cobrar.</p></div>
+    </header>
+
+    <div class="payout-modal-body">
+      <section class="available-balance">
+        <span>Ganancia disponible</span>
+        <strong>S/ {{ totalComisiones | number:'1.2-2' }}</strong>
+      </section>
+
+      <div class="payout-mode-grid">
+        <button type="button" [class.selected]="payoutMode === 'all'" (click)="selectPayoutMode('all')">
+          <i class="fa-solid fa-wallet"></i><strong>Cobrar todo</strong><small>Solicitar el saldo completo</small>
+        </button>
+        <button type="button" [class.selected]="payoutMode === 'partial'" (click)="selectPayoutMode('partial')">
+          <i class="fa-solid fa-coins"></i><strong>Monto parcial</strong><small>Elegir cuánto solicitar</small>
+        </button>
+      </div>
+
+      <label class="payout-amount-field" *ngIf="payoutMode === 'partial'">
+        <span>Monto que desea cobrar</span>
+        <nz-input-group nzPrefix="S/">
+          <input nz-input type="number" min="0.01" [max]="totalComisiones" step="0.01" [(ngModel)]="payoutAmount" placeholder="0.00">
+        </nz-input-group>
+        <small>Máximo disponible: S/ {{ totalComisiones | number:'1.2-2' }}</small>
+      </label>
+    </div>
+
+    <footer class="payout-modal-actions">
+      <button nz-button type="button" (click)="onCancelPatrocinio()">Cancelar</button>
+      <button nz-button nzType="primary" type="button" [nzLoading]="loadingPayoutRequest" (click)="onConfirmPatrocinio()">
+        <i nz-icon nzType="send" nzTheme="outline"></i> Solicitar pago
+      </button>
+    </footer>
+  </div>
+</ng-template>

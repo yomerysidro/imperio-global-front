@@ -1,4 +1,25 @@
-<nz-row class="m-b-10 p-t-30">
+<div class="voucher-detail">
+<header class="voucher-header">
+  <span class="voucher-header-icon"><i nz-icon nzType="shopping" nzTheme="outline"></i></span>
+  <div>
+    <small>Detalle del pedido</small>
+    <h2>Información de la compra</h2>
+  </div>
+</header>
+
+<div class="voucher-body">
+<section class="voucher-user">
+  <span class="user-icon"><i nz-icon nzType="user" nzTheme="outline"></i></span>
+  <div class="user-info">
+    <small>Usuario</small>
+    <strong>{{ iProductPaymentOrder.user.name }}</strong>
+    <span>{{ iProductPaymentOrder.user.email }}</span>
+  </div>
+  <span class="user-code text-uppercase">{{ iProductPaymentOrder.user.uuid }}</span>
+</section>
+
+<div class="plan-summary" *ngIf="iProductPaymentOrder.plan == 1">
+<nz-row class="plan-row">
   <nz-col [nzSm]="12" [nzXs]="12" >
     <p class="m-0 fs-15 text-gray-6">Nombre del plan de afiliación :</p>
   </nz-col>
@@ -7,51 +28,43 @@
   </nz-col>
 </nz-row>
 
-<nz-row class="m-b-10">
+<nz-row class="points-row">
   <nz-col [nzSm]="12" [nzXs]="12" >
     <p class="m-0 fs-15 text-gray-6">Puntos por plan :</p>
   </nz-col>
   <nz-col [nzSm]="12" [nzXs]="12" class="text-right">
-    <ng-container *ngIf="iProductPaymentOrder.plan == 0">
-      <p class="m-0 fs-15 text-gray-6"><b>{{ iProductPaymentOrder.points }} puntos</b></p>
-    </ng-container>
-    <ng-container *ngIf="iProductPaymentOrder.plan == 1">
-      <p class="m-0 fs-15 text-gray-6"><b>{{ iProductPaymentOrder.pack.points }} puntos</b></p>
-    </ng-container>
-    
+    <p class="m-0 fs-15 text-gray-6"><b>{{ iProductPaymentOrder.pack.points }} puntos</b></p>
   </nz-col>
 </nz-row>
+</div>
 
-<hr style="border-color: #E4E4E4; border-width: 3px; margin: 0; margin-bottom: 20px;">
 <ng-container *ngIf="iProductPaymentOrder.plan == 0">
-  <nz-row class="m-b-10">
+  <div class="product-points">
+    <span><i nz-icon nzType="star" nzTheme="outline"></i>Puntos obtenidos por la compra</span>
+    <strong>{{ iProductPaymentOrder.points }} puntos</strong>
+  </div>
+  <nz-row class="purchase-heading">
     <nz-col [nzSm]="24" [nzXs]="24" >
       <h4>DETALLE DE COMPRA</h4>
     </nz-col>
   </nz-row>
-  <nz-row class="m-b-10">
-    <nz-col [nzSm]="24" [nzXs]="24" class="m-b-30">
+  <nz-row class="purchase-details">
+    <nz-col [nzSm]="24" [nzXs]="24" class="products-list">
       <ng-container *ngFor="let product of iProductPaymentOrder.details; let i = index">
-        <div class="d-flex align-items-center justify-content-between">
+        <div class="product-line">
           <p class="m-0 fs-15 text-gray-6">{{ product.product_title }} - (<b>{{ product.quantity }}</b>)</p>
           <p class="m-0 fs-15 text-gray-6"><b>S/{{ product.subtotal }}</b></p>
         </div>
       </ng-container>
-
     </nz-col>
-    <nz-col [nzSm]="24" [nzXs]="24" >
-      <div class="d-flex align-items-center justify-content-between">
-        <p class="m-0 fs-15 text-gray-6"><b>ESCRIBIR NÚMERO DE CONTACTO:</b></p> <b>{{ iProductPaymentOrder.phone }}</b>
-      </div>
-    </nz-col>
-    <nz-col [nzSm]="24" [nzXs]="24" >
-      <div class="d-flex align-items-center justify-content-between">
-        <p class="m-0 fs-15 text-gray-6">Descuento por ser socio Distribuidor:</p> <b>{{ iProductPaymentOrder.discount }}% Desc</b>
+    <nz-col [nzSm]="24" [nzXs]="24">
+      <div class="purchase-line discount-line">
+        <p class="m-0">Descuento por paquete de afiliación</p>
+        <b>{{ iProductPaymentOrder.discount || 0 }}%</b>
       </div>
     </nz-col>
   </nz-row>
 </ng-container>
 
-
-
-
+</div>
+</div>

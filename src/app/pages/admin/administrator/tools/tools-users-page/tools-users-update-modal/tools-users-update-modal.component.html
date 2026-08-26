@@ -1,25 +1,25 @@
 <div class="update-modal-container">
   
-  <div class="modal-header">
-    <div class="header-content">
-      <h3 class="modal-title">Modificar Datos de Usuario</h3>
-      <p class="modal-subtitle">Actualizar Perfil de Usuario</p>
-    </div>
-  </div>
-
   <form nz-form [formGroup]="validateForm" nzLayout="vertical" class="modal-body">
+
+    <div class="edit-intro">
+      <span class="edit-intro-icon"><i nz-icon nzType="edit" nzTheme="outline"></i></span>
+      <div>
+        <strong>Editar información del socio</strong>
+        <p>Actualiza sus datos personales, plan de producto o membresía de servicio.</p>
+      </div>
+    </div>
 
     <nz-row [nzGutter]="20">
 
-      <nz-col [nzXs]="24" [nzLg]="10" class="profile-column">
+      <nz-col [nzXs]="24" [nzLg]="8" class="profile-column">
         <div class="profile-card">
           <div class="profile-avatar-wrapper">
-            <label for="fileupload" class="avatar-upload-wrapper">
+            <label for="fileupload" class="avatar-upload-wrapper" title="Cambiar foto" aria-label="Cambiar foto de perfil">
               <img [src]="avatarUrl" alt="avatar" class="avatar-image">
               <input type="file" name="fileupload" id="fileupload" (change)="fileChangeEvent($event)" class="d-none" accept=".png,.jpg,.jpeg"/>
               <div class="avatar-overlay">
-                <i class="fa-solid fa-camera"></i>
-                <span>Cambiar Foto</span>
+                <i nz-icon nzType="edit" nzTheme="outline"></i>
               </div>
             </label>
           </div>
@@ -39,6 +39,18 @@
             <nz-form-label class="form-label">Nombres y Apellidos de Registro</nz-form-label>
             <nz-form-control nzErrorTip="El nombre es obligatorio">
               <input nz-input formControlName="fullname" placeholder="Ej: Juan Pérez" class="form-input" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired class="form-label">Correo electrónico</nz-form-label>
+            <nz-form-control nzErrorTip="Ingrese un correo electrónico válido">
+              <input
+                nz-input
+                type="email"
+                formControlName="email"
+                placeholder="correo@ejemplo.com"
+                class="form-input" />
             </nz-form-control>
           </nz-form-item>
 
@@ -63,12 +75,12 @@
         </div>
       </nz-col>
 
-      <nz-col [nzXs]="24" [nzLg]="14" class="plans-column">
+      <nz-col [nzXs]="24" [nzLg]="16" class="plans-column">
         <div class="plans-container">
           
           <div class="plans-section-title">
             <div class="title-icon">
-              <i class="fa-solid fa-boxes-stacked"></i>
+              <i nz-icon nzType="appstore" nzTheme="outline"></i>
             </div>
             <div class="title-text">
               <span>Planes y Membresías</span>
@@ -79,7 +91,7 @@
           <div class="plan-card product-card">
             <div class="plan-card-header">
               <div class="plan-card-icon">
-                <i class="fa-solid fa-cubes"></i>
+                <i nz-icon nzType="shopping-cart" nzTheme="outline"></i>
               </div>
               <div class="plan-card-info">
                 <span class="plan-card-title">Plan Inteligente (Producto)</span>
@@ -92,13 +104,13 @@
                 <span class="plan-label">Plan Actual</span>
                 <div class="plan-meta">
                   <span class="plan-name">{{ getPackName() || 'Sin plan' }}</span>
-                  <span class="plan-badge" [ngClass]="{'active': currentPackId, 'inactive': !currentPackId}">
-                    {{ currentPackId ? 'ACTIVO' : 'INACTIVO' }}
+                  <span class="plan-badge" [ngClass]="{'active': productActive, 'inactive': !productActive}">
+                    <i nz-icon [nzType]="productActive ? 'check-circle' : 'stop'" nzTheme="outline"></i>{{ productActive ? 'ACTIVO' : 'INACTIVO' }}
                   </span>
                 </div>
               </div>
               <button class="plan-change-btn" (click)="togglePackEdit()" type="button">
-                <i class="fa-solid" [class.fa-pen-to-square]="!showPackEdit" [class.fa-xmark]="showPackEdit"></i>
+                <i nz-icon [nzType]="showPackEdit ? 'close' : 'edit'" nzTheme="outline"></i>
                 {{ showPackEdit ? 'Cancelar' : 'Cambiar' }}
               </button>
             </div>
@@ -118,7 +130,7 @@
           <div class="plan-card service-card">
             <div class="plan-card-header">
               <div class="plan-card-icon">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <i nz-icon nzType="cloud-upload" nzTheme="outline"></i>
               </div>
               <div class="plan-card-info">
                 <span class="plan-card-title">Membresía Digital (Servicio)</span>
@@ -131,13 +143,13 @@
                 <span class="plan-label">Membresía Actual</span>
                 <div class="plan-meta">
                   <span class="plan-name">{{ getServiceName() || 'Ninguno' }}</span>
-                  <span class="plan-badge" [ngClass]="{'active': currentServiceId, 'inactive': !currentServiceId}">
-                    {{ currentServiceId ? 'ACTIVO' : 'INACTIVO' }}
+                  <span class="plan-badge" [ngClass]="{'active': serviceActive, 'inactive': !serviceActive}">
+                    <i nz-icon [nzType]="serviceActive ? 'check-circle' : 'stop'" nzTheme="outline"></i>{{ serviceActive ? 'ACTIVO' : 'INACTIVO' }}
                   </span>
                 </div>
               </div>
               <button class="plan-change-btn" (click)="toggleServiceEdit()" type="button">
-                <i class="fa-solid" [class.fa-pen-to-square]="!showServiceEdit" [class.fa-xmark]="showServiceEdit"></i>
+                <i nz-icon [nzType]="showServiceEdit ? 'close' : 'edit'" nzTheme="outline"></i>
                 {{ showServiceEdit ? 'Cancelar' : 'Cambiar' }}
               </button>
             </div>
@@ -166,10 +178,10 @@
       <div class="footer-spacer"></div>
       <div class="footer-actions-right">
         <button nz-button class="btn-back" (click)="onBack()">
-          <i class="fa-solid fa-arrow-left"></i> Retroceder
+          <i nz-icon nzType="arrow-left" nzTheme="outline"></i> Retroceder
         </button>
         <button nz-button nzType="primary" class="btn-save" (click)="onSave()" [nzLoading]="loadingSave">
-          <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+          <i nz-icon nzType="save" nzTheme="outline"></i> Guardar cambios
         </button>
       </div>
     </div>

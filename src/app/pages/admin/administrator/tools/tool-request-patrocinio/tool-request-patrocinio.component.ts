@@ -120,7 +120,8 @@ export class ToolRequestPatrocinioComponent implements OnInit {
       nzFooter: null,
       nzMaskClosable: false,
       nzClosable: false,
-      nzWidth: "450px",
+      nzWidth: "760px",
+      nzClassName: "payment-request-modal",
       nzData: {
         userModel: item.user,
         points: item.points,

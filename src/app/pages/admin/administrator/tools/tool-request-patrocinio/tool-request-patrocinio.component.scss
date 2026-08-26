@@ -1,0 +1,197 @@
+.requests-shell {
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff 0%, #f5f8ff 100%);
+  box-shadow: 0 8px 26px rgba(8, 102, 255, 0.09);
+
+  ::ng-deep .ant-card-body { padding: 30px; }
+}
+
+.requests-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  padding: 25px 28px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0646bd 0%, #0866ff 58%, #168cff 100%);
+  box-shadow: 0 10px 25px rgba(8, 102, 255, 0.22);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -92px;
+    right: 8%;
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  > * { position: relative; z-index: 1; }
+  h3 { margin: 2px 0 3px; color: #fff; font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+  p { margin: 0; color: rgba(255, 255, 255, 0.78); font-size: 13px; font-weight: 500; }
+  .section-label { color: rgba(255, 255, 255, 0.78); font-size: 11px; font-weight: 800; letter-spacing: 0.9px; text-transform: uppercase; }
+}
+
+.back-button {
+  display: grid;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 20px;
+  transition: 0.2s ease;
+
+  &:hover, &:focus { background: #fff; color: #0866ff; transform: translateX(-2px); }
+}
+
+.requests-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 17px 18px;
+  border: 1px solid rgba(8, 102, 255, 0.14);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(8, 102, 255, 0.07);
+}
+
+.record-counter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #343a40;
+  font-weight: 700;
+
+  > i { color: #0866ff; font-size: 20px; }
+  strong { min-width: 28px; padding: 3px 9px; border-radius: 20px; background: rgba(8, 102, 255, 0.1); color: #0866ff; text-align: center; }
+}
+
+.search-fields { display: flex; justify-content: flex-end; gap: 10px; flex: 1; }
+.search-control {
+  width: min(100%, 280px);
+  height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #f8faff;
+  transition: 0.2s ease;
+
+  &:focus-within { border-color: #0866ff; background: #fff; box-shadow: 0 0 0 3px rgba(8, 102, 255, 0.09); }
+  ::ng-deep .ant-input { background: transparent; color: #252b36; }
+  ::ng-deep .anticon { color: #0866ff; }
+}
+
+.requests-table-wrap {
+  overflow: hidden;
+  border: 1px solid rgba(8, 102, 255, 0.14);
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(8, 102, 255, 0.07);
+}
+
+.requests-table {
+  ::ng-deep {
+    .ant-table { min-width: 1050px; }
+    .ant-table-container { overflow-x: auto; }
+    .ant-table-thead > tr > th {
+      padding: 16px 13px;
+      border-bottom: 1px solid rgba(8, 102, 255, 0.13);
+      background: #f1f6ff;
+      color: #354052;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .ant-table-tbody > tr > td { padding: 15px 13px; border-bottom-color: #edf1f6; color: #596273; }
+    .ant-table-tbody > tr:hover > td { background: #f7faff; }
+    .ant-pagination { margin: 18px; }
+    .ant-pagination-item-active { border-color: #0866ff; background: #0866ff; }
+    .ant-pagination-item-active a { color: #fff; }
+  }
+}
+
+.user-avatar { width: 48px; height: 48px; border: 3px solid #fff; border-radius: 14px; box-shadow: 0 0 0 2px rgba(8, 102, 255, 0.15), 0 5px 12px rgba(31, 54, 92, 0.12); object-fit: cover; }
+.user-name { color: #252b36; font-weight: 700; }
+.user-code { display: inline-block; padding: 4px 9px; border-radius: 7px; background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
+.download-button { border-color: #0866ff; background: #0866ff; box-shadow: 0 5px 12px rgba(8, 102, 255, 0.24); }
+.download-button:hover, .download-button:focus { border-color: #0646bd; background: #0646bd; transform: translateY(-1px); }
+
+.request-status { display: inline-flex; align-items: center; justify-content: center; gap: 9px; white-space: nowrap; }
+.view-request-button {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(8, 102, 255, 0.24);
+  border-radius: 9px;
+  background: rgba(8, 102, 255, 0.08);
+  color: #0866ff;
+  cursor: pointer;
+  font-size: 17px;
+  transition: 0.2s ease;
+
+  &:not(:disabled):hover, &:not(:disabled):focus {
+    border-color: #0866ff;
+    background: #0866ff;
+    color: #fff;
+    box-shadow: 0 5px 12px rgba(8, 102, 255, 0.22);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    border-color: #e2e8f0;
+    background: #f3f5f7;
+    color: #b8c0cc;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+.status-pending { border-color: #f4c768; background: #fff8e7; color: #a66a00; }
+.status-paid { border-color: #8bd9aa; background: #ebfff3; color: #138a49; }
+.status-cancelled { border-color: #ffb4b9; background: #fff0f1; color: #d92d3a; }
+
+::ng-deep .payment-request-modal {
+  .ant-modal-content {
+    overflow: hidden;
+    padding: 0;
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .ant-modal-body { padding: 0; }
+}
+
+@media (max-width: 767px) {
+  ::ng-deep .payment-request-modal { width: calc(100vw - 24px) !important; max-width: 760px; margin: 12px auto; padding-bottom: 24px; }
+  .requests-shell ::ng-deep .ant-card-body { padding: 16px; }
+  .requests-heading { align-items: flex-start; padding: 20px; }
+  .requests-heading h3 { font-size: 21px; line-height: 1.25; }
+  .requests-heading p { display: none; }
+  .requests-toolbar, .search-fields { align-items: stretch; flex-direction: column; }
+  .search-fields { width: 100%; }
+  .search-control { width: 100%; max-width: none; }
+}

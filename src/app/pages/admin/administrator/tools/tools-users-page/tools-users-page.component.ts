@@ -8,6 +8,7 @@ import { ApiService } from '@shared/services/api.service';
 import { PackModel } from '@shared/services/models/packs.interface';
 import { UserModel } from '@shared/services/models/user.interface';
 import { saveSessionStoraheUser } from '@shared/utilities/functions';
+import { isUserMembershipActive } from '@shared/utilities/user-activity';
 import { ModalService } from '@shared/utilities/modal-services';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
@@ -43,6 +44,18 @@ export class ToolsUsersPageComponent implements OnInit {
 
   tabModal: number = 0;
   tabTitle: string = titleModalGeneral;
+
+  public isUserActive(user: any): boolean {
+    return isUserMembershipActive(user);
+  }
+
+  public getOwnedPackList(user: any): string[] {
+    const categories = user?.packs_by_category;
+    return [categories?.product, categories?.service]
+      .filter(category => category?.owned === true && category?.pack?.title)
+      .map(category => category.pack.title)
+      .filter(Boolean);
+  }
 
   planSelected: any = null;
 
@@ -157,9 +170,11 @@ export class ToolsUsersPageComponent implements OnInit {
     const granTotal = Number(pts?.total_general ?? userModel?.totalPoints ?? red);
 
     this.nzModalService.create({
-      nzTitle: 'Detalle del Usuario',
+      nzTitle: `Detalle: ${userModel?.email || userModel?.user?.email || userModel?.name || usercode}`,
       nzContent: UserTreeDetailComponent,
       nzFooter: null,
+      nzWidth: '540px',
+      nzClassName: 'user-detail-modal',
       nzData: {
         userModel: userModel,
         listPoints: this._listPoints,
@@ -234,8 +249,9 @@ export class ToolsUsersPageComponent implements OnInit {
       nzContent: tplContent,
       nzFooter: null,
       nzMaskClosable: false,
-      nzClosable: false,
-      nzWidth: "450px",
+      nzClosable: true,
+      nzWidth: "640px",
+      nzClassName: "user-options-modal",
       nzData: {
 
       },
@@ -260,8 +276,11 @@ export class ToolsUsersPageComponent implements OnInit {
   private loadReactivationActions(userCode: string): void {
     this.apiService.getUserReactivationStatus(userCode).subscribe(
       (response) => {
-        const isUserActive = !!response?.data?.is_active;
-        this.canReactivatePoints = !isUserActive && !!response?.data?.actions?.can_reactivate;
+        const categories = response?.data?.categories || {};
+        const canReactivateCategory = ['product', 'service'].some(category =>
+          this.isReactivationCategoryAvailable(categories[category])
+        );
+        this.canReactivatePoints = canReactivateCategory;
         this.canDeactivatePoints = response?.data?.manual_reactivation_active === true;
       },
       () => {
@@ -269,6 +288,22 @@ export class ToolsUsersPageComponent implements OnInit {
         this.canDeactivatePoints = this.userModel?.manual_reactivation_active === true;
       }
     );
+  }
+
+  private isReactivationCategoryAvailable(category: any): boolean {
+    if (typeof category === 'boolean') return category;
+    if (!category) return false;
+    if (category.success === false) return false;
+    if (category.reason === 'no_package_purchase' || category.data?.reason === 'no_package_purchase') return false;
+    if (category.can_reactivate !== undefined) return this.isTrue(category.can_reactivate);
+    if (category.available !== undefined) return this.isTrue(category.available);
+    if (category.eligible !== undefined) return this.isTrue(category.eligible);
+    if (category.is_active !== undefined) return !this.isTrue(category.is_active);
+    return true;
+  }
+
+  private isTrue(value: any): boolean {
+    return value === true || value === 1 || value === '1' || value === 'true';
   }
 
   public modalDesactive(): void {
@@ -482,10 +517,11 @@ export class ToolsUsersPageComponent implements OnInit {
 
   onAddUser(): void {
     const modal = this.nzModalService.create({
-      nzTitle: "Agregar Usuario",
+      nzTitle: null,
       nzContent: ToolsUserAddModalComponent,
       nzFooter: null,
-      nzWidth: "550px",
+      nzWidth: "720px",
+      nzClassName: "add-user-modal",
       nzData: {
 
       },

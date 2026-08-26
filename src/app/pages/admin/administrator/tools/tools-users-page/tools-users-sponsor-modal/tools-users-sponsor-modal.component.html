@@ -1,24 +1,20 @@
-<nz-row class="">
-  <nz-col [nzXs]="24" class="m-b-10 text-center">
-    <p class="font-size-18" style="color: #4379EE;">{{ this.userModel.name }}</p>
-  </nz-col>
-  <nz-col [nzXs]="24" class="m-b-20 text-center">
-    <label for="fileupload" class="position-relative m-b-20">
-      <img [src]="avatarUrl" alt="" class="rounded-circle img-fluid" style="max-width: 80px; height: 80px;">
-    </label>
-  </nz-col>
-  <nz-col [nzXs]="24" class="m-b-20 text-center">
-    <p class="font-size-18">ID: <span class="text-uppercase">{{ this.userModel.uuid }}</span> / Fecha: {{ this.userModel.created_at | date: 'dd/MM/yyyy' }}</p>
+<div class="sponsor-editor">
+<nz-row class="sponsor-content">
+  <nz-col [nzXs]="24">
+    <section class="user-summary">
+      <img [src]="avatarUrl" [alt]="userModel.name">
+      <div><small>Usuario seleccionado</small><strong>{{ userModel.name }}</strong><span>ID: <b class="text-uppercase">{{ userModel.uuid }}</b> · {{ userModel.created_at | date: 'dd/MM/yyyy' }}</span></div>
+    </section>
   </nz-col>
   <nz-col [nzXs]="24" >
     <form
       nz-form
       [nzLayout]="'vertical'"
       [formGroup]="validateForm"
-      class="m-b-30"
+      class="sponsor-form"
     >
       <nz-form-item class="m-b-30">
-        <nz-form-label [nzSpan]="24">ID del Patrocinador Actual del Usuario</nz-form-label>
+        <nz-form-label [nzSpan]="24"><i nz-icon nzType="user" nzTheme="outline"></i>Patrocinador actual</nz-form-label>
         <nz-form-control [nzSpan]="24" nzErrorTip="">
           <nz-input-group [nzSuffix]="suffixIconFile">
             <input nz-input formControlName="sponsor" placeholder="" class="text-uppercase" />
@@ -31,7 +27,7 @@
 
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="24">Escribir ID del nuevo patrocinador del Usuario</nz-form-label>
+        <nz-form-label [nzSpan]="24"><i nz-icon nzType="idcard" nzTheme="outline"></i>ID del nuevo patrocinador</nz-form-label>
         <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
           <nz-input-group [nzSuffix]="suffixIconFileNew">
             <input nz-input formControlName="sponsorNew" placeholder="" class="text-uppercase" appDelayedInput (delayedInput)="onSearchSponsor()"/>
@@ -44,7 +40,7 @@
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="24">Escribir Email del nuevo patrocinador del Usuario</nz-form-label>
+        <nz-form-label [nzSpan]="24"><i nz-icon nzType="mail" nzTheme="outline"></i>Correo del nuevo patrocinador</nz-form-label>
         <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
           <input nz-input formControlName="sponsorEmailNew" placeholder="" class="text-uppercase" />
         </nz-form-control>
@@ -55,11 +51,8 @@
 
 </nz-row>
 
-<nz-row class="m-b-20">
-  <nz-col [nzXs]="12" class="">
-    <button nz-button  [nzType]="'default'" (click)="onBack()">Retroceder</button>
-  </nz-col>
-  <nz-col [nzXs]="12" class="text-right">
-    <button nz-button  [nzType]="'primary'" (click)="onSave()" [nzLoading]="loadingSave" >Modificar</button>
-  </nz-col>
-</nz-row>
+<div class="sponsor-actions">
+  <button nz-button class="back-button" (click)="onBack()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>Retroceder</button>
+  <button nz-button nzType="primary" class="save-button" (click)="onSave()" [nzLoading]="loadingSave"><i nz-icon nzType="save" nzTheme="outline"></i>Modificar patrocinador</button>
+</div>
+</div>
