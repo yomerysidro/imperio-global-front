@@ -108,6 +108,8 @@ export class TablePaymentProductOrderComponent implements OnInit {
       nzTitle: 'Detalle',
       nzContent: UserTreeDetailComponent,
       nzFooter: null,
+      nzWidth: '540px',
+      nzClassName: 'user-detail-modal',
       nzData: {
         userModel: userModel,
         listPoints: this._listPoints,
@@ -121,6 +123,8 @@ export class TablePaymentProductOrderComponent implements OnInit {
       nzTitle: '',
       nzContent: PaymentViewVoucherModalComponent,
       nzFooter: null,
+      nzWidth: '620px',
+      nzClassName: 'order-voucher-modal',
       nzData: {
         iProductPaymentOrder: payment
       }
@@ -140,7 +144,9 @@ export class TablePaymentProductOrderComponent implements OnInit {
     this.nzModalService.create({
       nzContent: this.templateChangeState,
       nzFooter: null,
-      nzTitle: ""
+      nzTitle: "",
+      nzWidth: '520px',
+      nzClassName: 'order-state-modal'
     })
   }
 

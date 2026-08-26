@@ -13,6 +13,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { ProfileInvitedModalComponent } from './profile-invited-modal/profile-invited-modal.component';
 import { Router } from '@angular/router';
 import { ToolsUserAddModalComponent } from '../../tools/tools-user-add-modal/tools-user-add-modal.component';
+import { isUserMembershipActive } from '@shared/utilities/user-activity';
 
 @Component({
   selector: 'app-profile-page',
@@ -52,12 +53,27 @@ export class ProfilePageComponent implements OnInit {
   isPointPersonal: boolean = false;
   currentDate: Date = new Date();
   oneMonthAgo: Date;
-  isConfirmPatrocinio: boolean = false;
+  payoutMode: 'all' | 'partial' = 'all';
+  payoutAmount: number = 0;
+  loadingPayoutRequest: boolean = false;
   productsPayments: Array<any> = [];
   granTotalPuntos: number = 0;
   activePackages: any[] = [];
   totalPoints: number = 0;
   totalComisiones: number = 0;
+
+  public isUserActive(): boolean {
+    return isUserMembershipActive(this.userModel);
+  }
+
+  public getOwnedPackNames(): string {
+    const categories = (this.userModel as any)?.packs_by_category;
+    const names = [categories?.product, categories?.service]
+      .filter(category => category?.owned === true && category?.pack)
+      .map(category => category.pack.title)
+      .filter(Boolean);
+    return names.length > 0 ? names.join(' / ') : 'Sin plan';
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -142,7 +158,7 @@ export class ProfilePageComponent implements OnInit {
         this.pointGroup = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
 
         // 3. PUNTOS RESIDUALES
-        this.pointResudial = Number(userDetail.puntos_residuales ?? pts.residual ?? 0);
+        this.pointResudial = Number(userDetail.ganancia_residual ?? pts.residual ?? 0);
 
         // 4. 🔥 GANANCIA POR PATROCINIO (BONO) - NO se suma a puntos para rango
         this.pointPatrocinio = Number(userDetail.ganancia_patrocinio ?? pts.patrocinio ?? 0);
@@ -155,9 +171,11 @@ export class ProfilePageComponent implements OnInit {
         this.totalPoints = Number(pts.total_general ?? userDetail.total_puntos ?? this.pointGroup);
 
         // 6. 🔥 GRAN TOTAL DE GANANCIAS = BONO PATROCINIO + RESIDUAL + INFINITO (PARA EL RESUMEN GLOBAL)
-        this.pointInfinity = Number(pts.infinito ?? 0);
+        this.pointInfinity = Number(userDetail.bono_infinito ?? pts.infinito ?? 0);
         this.totalComisiones = Number(
-          pts.total_comisiones ?? (this.pointPatrocinio + this.pointResudial + this.pointInfinity)
+          userDetail.total_comisiones ??
+          pts.total_comisiones ??
+          (this.pointPatrocinio + this.pointResudial + this.pointInfinity)
         );
         this.granTotalPuntos = this.totalComisiones;
 
@@ -165,14 +183,15 @@ export class ProfilePageComponent implements OnInit {
         this.pointAfiliado = Number(pts.pointAfiliado ?? 0);
         this.totalPointsPersonalGlobal = Number(pts.personalGlobal ?? 0);
 
-        // 8. Bonos totales históricos (Servicio + Producto + Residual)
-        this.bonosTotalesHistorico = this.pointServicio + this.pointProducto + this.pointResudial;
+        // 8. Bonos corresponde únicamente a la ganancia por patrocinio.
+        this.bonosTotalesHistorico = this.pointPatrocinio;
 
-        // 9. Paquetes activos
-        this.activePackages = pts.compra?.detalles || [];
-        if (!this.userModel.package_name) {
-          this.userModel.package_name = response.data.package_name;
-        }
+        // 9. Packs adquiridos, independientemente de la actividad del mes.
+        const categories = (response.data as any).packs_by_category || {};
+        this.activePackages = [categories.product, categories.service]
+          .filter((category: any) => category?.owned === true && category?.pack)
+          .map((category: any) => ({ ...category.pack, active: category.active === true }));
+        this.userModel.package_name = this.getOwnedPackNames();
 
         console.log('Puntos calculados:', {
           pointPersonal: this.pointPersonal,
@@ -451,24 +470,58 @@ export class ProfilePageComponent implements OnInit {
   }
 
   public onPointPatrocinio(): void {
-    this.nzModalService.create({ nzTitle: "", nzFooter: null, nzContent: this.renewPatrocinioModal })
+    this.payoutMode = 'all';
+    this.payoutAmount = Number(this.totalComisiones || 0);
+    this.nzModalService.create({
+      nzTitle: null,
+      nzFooter: null,
+      nzContent: this.renewPatrocinioModal,
+      nzWidth: '440px',
+      nzMaskClosable: false,
+      nzClassName: 'payout-request-modal'
+    });
   }
 
   public onConfirmPatrocinio(): void {
-    if (this.isConfirmPatrocinio) {
-      this.apiService.postRequestPatrocinioGenerate({ points: this.pointPatrocinio }).subscribe(
-        (response) => {
-          if (response.success) {
-            this.nzModalService.closeAll();
-            this.loadCurrentUser();
-          } else {
-            this.modalService.info(response.message);
-          }
-        }, (error) => { }
-      )
-    } else {
-      this.isConfirmPatrocinio = true;
+    const availableAmount = Number(this.totalComisiones || 0);
+    const requestedAmount = this.payoutMode === 'all'
+      ? availableAmount
+      : Number(this.payoutAmount || 0);
+
+    if (requestedAmount <= 0) {
+      this.modalService.warning('Ingrese un monto mayor a cero.');
+      return;
     }
+
+    if (requestedAmount > availableAmount) {
+      this.modalService.warning('El monto solicitado no puede superar la ganancia disponible.');
+      return;
+    }
+
+    this.loadingPayoutRequest = true;
+    this.apiService.postRequestPatrocinioGenerate({ points: requestedAmount }).subscribe(
+      (response) => {
+        this.loadingPayoutRequest = false;
+        if (!response?.success) {
+          this.modalService.error(response?.message || 'No se pudo registrar la solicitud de pago.');
+          return;
+        }
+
+        this.nzModalService.closeAll();
+        this.modalService.success(response.message || `Solicitud de pago por S/ ${requestedAmount.toFixed(2)} registrada correctamente.`);
+        this.loadCurrentUser();
+      },
+      (error) => {
+        this.loadingPayoutRequest = false;
+        const message = typeof error === 'string' ? error : error?.message || error?.error?.message;
+        this.modalService.error(message || 'No se pudo registrar la solicitud de pago.');
+      }
+    );
+  }
+
+  public selectPayoutMode(mode: 'all' | 'partial'): void {
+    this.payoutMode = mode;
+    this.payoutAmount = mode === 'all' ? Number(this.totalComisiones || 0) : 0;
   }
 
   public onCancelPatrocinio(): void {

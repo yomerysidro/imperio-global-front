@@ -229,6 +229,11 @@ export class ApiService {
     return this.httpService.get<IResponse<any>>(`/users/reactivation-status/${userCode}`).pipe(tap(res => res));
   }
 
+  public getUserReactivationProducts(userCode: string, category: 'product' | 'service'): Observable<IResponse<any>> {
+    const params = new HttpParams().set('category', category);
+    return this.httpService.get<IResponse<any>>(`/users/reactivation-products/${encodeURIComponent(userCode)}`, { params }).pipe(tap(res => res));
+  }
+
   public postUsercodeActiveResidual( command: any ): Observable<IResponse<any>>{
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
     return this.httpService.post<IResponse<any>>( '/users/active-residual' , command ).pipe(tap( res => res ));
@@ -237,6 +242,10 @@ export class ApiService {
   public postUsercodeChangeSponsor( command: any ): Observable<IResponse<any>>{
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
     return this.httpService.post<IResponse<any>>( '/users/change-sponsor' , command ).pipe(tap( res => res ));
+  }
+
+  public postUsercodeChangeSponsorWithNetwork( command: any ): Observable<IResponse<any>>{
+    return this.httpService.post<IResponse<any>>( '/users/change-sponsor-with-network' , command ).pipe(tap( res => res ));
   }
 
   public getProductPointSearch(parameters: any = {}): Observable<IResponse< Array<any> >>{
@@ -389,6 +398,7 @@ export class ApiService {
     });
     return this.httpService.get<IResponse< IResponsePaginationModel< Array<UserModel> >>>(url, { params: httpParams }).pipe(tap(res => res));
   }
+
     // 🔥 Este método ya existe en tu servicio
     public getUserById(id: number): Observable<IResponse<UserModel>> {
       return this.httpService.get<IResponse<UserModel>>(`/users/${id}`).pipe(tap(res => res));

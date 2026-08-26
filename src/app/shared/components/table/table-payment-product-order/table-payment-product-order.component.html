@@ -16,7 +16,7 @@
         <th [nzAlign]="'center'">Nombre y Apellidos</th>
         <th [nzAlign]="'center'">Código ID</th>
         <th [nzAlign]="'center'">Correo electrónico</th>
-        <th [nzAlign]="'center'">Vaucher de Venta</th>
+        <th [nzAlign]="'center'">Voucher de venta</th>
         <th [nzAlign]="'center'">Número de contacto</th>
         <th [nzAlign]="'center'">Comprobante</th>
         <th [nzAlign]="'center'">Estado de envío</th>
@@ -43,10 +43,10 @@
           {{ item?.user?.email }}
         </td>
         <td nzAlign="center">
-          <nz-tag [nzColor]="'#87d068'" class="pointer m-0" (click)="onSeletedVaucher(item)">VER</nz-tag>
+          <nz-tag [nzColor]="'#87d068'" class="pointer m-0" (click)="onSeletedVaucher(item)"><i nz-icon nzType="eye" nzTheme="outline"></i> VER</nz-tag>
         </td>
         <td nzAlign="center">
-          {{ item?.phone }}
+          {{ item?.phone || item?.user?.phone }}
         </td>
         <td nzAlign="center">
           <ng-container *ngIf="item?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
@@ -59,17 +59,17 @@
         </td>
         <td nzAlign="center">
           <ng-container *ngIf="item.plan == 1">
-            <nz-tag [nzColor]="'#87d068'" class="pointer m-0" >ENVIADO</nz-tag>
+            <nz-tag [nzColor]="'#159454'" class="pointer m-0" >ENVIADO</nz-tag>
           </ng-container>
           <ng-container *ngIf="item.plan == 0">
             <ng-container *ngIf="item.state == 1">
-              <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" >PENDIENTE DE PAGO</nz-tag>
+              <nz-tag [nzColor]="'#D89614'" class="pointer m-0" >PENDIENTE DE PAGO</nz-tag>
             </ng-container>
             <ng-container *ngIf="item.state == 2">
-              <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" (click)="onChange( item.id )"  >PENDIENTE</nz-tag>
+              <nz-tag [nzColor]="'#D89614'" class="pointer m-0" (click)="onChange( item.id )"  >PENDIENTE</nz-tag>
             </ng-container>
             <ng-container *ngIf="item.state == 3">
-              <nz-tag [nzColor]="'#87d068'" class="pointer m-0" >ENVIADO</nz-tag>
+              <nz-tag [nzColor]="'#159454'" class="pointer m-0" >ENVIADO</nz-tag>
             </ng-container>
             <ng-container *ngIf="item.state == 4">
               <nz-tag [nzColor]="'#FFBD00'" class="pointer m-0" >ANULADO</nz-tag>
@@ -82,7 +82,7 @@
             </ng-container>
 
             <ng-container *ngIf="item?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
-              <nz-tag [nzColor]="'#A6A6A6'" class="pointer m-0" (click)="onConfirmCash(item.id)" >PENDIENTE CONFIRMAR</nz-tag>
+              <nz-tag [nzColor]="'#D89614'" class="pointer m-0" (click)="onConfirmCash(item.id)" >PENDIENTE CONFIRMAR</nz-tag>
             </ng-container>
             
           </ng-container>

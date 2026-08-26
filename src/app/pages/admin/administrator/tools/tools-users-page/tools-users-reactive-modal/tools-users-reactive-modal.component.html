@@ -1,69 +1,120 @@
-<nz-row class="m-b-40">
-  <nz-col [nzXs]="24" class="m-b-10 text-center">
-    <p class="font-size-18" style="color: #4379EE;">{{ this.userModel.name }}</p>
-  </nz-col>
-  <nz-col [nzXs]="24" class="text-center">
-    <label for="fileupload" class="position-relative m-b-20">
-      <img [src]="avatarUrl" alt="" class="rounded-circle img-fluid" style="max-width: 80px; height: 80px;">
-    </label>
-  </nz-col>
-  <nz-col [nzXs]="24" class="m-b-10 text-center">
-    <p class="font-size-18">ID: <span class="text-uppercase">{{ this.userModel.uuid }}</span> / Fecha: {{ this.userModel.created_at | date: 'dd/MM/yyyy' }}</p>
-  </nz-col>
-  <nz-col [nzXs]="24" class="text-center m-b-30">
-    <p class=" font-size-15" style="color: #606060;">Para reactivar los puntos residuales del mes, selecciona los productos de la compra mensual requerida. Esta acción no modifica el usuario, su red, su paquete original, su historial ni su rango.</p>
-  </nz-col>
-  <nz-col [nzXs]="24" class=" m-b-10">
-    <nz-collapse [nzExpandIconPosition]="'right'"	class="out--content">
-      <nz-collapse-panel
-        [nzHeader]="'Click aquí para ver listado de productos y seleccionar'"
-      >
-        <nz-list nzBordered nzSize="small">
-          <nz-list-item *ngFor="let product of productsList; let i = index">
-            <nz-col [nzXs]="18" class="">
-              <p class="m-0"><b>{{ product.title }}</b> - <span style="color: #A6A6A6;"><b>{{ product.points }} Ptos</b></span></p>
-            </nz-col>
-            <nz-col [nzXs]="6" class="text-center">
-              <div class="text-black d-flex align-items-center p-10" style="background-color: #F0F0F0; border-radius: 20px;">
-                <i nz-icon nzType="minus" nzTheme="outline" (click)="onAddQuantity( i , -1 )" class="p-r-10 p-l-10 pointer"></i>
-                <span class="notranslate">{{ product?.quantity ?? 0 }}</span>
-                <i nz-icon nzType="plus" nzTheme="outline" (click)="onAddQuantity( i , 1 )" class="p-r-10 p-l-10 pointer"></i>
+<div class="reactivation-view">
+  <section class="user-summary">
+    <img [src]="avatarUrl" [alt]="userModel?.name || 'Usuario'" class="user-avatar">
+    <div class="user-copy">
+      <span class="summary-label">Usuario a reactivar</span>
+      <h3>{{ userModel?.name }}</h3>
+      <div class="user-meta">
+        <span><i nz-icon nzType="idcard" nzTheme="outline"></i>{{ userModel?.uuid }}</span>
+        <span><i nz-icon nzType="calendar" nzTheme="outline"></i>{{ userModel?.created_at | date: 'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="information-box">
+    <span class="information-icon"><i nz-icon nzType="info-circle" nzTheme="outline"></i></span>
+    <div>
+      <strong>Reactivación de puntos residuales</strong>
+      <p>Cada categoría conserva su propia selección. Los puntos y el mínimo requerido son calculados por el backend.</p>
+    </div>
+  </div>
+
+  <nz-spin [nzSpinning]="loadingStatus">
+    <nz-tabset
+      class="category-tabs"
+      [(nzSelectedIndex)]="selectedCategoryIndex"
+      (nzSelectedIndexChange)="onCategoryChange($event)">
+      <nz-tab
+        *ngFor="let category of categories"
+        [nzTitle]="category.label"
+        [nzDisabled]="!isCategoryAvailable(category)">
+      </nz-tab>
+    </nz-tabset>
+
+    <ng-container *ngIf="selectedCategory as category">
+      <section class="products-section">
+        <div class="section-heading">
+          <div><span>{{ category.label }}</span><h4>Selecciona la compra</h4></div>
+          <i nz-icon [nzType]="category.code === 'product' ? 'shopping-cart' : 'tool'" nzTheme="outline"></i>
+        </div>
+
+        <nz-spin [nzSpinning]="category.loading">
+          <nz-collapse [nzExpandIconPosition]="'right'" class="products-collapse">
+            <nz-collapse-panel [nzHeader]="productsHeader">
+              <ng-template #productsHeader>
+                <span class="collapse-title"><i nz-icon nzType="appstore" nzTheme="outline"></i>Ver {{ category.label.toLowerCase() }} disponibles</span>
+              </ng-template>
+
+              <nz-list nzSize="small" class="products-list">
+                <nz-list-item *ngFor="let product of category.products; let i = index" class="product-row">
+                  <div class="product-info">
+                    <strong>{{ product.title }}</strong>
+                    <span>{{ product.points }} puntos</span>
+                    <div class="product-prices">
+                      <small>Precio público: S/ {{ product.price | number: '1.2-2' }}</small>
+                      <small>Descuento del pack ({{ category.discountPercentage }}%): - S/ {{ getDiscountAmount(product) | number: '1.2-2' }}</small>
+                      <small class="final-price">Precio final: S/ {{ getFinalPrice(product) | number: '1.2-2' }}</small>
+                    </div>
+                  </div>
+                  <div class="quantity-control" [attr.aria-label]="'Cantidad de ' + product.title">
+                    <button type="button" (click)="onAddQuantity(i, -1)" aria-label="Quitar unidad"><i nz-icon nzType="minus"></i></button>
+                    <strong class="notranslate">{{ product.quantity || 0 }}</strong>
+                    <button type="button" (click)="onAddQuantity(i, 1)" aria-label="Agregar unidad"><i nz-icon nzType="plus"></i></button>
+                  </div>
+                </nz-list-item>
+
+                <nz-list-empty *ngIf="category.loaded && category.products.length === 0"></nz-list-empty>
+              </nz-list>
+            </nz-collapse-panel>
+          </nz-collapse>
+        </nz-spin>
+      </section>
+
+      <section class="purchase-card">
+        <div class="section-heading compact">
+          <div><span>Resumen de {{ category.label.toLowerCase() }}</span><h4>Detalle de compra</h4></div>
+          <span class="cart-count">{{ cartList.length }}</span>
+        </div>
+
+        <div *ngIf="cartList.length === 0" class="empty-cart">
+          <i nz-icon nzType="shopping" nzTheme="outline"></i>
+          <span>Aún no seleccionaste elementos</span>
+        </div>
+
+        <ng-container *ngIf="cartList.length > 0">
+          <div class="purchase-items">
+            <div class="purchase-item" *ngFor="let product of cartList">
+              <div>
+                <strong>{{ product.title }}</strong>
+                <span>Cantidad: {{ product.quantity }} · Precio público: S/ {{ getPublicSubtotal(product) | number: '1.2-2' }}</span>
+                <span>Descuento: - S/ {{ getProductDiscountSubtotal(product) | number: '1.2-2' }}</span>
+                <span class="item-points">Puntos a activar: {{ product.points * product.quantity }}</span>
               </div>
-            </nz-col>
-          </nz-list-item>
-        </nz-list>
-      </nz-collapse-panel>
-    </nz-collapse>
-  </nz-col>
-  <nz-col [nzXs]="24" class="m-b-20">
-    <p>DETALLE DE COMPRA</p>
-    <ng-container *ngIf="_cartList.length > 0">
-      <ng-container *ngFor="let product of _cartList; let i = index">
-        <div class="d-flex justify-content-between" *ngIf="product.quantity > 0">
-          <div>
-            <p class="m-0">{{ product.title }} ({{ product.quantity }})</p>
+              <b>S/ {{ getFinalSubtotal(product) | number: '1.2-2' }}</b>
+            </div>
           </div>
-          <div class="text-right">
-            <p class="m-0"><b>S/.{{ (amountDiscount == 0 ? (product.quantity * product.price) : ( (product.quantity * product.price) * (100 - amountDiscount) / 100)) | number: '1.0-2' }}</b></p>
+
+          <div class="price-summary">
+            <div class="points-row"><span>Puntos a activar</span><strong>{{ totalPoints }} puntos</strong></div>
+            <div><span>Subtotal a precio público</span><strong>S/ {{ publicSubtotal | number: '1.2-2' }}</strong></div>
+            <div class="discount-row"><span>Descuento del pack ({{ category.discountPercentage }}%)</span><strong>- S/ {{ discountSubtotal | number: '1.2-2' }}</strong></div>
+            <div class="final-row"><span>Total a pagar</span><strong>S/ {{ totalBuy | number: '1.2-2' }}</strong></div>
           </div>
-        </div>
-      </ng-container>
-      <div class="text-right mb-2">
-        <p><b>S/. {{ totalBuy | number: '1.0-2' }}</b></p>
-      </div>
-      <div>
-        <div class="d-flex justify-content-between">
-        <div>
-          <p class="m-0" style="color: #505050;">Puntos ganados por compras :</p>
-        </div>
-        <div class="text-right">
-          <p class="m-0" style="color: #505050;">{{ totalPoints }}</p>
-        </div>
-      </div>
-      </div>
+        </ng-container>
+      </section>
+
+      <footer class="reactivation-actions">
+        <button
+          (click)="modalDesactive()"
+          nz-button
+          nzType="primary"
+          class="reactivate-button"
+          [disabled]="category.loading || !category.loaded || !meetsMinimumPoints"
+          [nzLoading]="loadingDesactive">
+          <i nz-icon nzType="reload" nzTheme="outline"></i>
+          Reactivar con {{ category.label.toLowerCase() }} · S/ {{ totalBuy | number: '1.2-2' }}
+        </button>
+      </footer>
     </ng-container>
-  </nz-col>
-  <nz-col [nzXs]="24" class="m-b-20">
-    <button (click)="modalDesactive()" nz-button nzType="primary" class="ant-btn-success" [nzLoading]="loadingDesactive">Reactivar, simulando compra en tienda</button>
-  </nz-col>
-</nz-row>
+  </nz-spin>
+</div>

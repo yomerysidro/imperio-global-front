@@ -1,9 +1,77 @@
-.card--cash{
-    border-radius: 16px;
-    padding: 8px 12px;
-    border: 1px solid #1C1B1F;
-    max-width: 500px;
-    &.card--cash--min{
-        max-width: 300px;
-    }
+.cash-shell { overflow: hidden; border-radius: 18px; background: linear-gradient(145deg, #fff 0%, #f5f8ff 100%); box-shadow: 0 8px 26px rgba(8,102,255,.09); }
+.cash-shell ::ng-deep .ant-card-body { padding: 30px; }
+.cash-heading { position: relative; display: flex; align-items: center; gap: 18px; overflow: hidden; margin-bottom: 22px; padding: 25px 28px; border-radius: 16px; background: linear-gradient(135deg, #0646bd 0%, #0866ff 58%, #168cff 100%); box-shadow: 0 10px 25px rgba(8,102,255,.22); }
+.cash-heading::after { content: ''; position: absolute; top: -105px; right: 27%; width: 210px; height: 210px; border-radius: 50%; background: rgba(255,255,255,.1); }
+.cash-heading > * { position: relative; z-index: 1; }
+.cash-heading h2 { margin: 2px 0; color: #fff; font-size: 29px; font-weight: 800; letter-spacing: -.35px; }
+.cash-heading p { margin: 0; color: rgba(255,255,255,.8); font-size: 13px; font-weight: 600; }
+.section-label { color: rgba(255,255,255,.75); font-size: 10px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; }
+.back-button { display: grid; flex: 0 0 44px; width: 44px; height: 44px; place-items: center; border: 1px solid rgba(255,255,255,.32); border-radius: 12px; background: rgba(255,255,255,.14); color: #fff; font-size: 20px; transition: .2s ease; }
+.back-button:hover, .back-button:focus { background: #fff; color: #0866ff; transform: translateX(-2px); }
+.heading-total { min-width: 190px; margin-left: auto; padding: 13px 17px; border: 1px solid rgba(255,255,255,.28); border-radius: 13px; background: rgba(255,255,255,.15); color: #fff; text-align: right; backdrop-filter: blur(7px); }
+.heading-total span { display: block; color: rgba(255,255,255,.78); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.heading-total strong { display: block; margin-top: 2px; font-size: 23px; font-weight: 800; }
+.cash-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 22px; align-items: start; }
+.calendar-panel, .cash-summary { min-width: 0; }
+.calendar-panel { overflow: hidden; padding: 16px; border: 1px solid rgba(8,102,255,.15); border-radius: 16px; background: #fff; box-shadow: 0 7px 22px rgba(8,102,255,.08); }
+.panel-heading { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+.panel-icon { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 11px; background: linear-gradient(135deg, #0646bd, #0866ff); color: #fff; box-shadow: 0 5px 12px rgba(8,102,255,.22); font-size: 19px; }
+.panel-heading span, .panel-heading strong { display: block; }
+.panel-heading span { color: #7c8796; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.panel-heading strong { color: #252b36; font-size: 14px; }
+.calendar-wrap { overflow: hidden; border: 1px solid #e2e8f0; border-radius: 13px; }
+.calendar-wrap ::ng-deep .ant-picker-calendar { background: #fff; }
+.calendar-wrap ::ng-deep .ant-picker-calendar-header { padding: 13px 11px 7px; }
+.calendar-wrap ::ng-deep .ant-picker-panel { border-top: 0; }
+.calendar-wrap ::ng-deep .ant-picker-content th { color: #8490a0; font-size: 10px; font-weight: 700; }
+.calendar-wrap ::ng-deep .ant-picker-cell .ant-picker-cell-inner { border-radius: 8px; }
+.calendar-wrap ::ng-deep .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner { background: #0866ff; box-shadow: 0 4px 10px rgba(8,102,255,.25); }
+.calendar-wrap ::ng-deep .ant-picker-header-view button:hover { color: #0866ff; }
+.calendar-wrap ::ng-deep .ant-picker-month-panel .ant-picker-content { height: 218px; }
+.selected-period { display: flex; align-items: center; gap: 9px; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #f1f6ff; }
+.selected-period > i { color: #0866ff; font-size: 18px; }
+.selected-period small, .selected-period strong { display: block; }
+.selected-period small { color: #8490a0; font-size: 9px; text-transform: uppercase; }
+.selected-period strong { color: #344052; font-size: 12px; }
+.cash-summary { display: flex; flex-direction: column; gap: 16px; }
+.summary-intro { display: flex; align-items: center; gap: 15px; padding: 19px; border: 1px solid rgba(8,102,255,.15); border-radius: 15px; background: linear-gradient(145deg, #fff, #f5f8ff); box-shadow: 0 6px 19px rgba(8,102,255,.07); }
+.intro-icon { display: grid; flex: 0 0 54px; width: 54px; height: 54px; place-items: center; border-radius: 15px; background: rgba(8,102,255,.1); color: #0866ff; font-size: 27px; }
+.summary-intro span { color: #0866ff; font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
+.summary-intro h3 { margin: 2px 0 3px; color: #252b36; font-size: 18px; font-weight: 800; }
+.summary-intro p { margin: 0; color: #6f7a89; font-size: 12px; line-height: 1.5; }
+.income-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.income-card { position: relative; display: flex; align-items: center; gap: 13px; overflow: hidden; min-height: 142px; padding: 19px; border: 1px solid rgba(8,102,255,.14); border-radius: 15px; background: #fff; box-shadow: 0 6px 19px rgba(31,54,92,.07); transition: .2s ease; }
+.income-card::before { content: ''; position: absolute; top: 0; right: 0; left: 0; height: 3px; background: linear-gradient(90deg, #0646bd, #0866ff, #60a5ff); }
+.income-card:hover { border-color: rgba(8,102,255,.35); box-shadow: 0 10px 24px rgba(8,102,255,.13); transform: translateY(-2px); }
+.income-icon { display: grid; flex: 0 0 48px; width: 48px; height: 48px; place-items: center; border-radius: 13px; background: #edf4ff; color: #0866ff; font-size: 23px; }
+.membership-card .income-icon { background: #ebfff3; color: #159454; }
+.income-data { min-width: 0; }
+.income-data span, .income-data strong, .income-data small { display: block; }
+.income-data span { color: #5f6a79; font-size: 11px; font-weight: 700; }
+.income-data strong { margin: 4px 0 2px; color: #252b36; font-size: 22px; font-weight: 800; }
+.income-data small { color: #8a94a2; font-size: 10px; }
+.trend-icon { position: absolute; top: 15px; right: 15px; color: rgba(8,102,255,.32); font-size: 18px; }
+.membership-card .trend-icon { color: rgba(21,148,84,.36); }
+.total-card { display: grid; grid-template-columns: auto 1fr auto; gap: 13px; align-items: center; padding: 17px 19px; border-radius: 15px; background: linear-gradient(135deg, #0646bd, #0866ff); color: #fff; box-shadow: 0 8px 21px rgba(8,102,255,.22); }
+.total-icon { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgba(255,255,255,.25); border-radius: 12px; background: rgba(255,255,255,.14); font-size: 21px; }
+.total-card span, .total-card small { display: block; }
+.total-card span { font-size: 13px; font-weight: 800; }
+.total-card small { color: rgba(255,255,255,.72); font-size: 10px; }
+.total-card > strong { font-size: 24px; font-weight: 800; }
+@media (max-width: 991px) { .cash-layout { grid-template-columns: 290px minmax(0, 1fr); } .income-grid { grid-template-columns: 1fr; } }
+@media (max-width: 767px) {
+  .cash-shell ::ng-deep .ant-card-body { padding: 16px; }
+  .cash-heading { align-items: flex-start; flex-wrap: wrap; padding: 20px; }
+  .cash-heading h2 { font-size: 23px; }
+  .heading-total { width: 100%; margin-left: 0; text-align: left; }
+  .cash-layout { grid-template-columns: 1fr; }
+  .calendar-panel { width: 100%; max-width: 380px; margin: 0 auto; }
+  .income-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .cash-heading p { font-size: 11px; }
+  .summary-intro { align-items: flex-start; }
+  .income-card { min-height: 128px; }
+  .total-card { grid-template-columns: auto 1fr; }
+  .total-card > strong { grid-column: 1 / -1; text-align: right; }
 }

@@ -1,31 +1,31 @@
-<nz-card  style="border: 0;">
-  <nz-row class="m-b-20">
-    <nz-col [nzXs]="24" class="m-b-20">
-      <div class="d-flex align-items-center ">
-        <a routerLink="/admin/tools" class="text-black-2" ><i nz-icon nzType="arrow-left" nzTheme="outline" class="font-size-26"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <h3 class="m-0 text-black-2">Pedidos Registrados en tu plataforma </h3>
-      </div>
-    </nz-col>
+<nz-card class="orders-shell" [nzBordered]="false">
+  <header class="orders-heading">
+    <a routerLink="/admin/tools" class="back-button" aria-label="Volver a herramientas"><i nz-icon nzType="arrow-left" nzTheme="outline"></i></a>
+    <div>
+      <span class="section-label">Gestión comercial</span>
+      <h2>Pedidos registrados</h2>
+      <p>Consulta y administra los pedidos realizados en tu plataforma.</p>
+    </div>
+    <div class="heading-icon"><i nz-icon nzType="shopping-cart" nzTheme="outline"></i></div>
+  </header>
 
-    <nz-col [nzXs]="24" class="m-b-20">
-      <div class="d-flex align-items-center card--shadow p-20">
-        <!-- <h4 class="m-0 p-r-20">All ({{ totalRecord }})</h4> -->
-        <nz-input-group [nzPrefix]="suffixTemplateInfo" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px;" >
-          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar usuario por ID" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
-        </nz-input-group>
-        <ng-template #suffixTemplateInfo><i nz-icon nzType="search"></i></ng-template>
+  <section class="orders-toolbar">
+    <div class="toolbar-label">
+      <span class="toolbar-icon"><i nz-icon nzType="filter" nzTheme="outline"></i></span>
+      <div><strong>Buscar pedidos</strong><small>Filtra por los datos del usuario</small></div>
+    </div>
+    <div class="search-fields">
+      <nz-input-group [nzPrefix]="codeSearchIcon" class="search-control">
+        <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar por código ID" appDelayedInput (delayedInput)="onSearch()">
+      </nz-input-group>
+      <ng-template #codeSearchIcon><i nz-icon nzType="idcard" nzTheme="outline"></i></ng-template>
 
-        <nz-input-group [nzPrefix]="suffixTemplateInfoName" style="max-width: 300px; background-color: #F8F9FA; border-radius: 20px; border: 0; margin-right: 10px;" >
-          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por Nombre" style="background-color: #F8F9FA;" appDelayedInput (delayedInput)="onSearch()"/>
-        </nz-input-group>
-        <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
+      <nz-input-group [nzPrefix]="nameSearchIcon" class="search-control">
+        <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar por nombre" appDelayedInput (delayedInput)="onSearch()">
+      </nz-input-group>
+      <ng-template #nameSearchIcon><i nz-icon nzType="user" nzTheme="outline"></i></ng-template>
+    </div>
+  </section>
 
-      </div>
-    </nz-col>
-
-
-    <nz-col [nzXs]="24" class="m-b-20">
-      <app-table-payment-product-order [searchLoader]="eventSearch" [queryParams]="queryParams"></app-table-payment-product-order>
-    </nz-col>
-  </nz-row>
+  <app-table-payment-product-order [searchLoader]="eventSearch" [queryParams]="queryParams"></app-table-payment-product-order>
 </nz-card>

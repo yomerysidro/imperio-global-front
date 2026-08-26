@@ -618,6 +618,25 @@ $card-text-white: #102a56;
       .grand-total-subtitle { font-size: 11px; color: rgba(255, 255, 255, 0.78); }
     }
 
+    .payout-info-button {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      flex: 0 0 29px;
+      margin-left: 4px;
+      padding: 0;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      cursor: pointer;
+      transition: .2s ease;
+
+      &:hover { background: #fff; color: #0866ff; transform: translateY(-1px); }
+      i { width: auto; height: auto; margin: 0; background: transparent; animation: none; font-size: 15px; }
+    }
+
     .grand-total-amount-premium {
       font-size: 20px;
       font-weight: 700;
@@ -932,4 +951,38 @@ $card-text-white: #102a56;
     .grand-total-body-premium { padding: 8px 14px; }
     .grand-total-footer { padding: 6px 14px 10px; }
   }
+}
+
+::ng-deep .payout-request-modal {
+  .ant-modal-content { overflow: hidden; border-radius: 16px; }
+  .ant-modal-body { padding: 0; }
+  .ant-modal-close { top: 10px; right: 10px; color: #fff; }
+}
+
+.payout-modal-content { overflow: hidden; border-radius: 16px; background: #fff; }
+.payout-modal-header { display: flex; align-items: center; gap: 12px; padding: 18px 48px 18px 20px; background: linear-gradient(135deg,#0646bd,#0866ff); color: #fff; }
+.payout-modal-header > span { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border: 1px solid rgba(255,255,255,.28); border-radius: 11px; background: rgba(255,255,255,.14); font-size: 18px; }
+.payout-modal-header small { color: rgba(255,255,255,.72); font-size: 9px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+.payout-modal-header h3 { margin: 1px 0; color: #fff; font-size: 17px; font-weight: 800; }
+.payout-modal-header p { margin: 0; color: rgba(255,255,255,.78); font-size: 11px; }
+.payout-modal-body { padding: 18px 20px; }
+.available-balance { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border: 1px solid #cfe0ff; border-radius: 11px; background: #f2f7ff; }
+.available-balance span { color: #64748b; font-size: 11px; font-weight: 700; }
+.available-balance strong { color: #0866ff; font-size: 20px; }
+.payout-mode-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 13px; }
+.payout-mode-grid button { display: flex; min-height: 92px; padding: 12px; align-items: flex-start; flex-direction: column; border: 1px solid #dfe6f0; border-radius: 11px; background: #fff; color: #5f6d82; cursor: pointer; text-align: left; transition: .2s ease; }
+.payout-mode-grid button > i { margin-bottom: 7px; color: #0866ff; font-size: 17px; }
+.payout-mode-grid button strong { color: #263247; font-size: 12px; }
+.payout-mode-grid button small { margin-top: 2px; color: #8793a5; font-size: 9px; }
+.payout-mode-grid button.selected { border-color: #0866ff; background: #edf4ff; box-shadow: 0 0 0 2px rgba(8,102,255,.08); }
+.payout-amount-field { display: block; margin-top: 14px; }
+.payout-amount-field > span { display: block; margin-bottom: 6px; color: #344156; font-size: 11px; font-weight: 800; }
+.payout-amount-field ::ng-deep .ant-input-affix-wrapper { height: 40px; border-radius: 9px; }
+.payout-amount-field small { display: block; margin-top: 5px; color: #8793a5; font-size: 9px; text-align: right; }
+.payout-modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 13px 20px; border-top: 1px solid #e8edf5; background: #fafcff; }
+.payout-modal-actions button { min-width: 110px; height: 37px; border-radius: 9px; font-size: 11px; font-weight: 750; }
+
+@media(max-width:480px) {
+  .payout-mode-grid { grid-template-columns: 1fr; }
+  .payout-modal-actions button { min-width: 0; flex: 1; }
 }

@@ -24,6 +24,10 @@ export class UserTreeDetailComponent implements OnInit {
   usuarioDirectos: number = 0;
   usuarioActivos: number = 0;
   usuarioTotal: number = 0;
+  gananciaPatrocinio: number = 0;
+  gananciaResidual: number = 0;
+  bonoInfinito: number = 0;
+  gananciaTotal: number = 0;
   env = environment;
   isNodeActive: boolean = false;
   
@@ -61,6 +65,10 @@ export class UserTreeDetailComponent implements OnInit {
       this.pointTotal = Number(userDetail.puntos_personales ?? pts.personal ?? 0);
       this.pointRed = Number(userDetail.puntos_red ?? pts.pointGroup ?? 0);
       this.granTotalPuntos = Number(userDetail.total_puntos ?? pts.total_general ?? this.pointRed);
+      this.gananciaPatrocinio = Number(userDetail.ganancia_patrocinio ?? pts.patrocinio ?? 0);
+      this.gananciaResidual = Number(userDetail.ganancia_residual ?? pts.residual ?? 0);
+      this.bonoInfinito = Number(userDetail.bono_infinito ?? pts.infinito ?? 0);
+      this.gananciaTotal = Number(userDetail.total_comisiones ?? pts.total_comisiones ?? 0);
 
       // 4. Estado activo
       this.isNodeActive = isUserMembershipActive(this.userModel, undefined, this.paymentOrder);
@@ -81,15 +89,18 @@ export class UserTreeDetailComponent implements OnInit {
         }
       }
 
-      // 6. Nombre del Paquete
-      this.paquetes = [];
-      const nombrePack = this.userModel.package_name || this.userModel.payment?.payment_order?.pack?.title;
+      // 6. Packs adquiridos: permanecen visibles aunque estén inactivos este mes.
+      const categories = this.userModel.packs_by_category || {};
+      const ownedPacks = [categories.product, categories.service]
+        .filter((category: any) => category?.owned === true && category?.pack)
+        .map((category: any) => ({
+          paquete: category.pack.title || 'Paquete',
+          puntos: category.pack.points || 0,
+          active: category.active === true
+        }));
 
-      if (nombrePack) {
-        this.paquetes = [{
-          paquete: nombrePack,
-          puntos: this.pointTotal
-        }];
+      if (ownedPacks.length > 0) {
+        this.paquetes = ownedPacks;
       }
     }
   }
@@ -112,7 +123,8 @@ export class UserTreeDetailComponent implements OnInit {
       processedCodes.add(point.user_code);
 
       this.usuarioTotal++;
-      const isActive = point.state == 1 || !!point.active;
+      const pointUser = point.user || point.user_point || point;
+      const isActive = isUserMembershipActive(pointUser, point);
 
       if (isActive) this.usuarioActivos++;
       if (isFirstLevel) this.usuarioDirectos++;
