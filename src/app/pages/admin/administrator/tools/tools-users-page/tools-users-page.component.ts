@@ -63,6 +63,12 @@ export class ToolsUsersPageComponent implements OnInit {
   loadingDesactive: boolean = false;
   canReactivatePoints: boolean = false;
   canDeactivatePoints: boolean = false;
+  initialActivationActions: Record<'product' | 'service', boolean> = {
+    product: false,
+    service: false
+  };
+  readonly initialActivationCategories: Array<'product' | 'service'> = ['product', 'service'];
+  deactivatingInitialActivation: 'product' | 'service' | null = null;
   authUser: any = null;
   deletingUser: boolean = false;
   deletionMode: 'user' | 'network' | null = null;
@@ -284,6 +290,7 @@ export class ToolsUsersPageComponent implements OnInit {
     this.userModel = userModel;
     this.canReactivatePoints = false;
     this.canDeactivatePoints = userModel.manual_reactivation_active === true;
+    this.resetInitialActivationActions();
     this.loadReactivationActions(userModel.uuid);
 
     const modal = this.nzModalService.create({
@@ -311,6 +318,8 @@ export class ToolsUsersPageComponent implements OnInit {
     modal.afterClose.subscribe(() => {
       this.canReactivatePoints = false;
       this.canDeactivatePoints = false;
+      this.resetInitialActivationActions();
+      this.deactivatingInitialActivation = null;
       this.onSearch();
     })
   }
@@ -318,18 +327,34 @@ export class ToolsUsersPageComponent implements OnInit {
   private loadReactivationActions(userCode: string): void {
     this.apiService.getUserReactivationStatus(userCode).subscribe(
       (response) => {
-        const categories = response?.data?.categories || {};
-        const canReactivateCategory = ['product', 'service'].some(category =>
-          this.isReactivationCategoryAvailable(categories[category])
-        );
-        this.canReactivatePoints = canReactivateCategory;
-        this.canDeactivatePoints = response?.data?.manual_reactivation_active === true;
+        this.applyReactivationStatus(response);
       },
       () => {
         this.canReactivatePoints = false;
         this.canDeactivatePoints = this.userModel?.manual_reactivation_active === true;
+        this.resetInitialActivationActions();
       }
     );
+  }
+
+  private applyReactivationStatus(response: any): void {
+    const categories = response?.data?.categories || {};
+    const categoryNames: Array<'product' | 'service'> = ['product', 'service'];
+
+    this.canReactivatePoints = categoryNames.some(category =>
+      this.isReactivationCategoryAvailable(categories[category])
+    );
+    this.canDeactivatePoints = categoryNames.some(category =>
+      categories[category]?.actions?.can_deactivate === true
+    ) || response?.data?.manual_reactivation_active === true;
+    this.initialActivationActions = {
+      product: categories.product?.actions?.can_deactivate_initial_activation === true,
+      service: categories.service?.actions?.can_deactivate_initial_activation === true
+    };
+  }
+
+  private resetInitialActivationActions(): void {
+    this.initialActivationActions = { product: false, service: false };
   }
 
   private isReactivationCategoryAvailable(category: any): boolean {
@@ -337,6 +362,7 @@ export class ToolsUsersPageComponent implements OnInit {
     if (!category) return false;
     if (category.success === false) return false;
     if (category.reason === 'no_package_purchase' || category.data?.reason === 'no_package_purchase') return false;
+    if (category.actions?.can_reactivate !== undefined) return category.actions.can_reactivate === true;
     if (category.can_reactivate !== undefined) return this.isTrue(category.can_reactivate);
     if (category.available !== undefined) return this.isTrue(category.available);
     if (category.eligible !== undefined) return this.isTrue(category.eligible);
@@ -417,6 +443,99 @@ export class ToolsUsersPageComponent implements OnInit {
   public onClose(): void {
     this.modalUserOptions(0);
     this.nzModalService.closeAll();
+  }
+
+  public get isAuthenticatedAdmin(): boolean {
+    return this.authUser?.is_admin === true || this.authUser?.admin === true;
+  }
+
+  public confirmDeactivateInitialActivation(category: 'product' | 'service'): void {
+    if (
+      !this.isAuthenticatedAdmin ||
+      !this.initialActivationActions[category] ||
+      this.deactivatingInitialActivation !== null
+    ) return;
+
+    this.nzModalService.confirm({
+      nzTitle: 'Confirmación',
+      nzContent: '¿Deseas desactivar la activación inicial de este usuario? Se quitarán los puntos y las comisiones generadas por esa activación. El usuario, su red, paquete, descuento e historial se conservarán. Esta acción no desactiva una reactivación mensual.',
+      nzCancelText: 'Cancelar',
+      nzOkText: 'Sí, desactivar activación inicial',
+      nzOkDanger: true,
+      nzOnOk: () => this.deactivateInitialActivation(category)
+    });
+  }
+
+  private deactivateInitialActivation(category: 'product' | 'service'): void {
+    if (this.deactivatingInitialActivation !== null) return;
+
+    const userCode = this.userModel?.uuid;
+    if (!userCode) {
+      this.modalService.error('El usuario seleccionado no tiene un código válido.');
+      return;
+    }
+
+    this.deactivatingInitialActivation = category;
+    this.apiService.deactivateInitialActivation({ userCode, category }).subscribe({
+      next: response => {
+        if (!response?.success) {
+          this.deactivatingInitialActivation = null;
+          this.modalService.error(response?.message || 'No se pudo desactivar la activación inicial.');
+          return;
+        }
+        this.refreshAfterInitialActivationDeactivation(response.message);
+      },
+      error: error => {
+        this.deactivatingInitialActivation = null;
+        const status = error?.status;
+        const backendMessage = error?.error?.message || error?.message;
+        if (status === 403) {
+          this.modalService.error('Solo un administrador puede realizar esta acción.');
+        } else if (status === 422) {
+          this.modalService.error(backendMessage || 'No se pudo desactivar la activación inicial.');
+        } else {
+          this.modalService.error('No se pudo desactivar la activación inicial. Inténtalo nuevamente.');
+        }
+      }
+    });
+  }
+
+  private refreshAfterInitialActivationDeactivation(message: string): void {
+    const userCode = this.userModel.uuid;
+    const userId = Number((this.userModel as any)?.id);
+    const detail$: any = Number.isInteger(userId) && userId > 0
+      ? this.apiService.getUserById(userId)
+      : this.apiService.getUsersFindAll({ code: userCode, limit: 1, page: 1 });
+
+    forkJoin({
+      status: this.apiService.getUserReactivationStatus(userCode),
+      detail: detail$,
+      points: this.apiService.getPointListUser(),
+      users: this.apiService.getUsersFindAll({
+        code: this.codeUser.trim(), name: this.nameUser.trim(), plan: this.planSelected ?? '',
+        limit: this.pageSize, page: this.pageIndex
+      })
+    }).subscribe({
+      next: ({ status, detail, points, users }) => {
+        this.applyReactivationStatus(status);
+        const detailResponse: any = detail;
+        const refreshedUser = Number.isInteger(userId) && userId > 0
+          ? detailResponse?.data
+          : detailResponse?.data?.items?.[0];
+        if (refreshedUser) this.userModel = { ...this.userModel, ...refreshedUser };
+        this._listPoints = this.extractNetworkRecords(points?.data);
+        if (users?.success) {
+          this.totalRecord = users.data.pagination.total;
+          this.tableProducts = users.data.items;
+        }
+        this.deactivatingInitialActivation = null;
+        this.modalService.success(message || 'Activación inicial desactivada correctamente.');
+      },
+      error: () => {
+        this.deactivatingInitialActivation = null;
+        this.modalService.error('La activación inicial fue desactivada, pero no se pudieron actualizar todos los datos. Vuelve a consultar el usuario.');
+      }
+    });
   }
 
   public get canDeleteSelectedUser(): boolean {

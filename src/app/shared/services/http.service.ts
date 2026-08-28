@@ -34,6 +34,13 @@ export class HttpService {
     );
   }
 
+  /** Preserves the HTTP status for flows that need status-specific feedback. */
+  public postWithHttpError<T>(url: string, data: any): Observable<T> {
+    return this.httpClient.post<T>(this.urlBase + url, data).pipe(
+      catchError((error: HttpErrorResponse) => throwError(error))
+    );
+  }
+
   public put<T>(url: string, data: any, options?: any): Observable<T> {
     return this.httpClient.put( this.urlBase + url, data, options).pipe(
       map((res: any) => {

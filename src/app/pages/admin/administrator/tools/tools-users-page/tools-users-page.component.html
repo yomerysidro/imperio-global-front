@@ -175,6 +175,25 @@
             </button>
           </div>
         </ng-container>
+        <ng-container *ngIf="isAuthenticatedAdmin">
+          <ng-container *ngFor="let category of initialActivationCategories">
+            <div
+              *ngIf="initialActivationActions[category]"
+              class="initial-activation-action">
+              <small>{{ category === 'product' ? 'Producto' : 'Servicio' }}</small>
+              <button
+                nz-button
+                nzType="default"
+                class="initial-activation-button"
+                [disabled]="deactivatingInitialActivation !== null"
+                [nzLoading]="deactivatingInitialActivation === category"
+                (click)="confirmDeactivateInitialActivation(category)">
+                <i *ngIf="deactivatingInitialActivation !== category" nz-icon nzType="stop" nzTheme="outline"></i>
+                <span>Desactivar activación inicial</span>
+              </button>
+            </div>
+          </ng-container>
+        </ng-container>
         <ng-container *ngIf="userModel.payment?.state == CONSTANTS.PAYMENT_ORDER.PREORDER">
           <button nz-button nzType="primary" class="m-b-20 ant-btn-info" (click)="onPaymentOfflineConfirm(userModel.uuid)"><i nz-icon nzType="dollar-circle" nzTheme="outline"></i>Activar usuario: pago efectivo</button>
         </ng-container>

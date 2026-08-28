@@ -233,7 +233,17 @@ export class ApiService {
   }
 
   public getUserReactivationStatus(userCode: string): Observable<IResponse<any>> {
-    return this.httpService.get<IResponse<any>>(`/users/reactivation-status/${userCode}`).pipe(tap(res => res));
+    return this.httpService.get<IResponse<any>>(`/users/reactivation-status/${encodeURIComponent(userCode)}`).pipe(tap(res => res));
+  }
+
+  public deactivateInitialActivation(command: {
+    userCode: string;
+    category: 'product' | 'service';
+  }): Observable<IResponse<any>> {
+    return this.httpService.postWithHttpError<IResponse<any>>(
+      '/users/deactivate-initial-activation',
+      command
+    ).pipe(tap(res => res));
   }
 
   public getUserReactivationProducts(userCode: string, category: 'product' | 'service'): Observable<IResponse<any>> {

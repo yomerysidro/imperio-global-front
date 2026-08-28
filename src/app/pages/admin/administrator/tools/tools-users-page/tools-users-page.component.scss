@@ -99,6 +99,11 @@
 .options-list > .user-deletion-actions { grid-column: 1 / -1; }
 .options-list > .deactivate-points-section { min-width: 0; margin: 0; padding: 0; border: 0; }
 .options-list > .deactivate-points-section .deactivate-points-button { width: 100%; min-width: 0; min-height: 42px; height: 100%; margin: 0; border-radius: 10px; font-size: 10px; }
+.initial-activation-action { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.initial-activation-action small { color: #9a5b00; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.initial-activation-button { display: flex; width: 100%; min-height: 42px; align-items: center; justify-content: center; border-color: #d97706; border-radius: 10px; background: #fff7e6; color: #ad4e00; font-size: 10px; font-weight: 800; line-height: 1.25; white-space: normal; }
+.initial-activation-button i { margin-right: 7px; }
+.initial-activation-button:hover:not([disabled]), .initial-activation-button:focus:not([disabled]) { border-color: #b45309; background: #ffedd5; color: #92400e; transform: translateY(-1px); }
 .options-footer { margin: 8px -22px 0; padding: 14px 22px; border-top: 1px solid #edf1f6; background: #fafcff; }
 .options-close-button { width: 100%; height: 40px; border-color: #dce2ea; border-radius: 10px; color: #5d6878; font-size: 11px; font-weight: 800; }
 .options-close-button i { margin-right: 6px; }
