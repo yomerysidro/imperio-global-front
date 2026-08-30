@@ -1,3 +1,32 @@
+ $blue: #0866ff;
+ $blue-dark: #0646bd;
+ $ink: #172033;
+ $muted: #64748b;
+
+.orders-panel { overflow:hidden;border:1px solid rgba(8,102,255,.15);border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(8,102,255,.09); }
+.orders-header { position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;padding:20px 22px;color:#fff;background:linear-gradient(135deg,$blue-dark,$blue 62%,#168cff); }
+.orders-header::after { content:'';position:absolute;top:-100px;right:22%;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.1); }
+.orders-header-icon { position:relative;z-index:1;display:grid;flex:0 0 44px;width:44px;height:44px;place-items:center;border:1px solid rgba(255,255,255,.28);border-radius:12px;background:rgba(255,255,255,.15);font-size:20px; }
+.orders-heading { position:relative;z-index:1;flex:1; }
+.orders-heading span { color:rgba(255,255,255,.72);font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase; }
+.orders-heading h2 { margin:1px 0;color:#fff;font-size:18px;font-weight:800; }
+.orders-heading p { margin:0;color:rgba(255,255,255,.75);font-size:11px; }
+.orders-count { position:relative;z-index:1;padding:8px 12px;border:1px solid rgba(255,255,255,.25);border-radius:9px;background:rgba(255,255,255,.14);white-space:nowrap; }
+.orders-table-wrap { overflow-x:auto;padding:14px; }
+
+::ng-deep .orders-panel .ant-table { border-radius:12px;background:#fff; }
+::ng-deep .orders-panel .ant-table-container { overflow:hidden;border:1px solid #e5ebf5;border-radius:12px; }
+::ng-deep .orders-panel .ant-table-thead > tr > th { padding:12px 10px!important;border-bottom:1px solid #dce6f5!important;background:#f1f6ff!important;color:#31517d!important;font-size:10px!important;font-weight:800!important;letter-spacing:.25px;text-transform:uppercase; }
+::ng-deep .orders-panel .ant-table-tbody > tr > td { padding:11px 10px!important;border-bottom:1px solid #edf1f7!important;color:$ink;font-size:11px; }
+::ng-deep .orders-panel .ant-table-tbody > tr:hover > td { background:#f7faff!important; }
+::ng-deep .orders-panel .ant-table-tbody img { width:42px!important;height:42px!important;border:2px solid #fff;object-fit:cover;box-shadow:0 0 0 2px #dbe8ff,0 4px 9px rgba(8,102,255,.12); }
+::ng-deep .orders-panel .ant-tag { padding:3px 8px;border:0;border-radius:999px;font-size:9px;font-weight:800; }
+::ng-deep .orders-panel .ant-pagination { margin:16px 4px 3px!important; }
+::ng-deep .orders-panel .ant-pagination-item-active { border-color:$blue;background:$blue; }
+::ng-deep .orders-panel .ant-pagination-item-active a { color:#fff; }
+
+@media(max-width:767px){.orders-header{align-items:flex-start;flex-wrap:wrap}.orders-heading{min-width:calc(100% - 62px)}.orders-count{margin-left:58px}.orders-table-wrap{padding:8px}}
+
 ::ng-deep .order-voucher-modal,
 ::ng-deep .order-state-modal {
   .ant-modal-content { overflow: hidden; padding: 0; border-radius: 16px; background: #fff; }

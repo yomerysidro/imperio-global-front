@@ -112,6 +112,7 @@ export class ThemeConstantService {
     }
 
     changeCurrentCartList( cartList: Array<IProductModel> ){
+      this.cartList = cartList;
       localStorage.setItem( "cartList" ,  JSON.stringify(cartList) );
       this.currentCartList.next(cartList);
     }

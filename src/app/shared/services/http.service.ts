@@ -59,6 +59,13 @@ export class HttpService {
     );
   }
 
+  /** Preserves the HTTP status for status-specific delete responses (for example, 409). */
+  public deleteWithHttpError<T>(url: string): Observable<T> {
+    return this.httpClient.delete<T>(this.urlBase + url).pipe(
+      catchError((error: HttpErrorResponse) => throwError(error))
+    );
+  }
+
   private handleError(httpError: HttpErrorResponse) {
     console.log( httpError )
     if (httpError.error instanceof ErrorEvent) {

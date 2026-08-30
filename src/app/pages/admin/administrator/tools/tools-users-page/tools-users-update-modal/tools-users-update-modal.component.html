@@ -43,14 +43,31 @@
           </nz-form-item>
 
           <nz-form-item>
-            <nz-form-label nzRequired class="form-label">Correo electrónico</nz-form-label>
+            <nz-form-label nzRequired class="form-label">
+              <span class="email-label">
+                Correo electrónico
+                <button
+                  *ngIf="isAdmin"
+                  type="button"
+                  class="email-edit-button"
+                  title="Editar correo electrónico"
+                  aria-label="Editar correo electrónico"
+                  [disabled]="isEmailEditable"
+                  (click)="enableEmailEditing()">
+                  <i nz-icon nzType="edit" nzTheme="outline"></i>
+                </button>
+              </span>
+            </nz-form-label>
             <nz-form-control nzErrorTip="Ingrese un correo electrónico válido">
               <input
+                id="user-email-input"
                 nz-input
                 type="email"
                 formControlName="email"
+                [readOnly]="!isEmailEditable"
                 placeholder="correo@ejemplo.com"
-                class="form-input" />
+                class="form-input"
+                [class.email-readonly]="!isEmailEditable" />
             </nz-form-control>
           </nz-form-item>
 

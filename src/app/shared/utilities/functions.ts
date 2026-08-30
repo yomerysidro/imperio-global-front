@@ -95,7 +95,7 @@ import { AuthModel } from "@shared/services/models/user.interface";
   export const saveSessionStorage = (value: AuthModel) => {
 
     localStorage.setItem('access_token', value.token);
-    localStorage.setItem('currentUser' , JSON.stringify( { name: value.name , photo: value.photo } ));
+    localStorage.setItem('currentUser' , JSON.stringify( { name: value.name , photo: value.photo, admin: value.admin } ));
     localStorage.setItem('uuid' , value.uuid );
 
     let date = new Date();
@@ -111,8 +111,9 @@ import { AuthModel } from "@shared/services/models/user.interface";
 
   }
 
-  export const saveSessionStoraheUser = (value: any) => {
-    localStorage.setItem('currentUser' , JSON.stringify( { name: value.name , photo: value.photo } ));
+export const saveSessionStoraheUser = (value: any) => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') ?? '{}');
+    localStorage.setItem('currentUser' , JSON.stringify( { name: value.name , photo: value.photo, admin: value.admin ?? currentUser.admin } ));
   }
 
   export const getUserId = (): number | undefined => {

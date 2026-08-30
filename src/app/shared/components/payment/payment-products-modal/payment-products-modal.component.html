@@ -36,7 +36,7 @@
         <ng-container *ngFor="let product of cartList; let i = index">
           <div class="d-flex align-items-center justify-content-between">
             <p class="m-0 fs-15 text-gray-6 notranslate"><b>{{ i + 1 }})</b>&nbsp;&nbsp;{{ product.title }} &nbsp;&nbsp; <b class="fs-12" style="color: #8E9FB9;">x{{ product.quantity }}</b></p>
-            <p class="m-0 fs-15 text-gray-6 notranslate"><b>S/{{ (amountDiscount == 0 ? (product.quantity * product.price) : ( (product.quantity * product.price) * (100 - amountDiscount) / 100)) | number: '1.0-2' }}</b></p>
+            <p class="m-0 fs-15 text-gray-6 notranslate"><b>S/{{ ((product.final_price ?? product.public_price ?? product.price) * (product.quantity ?? 0)) | number: '1.0-2' }}</b></p>
           </div>
         </ng-container>
 

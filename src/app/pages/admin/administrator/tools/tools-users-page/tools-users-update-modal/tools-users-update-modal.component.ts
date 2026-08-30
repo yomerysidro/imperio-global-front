@@ -29,6 +29,8 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   
   planList: Array<PackModel> = [];
   loadingSave: boolean = false;
+  isAdmin: boolean = Number(localStorage.getItem('admin')) === 1;
+  isEmailEditable: boolean = false;
 
   isSponsorNew: boolean = false;
   loadingSearch: boolean = false;
@@ -237,6 +239,17 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
     this.validateForm.get('serviceActive')?.setValue(this.currentServiceId);
   }
 
+  public enableEmailEditing(): void {
+    if (!this.isAdmin) return;
+
+    this.isEmailEditable = true;
+    setTimeout(() => {
+      const emailInput = document.getElementById('user-email-input') as HTMLInputElement | null;
+      emailInput?.focus();
+      emailInput?.select();
+    });
+  }
+
   public onSearchSponsor(): void {
     this.loadingSearch = true;
     this.isSponsorNew = false;
@@ -278,6 +291,30 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   private resetLocalState(): void {
     this.showPackEdit = false;
     this.showServiceEdit = false;
+    this.isEmailEditable = false;
+  }
+
+  private getBackendErrorMessage(error: any): string {
+    if (typeof error === 'string') return error;
+
+    const responseError = error?.error ?? error;
+    const validationErrors = responseError?.errors;
+
+    if (validationErrors && typeof validationErrors === 'object') {
+      const messages = Object.values(validationErrors)
+        .reduce<string[]>((result, value) => {
+          if (Array.isArray(value)) return result.concat(value.map(String));
+          if (value !== null && value !== undefined) result.push(String(value));
+          return result;
+        }, []);
+
+      if (messages.length > 0) return messages.join('\n');
+    }
+
+    return responseError?.message
+      || responseError?.error_description
+      || error?.message
+      || 'No se pudo actualizar al usuario.';
   }
 
   public onBack(): void {
@@ -324,7 +361,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
       (response) => {
         if (!response?.success) {
           this.loadingSave = false;
-          this.modalService.error(response?.message || "No se pudo actualizar al usuario.");
+          this.modalService.error(this.getBackendErrorMessage(response));
           return;
         }
 
@@ -352,9 +389,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
       },
       (error) => {
         console.error(error);
-        const errorMessage = typeof error === 'string'
-          ? error
-          : error?.message || error?.error?.message || "No se pudo actualizar al usuario.";
+        const errorMessage = this.getBackendErrorMessage(error);
         this.modalService.error(`✕ ${errorMessage}`);
         this.loadingSave = false;
       }

@@ -74,11 +74,27 @@ export class Login1Component implements OnInit{
       removeSessionLocalAll();
       this.apiService.postAuthentication( this.commnad() ).subscribe(
         ( response: IResponse<AuthModel> ) => {
-          saveSessionStorage( response.data );
+          const authenticatedUser: AuthModel = {
+            ...response.data,
+            admin: response.data?.admin === true || Number(response.data?.admin) === 1 || Number((response.data as any)?.is_admin) === 1
+          };
+          saveSessionStorage(authenticatedUser);
 
-          this.authenticationService.setCurrentUser( response.data );
-          this.themeConstantService.changeAdminUser( response.data.admin )
-          this.router.navigate(['/admin/profile']);
+          this.authenticationService.setCurrentUser(authenticatedUser);
+          this.themeConstantService.changeAdminUser(authenticatedUser.admin)
+          const pendingCart = sessionStorage.getItem('pendingProductCart');
+          if (pendingCart) {
+            try {
+              this.themeConstantService.changeCurrentCartList(JSON.parse(pendingCart));
+              sessionStorage.removeItem('pendingProductCart');
+              this.router.navigate(['/admin/marketplace']);
+            } catch {
+              sessionStorage.removeItem('pendingProductCart');
+              this.router.navigate(['/admin/profile']);
+            }
+          } else {
+            this.router.navigate(['/admin/profile']);
+          }
           this.loadingSubmit = false;
         },(error) => {
           console.log( error )
