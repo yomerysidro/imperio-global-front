@@ -67,7 +67,7 @@ export class PaymentProductsModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadData();
+    this.amountDiscount = Number(this.cartList?.[0]?.discount_percentage ?? 0);
 
 
     this.validateForm.patchValue({
@@ -79,32 +79,10 @@ export class PaymentProductsModalComponent implements OnInit {
 
   }
 
-  public loadData(): void{
-    forkJoin(
-      this.apiService.getOptionsSearch(),
-      this.apiService.getProductPaymnetSearch({state: 2})
-    ).subscribe(
-      ([option, productss])=> {
-        // this.userModel = userModel.data
-        let second_buy_plan = option.data.find( o => o.option_key == "second_buy_plan" )?.option_value;
-
-        this.amountDiscount = Number.parseFloat( this.userModel?.payment?.payment_order?.pack?.discount ?? "0" );
-
-        if( this.userModel?.payment?.state == CONSTANTS.PAYMENT_ORDER.PAGADO ){
-          if(  this.userModel?.payment?.payment_order?.pack?.id == second_buy_plan ){
-            if( productss.data.length <= 1 ){
-              this.amountDiscount == 0;
-            }
-
-          }
-        }
-
-      }
-    )
-  }
-
   get totalBuy(): number{
-    return this.cartList.length>0 ? this.cartList?.map( p => this.amountDiscount == 0 ? (p.price * p.quantity) : ( (p.quantity * p.price) * (100 - this.amountDiscount) / 100) )?.reduce( (a,b) => a+b ) : 0;
+    return this.cartList.length > 0
+      ? this.cartList.map(product => Number(product.final_price ?? product.public_price ?? product.price ?? 0) * (product.quantity ?? 0)).reduce((a, b) => a + b, 0)
+      : 0;
   }
 
   get totalPoints(): number{

@@ -140,6 +140,34 @@ $text-muted: #64748b;
   ::ng-deep .ant-form-item-label > label { color: $text-dark; font-size: 12px; font-weight: 700; }
   ::ng-deep .ant-input { min-height: 38px; border-radius: 7px; font-size: 13px; }
 
+  .email-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .email-edit-button {
+    display: inline-grid;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 5px;
+    background: $primary-light;
+    color: $primary;
+    cursor: pointer;
+
+    &:hover:not(:disabled) { background: #dbeafe; }
+    &:disabled { cursor: default; opacity: .5; }
+  }
+
+  .email-readonly {
+    background: #f1f5f9;
+    color: $text-muted;
+    cursor: not-allowed;
+  }
+
   .profile-avatar-wrapper {
     display: flex;
     justify-content: center;

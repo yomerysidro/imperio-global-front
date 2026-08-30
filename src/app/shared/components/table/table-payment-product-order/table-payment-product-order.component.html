@@ -1,3 +1,10 @@
+<section class="orders-panel">
+  <header class="orders-header">
+    <div class="orders-header-icon"><i nz-icon nzType="shopping-cart" nzTheme="outline"></i></div>
+    <div class="orders-heading"><span>Gestión de pedidos</span><h2>Pedidos pendientes y entregas</h2><p>Consulta comprobantes y administra el estado de cada compra.</p></div>
+    <strong class="orders-count">{{ totalRecord }} pedidos</strong>
+  </header>
+  <div class="orders-table-wrap">
 <nz-table
     nzSize="small"
     nzShowSizeChanger
@@ -91,6 +98,8 @@
       </tr>
     </tbody>
 </nz-table>
+  </div>
+</section>
 
 <ng-template #templateChangeState>
   <div class="row">

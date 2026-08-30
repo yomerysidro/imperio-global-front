@@ -1,0 +1,60 @@
+<form nz-form [formGroup]="form" nzLayout="vertical" class="product-form" (ngSubmit)="submit()">
+  <header class="product-form-header">
+    <span class="header-icon"><i nz-icon [nzType]="isEdit ? 'edit' : 'plus'" nzTheme="outline"></i></span>
+    <div>
+      <small>Administración de tienda</small>
+      <h2>{{ isEdit ? 'Editar producto' : 'Agregar nuevo producto' }}</h2>
+      <p>{{ isEdit ? 'Actualiza únicamente los datos que necesites.' : 'El producto se guardará inicialmente Sin publicar.' }}</p>
+    </div>
+  </header>
+
+  <div class="product-form-body">
+    <div class="image-column">
+      <img [src]="previewUrl" alt="Vista previa del producto" class="image-preview">
+      <label class="file-button" for="product-file"><i nz-icon nzType="picture"></i> Seleccionar imagen</label>
+      <input id="product-file" type="file" accept=".png,.jpg,.jpeg,.webp" (change)="onFileSelected($event)">
+      <small>PNG, JPG, JPEG o WEBP. Máximo 5 MB.</small>
+      <span class="file-error" *ngIf="fileError">{{ fileError }}</span>
+    </div>
+
+    <div class="fields-column">
+      <nz-form-item>
+        <nz-form-label nzRequired>Nombre del producto</nz-form-label>
+        <nz-form-control nzErrorTip="El nombre es obligatorio.">
+          <input nz-input formControlName="title" maxlength="255">
+        </nz-form-control>
+      </nz-form-item>
+
+      <div class="numeric-grid">
+        <nz-form-item>
+          <nz-form-label nzRequired>Precio público</nz-form-label>
+          <nz-form-control nzErrorTip="Ingrese un precio mayor o igual a cero.">
+            <input nz-input type="number" min="0" step="0.01" formControlName="price">
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Puntos</nz-form-label>
+          <nz-form-control nzErrorTip="Ingrese puntos enteros mayores o iguales a cero.">
+            <input nz-input type="number" min="0" step="1" formControlName="points">
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Stock</nz-form-label>
+          <nz-form-control nzErrorTip="Ingrese un stock entero mayor o igual a cero.">
+            <input nz-input type="number" min="0" step="1" formControlName="stock">
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <label class="state-control" *ngIf="isEdit">
+        <input type="checkbox" formControlName="state">
+        <span>Producto publicado</span>
+      </label>
+    </div>
+  </div>
+
+  <footer class="product-form-footer">
+    <button nz-button type="button" (click)="cancel()">Cancelar</button>
+    <button nz-button nzType="primary" type="submit" [nzLoading]="loading">{{ isEdit ? 'Guardar cambios' : 'Crear Producto Sin publicar' }}</button>
+  </footer>
+</form>

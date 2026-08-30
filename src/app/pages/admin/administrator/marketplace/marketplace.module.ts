@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MarketplacePageComponent } from './marketplace-page/marketplace-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '@shared/shared.module';
+import { ProductFormModalComponent } from './product-form-modal/product-form-modal.component';
 
 const routes: Routes = [
   {
@@ -17,7 +18,8 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    MarketplacePageComponent
+    MarketplacePageComponent,
+    ProductFormModalComponent
   ],
   imports: [
     SharedModule,

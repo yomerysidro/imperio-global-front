@@ -233,7 +233,65 @@
   </div>
 
   <div class="container py-4">
-    <div class="row g-4">
+    <nz-spin [nzSpinning]="loadingProducts">
+      <div class="row g-4 public-products-grid">
+        <div class="col-lg-4 col-md-6" *ngFor="let product of productList">
+          <article class="product-wrapper">
+            <div class="product-card dynamic-product-card">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="product-tag-price">S/ {{ getDisplayedPrice(product) | number:'1.2-2' }}</span>
+                <h4 class="product-title m-0">{{ product.title }}</h4>
+              </div>
+              <div class="product-img">
+                <img [src]="getProductImage(product.file_image?.path)" [alt]="product.title">
+              </div>
+              <div class="product-actions">
+                <div class="public-quantity" *ngIf="product.stock > 0">
+                  <button type="button" (click)="changeProductQuantity(product, -1)">−</button>
+                  <strong>{{ product.quantity ?? 1 }}</strong>
+                  <button type="button" (click)="changeProductQuantity(product, 1)">+</button>
+                </div>
+                <div class="public-estimate" *ngIf="product.stock > 0">
+                  <strong>S/ {{ getDisplayedPrice(product) * (product.quantity ?? 1) | number:'1.2-2' }}</strong>
+                </div>
+                <div class="public-buy-buttons" *ngIf="product.stock > 0">
+                  <button class="btn public-detail-button" (click)="openProductDetails(product)">Ver detalles</button>
+                  <button class="btn btn-blue" (click)="buyPublicProduct(product)">Comprar</button>
+                </div>
+                <span class="public-sold-out" *ngIf="product.stock === 0">Agotado</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </nz-spin>
+
+    <div class="public-detail-overlay" *ngIf="detailProduct as product" (click)="closeProductDetails()">
+      <article class="public-detail-modal" (click)="$event.stopPropagation()">
+        <button type="button" class="public-detail-close" (click)="closeProductDetails()" aria-label="Cerrar">&times;</button>
+        <div class="public-detail-visual">
+          <img [src]="getProductImage(product.file_image?.path)" [alt]="product.title">
+        </div>
+        <div class="public-detail-content">
+          <span class="public-detail-eyebrow">Conoce el producto</span>
+          <h2>{{ product.title }}</h2>
+          <div class="public-detail-price">S/ {{ getDisplayedPrice(product) | number:'1.2-2' }}</div>
+          <p class="public-detail-intro">Detalles y beneficios principales:</p>
+          <ul>
+            <li *ngFor="let benefit of getProductBenefits(product)"><span>✓</span>{{ benefit }}</li>
+          </ul>
+          <div class="public-detail-summary">
+            <span>Cantidad: <strong>{{ product.quantity ?? 1 }}</strong></span>
+            <span>Total: <strong>S/ {{ getDisplayedPrice(product) * (product.quantity ?? 1) | number:'1.2-2' }}</strong></span>
+          </div>
+          <button type="button" class="public-detail-buy" (click)="buyPublicProduct(product)">
+            Comprar por WhatsApp
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <div class="row g-4" *ngIf="false">
       
       <!-- ==================== FILA 1 - NUEVOS INGRESOS ==================== -->
       

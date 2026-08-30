@@ -132,17 +132,32 @@ export class ApiService {
     return this.httpService.get< IResponse<Array<UserModel >>>(url, { params: httpParams}).pipe(tap( res => res ));
   }
 
-  public postProduct( command: any ): Observable<IResponse<any>>{
-    let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    return this.httpService.post<IResponse<any>>( '/auth/update/avatar' , command , options).pipe(tap( res => res ));
+  public getProducts(): Observable<IResponse<Array<IProductModel>>> {
+    return this.httpService.get<IResponse<Array<IProductModel>>>('/product').pipe(tap(res => res));
   }
 
-  public getProductSearch(parameters: any = {}): Observable< IResponse< Array<IProductModel>> >{
-    let url = stringFormat(  '/product/search');
-    let httpParams = new HttpParams({
-      fromObject: parameters
-    });
-    return this.httpService.get< IResponse<Array<IProductModel>>>(url, { params: httpParams}).pipe(tap( res => res ));
+  public getProductById(productId: string): Observable<IResponse<IProductModel>> {
+    return this.httpService.get<IResponse<IProductModel>>(`/product/${encodeURIComponent(productId)}`).pipe(tap(res => res));
+  }
+
+  public createProduct(command: FormData): Observable<IResponse<IProductModel>> {
+    return this.httpService.post<IResponse<IProductModel>>('/product', command).pipe(tap(res => res));
+  }
+
+  public updateProduct(productId: string, command: any): Observable<IResponse<IProductModel>> {
+    return this.httpService.put<IResponse<IProductModel>>(`/product/${encodeURIComponent(productId)}`, command).pipe(tap(res => res));
+  }
+
+  public updateProductWithImage(productId: string, command: FormData): Observable<IResponse<IProductModel>> {
+    return this.httpService.post<IResponse<IProductModel>>(`/product/${encodeURIComponent(productId)}`, command).pipe(tap(res => res));
+  }
+
+  public updateProductStatus(productId: string, state: boolean): Observable<IResponse<IProductModel>> {
+    return this.httpService.put<IResponse<IProductModel>>(`/product/${encodeURIComponent(productId)}/status`, { state }).pipe(tap(res => res));
+  }
+
+  public deleteProduct(productId: string): Observable<IResponse<any>> {
+      return this.httpService.deleteWithHttpError<IResponse<any>>(`/product/${encodeURIComponent(productId)}`).pipe(tap(res => res));
   }
 
   public postProductPaymentOffline( command: any ): Observable<IResponse<any>>{
@@ -263,14 +278,6 @@ export class ApiService {
 
   public postUsercodeChangeSponsorWithNetwork( command: any ): Observable<IResponse<any>>{
     return this.httpService.post<IResponse<any>>( '/users/change-sponsor-with-network' , command ).pipe(tap( res => res ));
-  }
-
-  public getProductPointSearch(parameters: any = {}): Observable<IResponse< Array<any> >>{
-    let url = stringFormat( '/product/points/search');
-    let httpParams = new HttpParams({
-      fromObject: parameters
-    });
-    return this.httpService.get<IResponse< Array<any> >>(url, { params: httpParams}).pipe(tap( res => res ));
   }
 
   public postUserPdfFinance( command: any ): Observable<IResponse<any>>{

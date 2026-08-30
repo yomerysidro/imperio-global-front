@@ -1,14 +1,33 @@
-<nz-card style="border: 0;">
+<div class="store-page">
+<header class="store-hero">
+  <div class="store-hero-copy">
+    <span class="store-eyebrow">Marketplace Imperio</span>
+    <h1>Tu tienda de bienestar</h1>
+    <p>Productos seleccionados, beneficios exclusivos y puntos que impulsan tu crecimiento.</p>
+    <div class="member-chip">
+      <i nz-icon nzType="crown" nzTheme="outline"></i>
+      <span>{{ userModel?.payment?.payment_order?.pack?.title || 'Precio público' }}</span>
+      <strong *ngIf="userModel?.payment?.payment_order?.pack">{{ isUserActive() ? 'Socio activo' : 'Socio inactivo' }}</strong>
+    </div>
+  </div>
+  <div class="hero-metrics">
+    <article><span class="metric-icon"><i nz-icon nzType="star" nzTheme="outline"></i></span><div><small>Puntos personales</small><strong>{{ totalPointsPersonal | number:'1.0-0' }}</strong></div></article>
+    <article><span class="metric-icon"><i nz-icon nzType="global" nzTheme="outline"></i></span><div><small>Bono global</small><strong>{{ totalPointsPersonalGlobal | number:'1.2-2' }}</strong></div></article>
+    <article><span class="metric-icon"><i nz-icon nzType="shopping" nzTheme="outline"></i></span><div><small>Puntos de esta compra</small><strong>{{ cartPoints | number:'1.0-0' }}</strong></div></article>
+  </div>
+</header>
+
+<nz-card class="store-shell">
 
   <nz-card-tab>
     <nz-tabset nzSize="large" [(nzSelectedIndex)]="tabIndex" [nzTabBarExtraContent]="extraTemplate">
       <nz-tab nzTitle="Tienda">
-        <div class="row justify-content-between">
+        <div class="row justify-content-between store-intro">
           <div class="col-lg-9 col-md-6 col-12">
             <p class="font-size-18 text-gray-7">Compra nuestros productos naturales a precios especiales. <br>
               Descuentos exclusivos solo para socios</p>
           </div>
-          <div class="col-lg-3 col-md-6 col-12">
+          <div class="col-lg-3 col-md-6 col-12 legacy-points">
             <div class="d-flex flex-column">
               <div class="d-flex flex-row align-items-center justify-content-between m-b-10">
                 <p class="text-gray-7 m-0 font-size-14 p-r-20">Puntos por compras personales:</p>
@@ -28,7 +47,7 @@
 
 
 
-        <div class="d-flex justify-content-between align-items-end m-b-20 p-t-10">
+        <div class="store-toolbar">
           <div>
             <p class="font-size-13 m-0 text-uppercase">
               {{ userModel?.name ?? "" }}/
@@ -56,49 +75,71 @@
 
 
 
-          <div>
-            <div class="text-center m-b-10">
+          <div class="store-actions">
+            <button *ngIf="isAdmin" nz-button nzType="primary" class="add-product-button" (click)="openCreateProduct()">
+              <i nz-icon nzType="plus" nzTheme="outline"></i> Agregar nuevo producto
+            </button>
+            <button type="button" class="cart-button" (click)="quickViewToggle()">
               <nz-badge nzSize="default" [nzCount]="countProduct">
-                <i nz-icon nzType="shopping-cart" nzTheme="outline" class="font-size-30 pointer"
-                  (click)="quickViewToggle()"></i>
+                <i nz-icon nzType="shopping-cart" nzTheme="outline"></i>
               </nz-badge>
-            </div>
-            <button nz-button nzType="primary" nzSize="small"
-              (click)="onPayment()">&nbsp;&nbsp;Pagar&nbsp;&nbsp;</button>
+              <span>Mi carrito</span>
+            </button>
+            <button *ngIf="!isAdmin" nz-button nzType="primary" class="pay-button" (click)="onPayment()"><i nz-icon nzType="credit-card"></i>Pagar</button>
           </div>
         </div>
 
+        <nz-spin [nzSpinning]="loadingProducts">
         <nz-row class="m-b-40 ">
           <ng-container *ngFor="let product of productList; let i = index">
             <nz-col [nzXl]="8" [nzLg]="12" [nzSm]="24" [nzXs]="24" class="m-b-10 p-20">
-              <div class="rounded bg-white shadow--product m-b-20 product--image text-center">
-                <img nz-image [nzSrc]="env.hostUrl + '/storage/' + product.file_image?.path" alt=""
-                  class="img-fluid rounded">
-              </div>
-              <div class="m-b-20">
-                <p class="m-b-10 font-size-14 notranslate"><b>{{ product.title }}</b> - <span
-                    style="color: #A6A6A6;"><b>{{ product.points }} Ptos</b></span></p>
-                <p class="font-size-14"><span style="color: #A6A6A6;">Precio Regular :</span> &nbsp;&nbsp;<b>{{
-                    product.price }} Soles</b></p>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="text-black d-flex align-items-center p-10"
-                  style="background-color: #F0F0F0; border-radius: 20px;">
+              <article class="store-product-card" [class.draft]="!product.state">
+                <div *ngIf="isAdmin" class="product-state" [class.published]="product.state">{{ product.state ? 'Publicado' : 'Sin publicar' }}</div>
+                <div class="rounded bg-white product--image text-center">
+                  <img nz-image [nzSrc]="getImageUrl(product.file_image?.path)" [nzFallback]="CONSTANTS.IMAGE.FALLBACK" [alt]="product.title" class="img-fluid rounded">
+                </div>
+                <div class="product-content">
+                  <h3 class="product-name notranslate">{{ product.title }}</h3>
+                  <div class="product-metadata"><span>{{ product.points }} puntos</span><span *ngIf="isAdmin">{{ product.stock }} disponibles</span></div>
+                  <div class="product-price">
+                    <ng-container *ngIf="product.discount_percentage > 0; else regularPrice">
+                      <span class="public-price">S/ {{ getPublicPrice(product) | number:'1.2-2' }}</span>
+                      <strong>S/ {{ getFinalPrice(product) | number:'1.2-2' }}</strong>
+                      <small>{{ product.discount_percentage }}% de descuento</small>
+                    </ng-container>
+                    <ng-template #regularPrice><strong>S/ {{ getFinalPrice(product) | number:'1.2-2' }}</strong></ng-template>
+                  </div>
+                </div>
+                <div class="product-shop-actions" *ngIf="product.state">
+                <div class="quantity-control" *ngIf="product.stock > 0">
                   <i nz-icon nzType="minus" nzTheme="outline" (click)="onAddQuantity( i , -1 )"
                     class="p-r-10 p-l-10 pointer"></i>
                   <span class="notranslate">{{ product?.quantity ?? 0 }}</span>
                   <i nz-icon nzType="plus" nzTheme="outline" (click)="onAddQuantity( i , 1 )"
-                    class="p-r-10 p-l-10 pointer"></i>
+                    class="p-r-10 p-l-10" [class.pointer]="product.stock > (product.quantity ?? 0)"></i>
                 </div>
-                <div>
-                  <button nz-button nzType="primary" nzSize="small" style="border-radius: 20px;"
-                    (click)="onPayment()">&nbsp;&nbsp;Comprar&nbsp;&nbsp;</button>
+                <div class="purchase-estimate" *ngIf="product.stock > 0 && !isAdmin">
+                  <span>Puntos de la compra: <strong>{{ product.points * (product.quantity ?? 1) | number:'1.0-0' }}</strong></span>
+                  <span>Total: <strong>S/ {{ getFinalPrice(product) * (product.quantity ?? 1) | number:'1.2-2' }}</strong></span>
                 </div>
-              </div>
+                <div class="buyer-buttons" *ngIf="product.stock > 0 && !isAdmin">
+                  <button nz-button nzType="primary" class="cart-add-button" (click)="addToCart(product)" [disabled]="(product.quantity ?? 0) < 1"><i nz-icon nzType="shopping-cart"></i> Agregar al carrito</button>
+                </div>
+                <span class="out-of-stock" *ngIf="product.stock === 0">Agotado</span>
+                </div>
+                <div class="admin-product-actions" *ngIf="isAdmin">
+                  <button nz-button nzSize="small" (click)="openEditProduct(product)"><i nz-icon nzType="edit"></i> Editar</button>
+                  <button nz-button nzSize="small" [nzType]="product.state ? 'default' : 'primary'" (click)="toggleProductStatus(product)">
+                    <i nz-icon [nzType]="product.state ? 'eye-invisible' : 'eye'"></i> {{ product.state ? 'Despublicar' : 'Publicar' }}
+                  </button>
+                  <button nz-button nzSize="small" nzDanger (click)="archiveProduct(product)"><i nz-icon nzType="delete"></i> Eliminar</button>
+                  <button *ngIf="product.state && product.stock > 0" nz-button nzSize="small" nzType="primary" class="cart-add-button" (click)="addToCart(product)" [disabled]="(product.quantity ?? 0) < 1"><i nz-icon nzType="shopping-cart"></i> Agregar al carrito</button>
+                </div>
+              </article>
             </nz-col>
           </ng-container>
-
         </nz-row>
+        </nz-spin>
       </nz-tab>
       <nz-tab nzTitle="Pedidos pendientes">
         <app-table-payment-product-order [searchLoader]="eventSearch"
@@ -119,9 +160,9 @@
 
   </ng-container>
 
-  <nz-row class="m-b-20 p-t-30">
+  <nz-row *ngIf="false" class="m-b-20 p-t-30">
     <nz-col [nzXs]="24" class="m-b-10">
-      <div class="text-center rounded-lg p-10" style="background-color: #F5F7FA;">
+      <div class="member-info-banner">
         <h3 style="color: #717171;">Si estás afiliado a algún plan de distribución aplicas a descuentos exclusivos</h3>
         <a href="assets/pdf/PPT IG AGOSTO 2024 (Final).pdf" download target="_blank">
           <h2>Más información +</h2>
@@ -130,37 +171,39 @@
     </nz-col>
   </nz-row>
 </nz-card>
+</div>
 
-<nz-drawer [nzWidth]="280" nzTitle="Carrito" [nzClosable]="false" [nzVisible]="quickViewVisible" nzPlacement="right"
+<nz-drawer [nzWidth]="380" nzTitle="Mi carrito" [nzClosable]="true" [nzVisible]="quickViewVisible" nzPlacement="right" nzWrapClassName="store-cart-drawer"
   (nzOnClose)="quickViewToggle()" [nzFooter]="footerDrawer">
   <ng-container *nzDrawerContent>
-    <nz-row class="m-b-20">
-      <nz-col [nzXs]="24" class="m-b-20">
+    <nz-row class="cart-body">
+      <nz-col [nzXs]="24" class="cart-list">
+        <div class="cart-intro"><span><i nz-icon nzType="shopping-cart"></i></span><div><strong>Resumen de compra</strong><small>{{ countProduct }} productos seleccionados</small></div></div>
+        <div class="cart-empty" *ngIf="cartList.length === 0"><i nz-icon nzType="shopping"></i><strong>Tu carrito está vacío</strong><span>Selecciona productos para comenzar.</span></div>
         <ng-container *ngFor="let product of cartList; let i = index">
-          <div class="d-flex align-items-center justify-content-between position-relative">
-            <div class="rounded bg-white shadow--product m-b-20" style="padding: 3px; width: 60px;">
+          <div class="cart-item">
+            <div class="cart-item-image">
               <img [src]="getImageUrl(product.file_image?.path)" alt="{{ product.title }}" class="img-fluid rounded">
             </div>
-            <div class="w-100 p-l-10">
+            <div class="cart-item-content">
               <p class="m-0 p-r-20 notranslate"><b>{{ product.title }}</b></p>
               <p class="m-0 notranslate"><span style="color: #A6A6A6;"><b>{{ product.points }} Ptos</b></span></p>
               <p class="m-0 notranslate"><span style="color: #A6A6A6;">Cantidad :</span> &nbsp;&nbsp;<b>{{
                   product.quantity }}</b></p>
               <!-- ✅ Mostrar precio original y precio con descuento -->
-              <p class="m-0 notranslate" *ngIf="userDiscount > 0">
+              <p class="m-0 notranslate" *ngIf="product.discount_percentage > 0">
                 <span style="color: #A6A6A6;">Precio original:</span>
-                <span style="text-decoration: line-through; color: #999;">S/. {{ (product.price * product.quantity) |
+                <span style="text-decoration: line-through; color: #999;">S/. {{ (getPublicPrice(product) * (product.quantity ?? 0)) |
                   number: '1.2' }}</span>
-                <span style="color: #00B517; font-weight: bold;"> S/. {{ getSubtotalWithDiscount(product.price,
-                  product.quantity) | number: '1.2' }}</span>
-                <span style="color: #00B517; font-size: 11px;"> ({{ userDiscount }}% desc)</span>
+                <span style="color: #00B517; font-weight: bold;"> S/. {{ (getFinalPrice(product) * (product.quantity ?? 0)) | number: '1.2' }}</span>
+                <span style="color: #00B517; font-size: 11px;"> ({{ product.discount_percentage }}% desc)</span>
               </p>
-              <p class="m-0 notranslate" *ngIf="userDiscount === 0">
+              <p class="m-0 notranslate" *ngIf="product.discount_percentage === 0">
                 <span style="color: #A6A6A6;">Subtotal:</span>
-                <b>S/. {{ (product.price * product.quantity) | number: '1.2' }}</b>
+                <b>S/. {{ (getFinalPrice(product) * (product.quantity ?? 0)) | number: '1.2' }}</b>
               </p>
             </div>
-            <a href="javascript: void(0);" (click)="onRemove(i)" class="position-absolute" style="top: 0; right: 0;">
+            <a href="javascript: void(0);" (click)="onRemove(i)" class="cart-remove">
               <i nz-icon nzType="delete" nzTheme="fill" class="text-danger"></i>
             </a>
           </div>
@@ -170,19 +213,11 @@
       </nz-col>
 
       <!-- ✅ Mostrar resumen con descuento -->
-      <nz-col [nzXs]="24" class="m-b-10" *ngIf="userDiscount > 0">
-        <div class="text-right">
-          <p class="m-0"><span style="color: #A6A6A6;">Subtotal:</span> S/. {{ getSubtotalWithoutDiscount() | number:
-            '1.2' }}</p>
-          <p class="m-0" style="color: #00B517;">Descuento ({{ userDiscount }}%): -S/. {{ getDiscountAmount() | number:
-            '1.2' }}</p>
-          <h3><b>TOTAL: S/. {{ totalBuy | number: '1.2' }}</b></h3>
-        </div>
-      </nz-col>
-
-      <nz-col [nzXs]="24" class="m-b-10" *ngIf="userDiscount === 0">
-        <div class="text-right">
-          <h3><b>TOTAL: S/. {{ totalBuy | number: '1.2' }}</b></h3>
+      <nz-col [nzXs]="24" class="cart-summary">
+        <div>
+          <p><span>Puntos de esta compra</span><strong>{{ cartPoints | number:'1.0-0' }} pts</strong></p>
+          <h3><span>Total a pagar</span><b>S/. {{ totalBuy | number: '1.2' }}</b></h3>
+          <small><i nz-icon nzType="safety-certificate"></i> Compra procesada de forma segura</small>
         </div>
       </nz-col>
     </nz-row>
@@ -190,7 +225,7 @@
 
   <ng-template #footerDrawer>
     <div class="w-100">
-      <button nz-button nzType="primary" nzBlock (click)="onPayment()">&nbsp;&nbsp;Pagar&nbsp;&nbsp;</button>
+      <button nz-button nzType="primary" nzBlock class="cart-checkout-button" [disabled]="cartList.length === 0" (click)="onPayment()"><i nz-icon nzType="credit-card"></i> Continuar con el pago</button>
     </div>
   </ng-template>
 </nz-drawer>
