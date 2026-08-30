@@ -86,7 +86,7 @@ export class HomeComponent implements OnInit {
     this.loadingProducts = true;
     this.apiService.getProducts().subscribe(
       response => {
-        this.productList = (response.data ?? []).map(product => ({
+        this.productList = (response.data ?? []).filter(product => !(product.is_promotion === true || Number(product.is_promotion) === 1)).map(product => ({
           ...product,
           public_price: Number(product.public_price ?? product.price ?? 0),
           final_price: Number(product.final_price ?? product.public_price ?? product.price ?? 0),

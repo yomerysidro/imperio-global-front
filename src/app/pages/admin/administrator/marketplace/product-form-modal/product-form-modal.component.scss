@@ -13,5 +13,10 @@
 .file-error { color:#ef4444; font-size:11px; text-align:center; }
 .numeric-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
 .state-control { display:flex; gap:8px; align-items:center; cursor:pointer; }
+.promotion-control { display:flex;gap:10px;align-items:flex-start;margin:2px 0 16px;padding:13px;border:1px solid #cfe0ff;border-radius:10px;background:#f3f7ff;cursor:pointer; }
+.promotion-control input { margin-top:4px; }
+.promotion-control span { display:flex;flex-direction:column;color:#173b8e; }
+.promotion-control small { margin-top:2px;color:#64748b;font-size:11px; }
+.promotion-dates { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
 .product-form-footer { display:flex; justify-content:flex-end; gap:8px; padding:14px 24px; border-top:1px solid #e2e8f0; }
-@media(max-width:600px){.product-form-body{grid-template-columns:1fr}.numeric-grid{grid-template-columns:1fr}.image-preview{width:140px;height:140px}}
+@media(max-width:600px){.product-form-body{grid-template-columns:1fr}.numeric-grid,.promotion-dates{grid-template-columns:1fr}.image-preview{width:140px;height:140px}}

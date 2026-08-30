@@ -9,6 +9,9 @@ export interface IProductModel{
   final_price: number;
   points: number;
   state: boolean;
+  is_promotion?: boolean;
+  promotion_start_at?: string | null;
+  promotion_end_at?: string | null;
   stock: number;
   file: number | null;
   quantity?: number;

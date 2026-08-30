@@ -16,6 +16,7 @@ import { ProductFormModalComponent } from '../product-form-modal/product-form-mo
 export class MarketplacePageComponent implements OnInit {
   tabIndex = 0;
   productList: Array<IProductModel> = [];
+  promotionList: Array<IProductModel> = [];
   env = environment;
   quickViewVisible = false;
   userModel: UserModel;
@@ -42,6 +43,7 @@ export class MarketplacePageComponent implements OnInit {
   get isAdmin(): boolean { return this.currentUser?.admin === true; }
   get countProduct(): number { return this._cartList.length; }
   get cartList(): Array<IProductModel> { return this._cartList; }
+  get isMember(): boolean { return Boolean(this.userModel?.payment?.payment_order?.pack) && this.isUserActive(); }
   get cartPoints(): number { return this._cartList.reduce((sum, product) => sum + Number(product.points ?? 0) * (product.quantity ?? 0), 0); }
   get totalBuy(): number { return this._cartList.filter(p => (p.quantity ?? 0) > 0).reduce((sum, p) => sum + this.getFinalPrice(p) * (p.quantity ?? 0), 0); }
   isUserActive(): boolean { return this.userModel?.payment?.state === CONSTANTS.PAYMENT_ORDER.PAGADO || this.userModel?.active === true; }
@@ -72,7 +74,10 @@ export class MarketplacePageComponent implements OnInit {
   }
 
   onAddQuantity(index: number, amount: number): void {
-    const product = this.productList[index];
+    this.changeQuantity(this.productList[index], amount);
+  }
+
+  private changeQuantity(product: IProductModel | undefined, amount: number): void {
     if (!product || !product.state) return;
     const inCart = Number(this._cartList.find(item => item.id === product.id)?.quantity ?? 0);
     const available = Math.max(0, Number(product.stock ?? 0) - inCart);
@@ -100,9 +105,16 @@ export class MarketplacePageComponent implements OnInit {
     this.onPayment();
   }
 
-  openCreateProduct(): void {
+  buyPromotion(product: IProductModel): void {
+    if (!product.state || Number(product.stock ?? 0) < 1) return;
+    product.quantity = 1;
+    this.addToCart(product, false);
+    this.onPayment();
+  }
+
+  openCreateProduct(isPromotion = false): void {
     if (!this.isAdmin) return;
-    const ref = this.modal.create({ nzContent: ProductFormModalComponent, nzFooter: null, nzTitle: null, nzWidth: 720 });
+    const ref = this.modal.create({ nzContent: ProductFormModalComponent, nzFooter: null, nzTitle: null, nzWidth: 720, nzData: { isPromotion } });
     ref.afterClose.subscribe(saved => { if (saved) this.reloadProducts(); });
   }
 
@@ -155,6 +167,18 @@ export class MarketplacePageComponent implements OnInit {
   getImageUrl(path?: string): string { return path ? `${environment.apiStorageUrl}/${path.replace(/^\/?storage\//, '')}` : CONSTANTS.IMAGE.FALLBACK; }
   getPublicPrice(product: IProductModel): number { return Number(product.public_price ?? product.price ?? 0); }
   getFinalPrice(product: IProductModel): number { return Number(product.final_price ?? product.public_price ?? product.price ?? 0); }
+  isPromotionActive(product: IProductModel): boolean {
+    if (!product.state || !product.is_promotion || !product.promotion_start_at || !product.promotion_end_at) return false;
+    const now = Date.now();
+    return new Date(product.promotion_start_at).getTime() <= now && new Date(product.promotion_end_at).getTime() >= now;
+  }
+  getPromotionStatus(product: IProductModel): string {
+    if (!product.state) return 'Borrador';
+    const now = Date.now();
+    if (product.promotion_start_at && new Date(product.promotion_start_at).getTime() > now) return 'Próxima';
+    if (product.promotion_end_at && new Date(product.promotion_end_at).getTime() < now) return 'Vencida';
+    return 'Activa';
+  }
 
   onPayment(): void {
     if (this.cartList.length === 0) return this.modalService.info('Debe seleccionar los productos.');
@@ -179,13 +203,25 @@ export class MarketplacePageComponent implements OnInit {
 
   private applyProducts(products: Array<IProductModel>): void {
     const previousCart = [...this._cartList];
-    this.productList = products.map(product => ({ ...product,
-      public_price: Number(product.public_price ?? product.price ?? 0), final_price: Number(product.final_price ?? product.public_price ?? product.price ?? 0),
-      discount_percentage: Number(product.discount_percentage ?? 0), points: Number(product.points ?? 0), stock: Number(product.stock ?? 0), state: product.state === true || Number(product.state) === 1,
-      quantity: 0
-    }));
+    const normalizedProducts = products.map(product => {
+      const isPromotion = product.is_promotion === true || Number(product.is_promotion) === 1;
+      const publicPrice = Number(product.public_price ?? product.price ?? 0);
+      return { ...product,
+        public_price: publicPrice,
+        final_price: isPromotion ? publicPrice : Number(product.final_price ?? product.public_price ?? product.price ?? 0),
+        discount_percentage: isPromotion ? 0 : Number(product.discount_percentage ?? 0),
+        points: Number(product.points ?? 0), stock: Number(product.stock ?? 0), state: product.state === true || Number(product.state) === 1,
+        is_promotion: isPromotion,
+        quantity: 0
+      };
+    });
+    this.productList = normalizedProducts.filter(product => !product.is_promotion);
+    const promotions = normalizedProducts.filter(product => product.is_promotion);
+    // El backend determina cuáles promociones puede recibir el socio. En el frontend
+    // solo ocultamos borradores para no aplicar una segunda regla de fechas/pack.
+    this.promotionList = this.isAdmin ? promotions : promotions.filter(product => product.state);
     this._cartList = previousCart.map(cartItem => {
-      const product = this.productList.find(item => item.id === cartItem.id);
+      const product = normalizedProducts.find(item => item.id === cartItem.id);
       return product?.state && product.stock > 0 ? { ...product, quantity: Math.min(product.stock, Math.max(1, cartItem.quantity ?? 1)) } : null;
     }).filter(product => product !== null) as Array<IProductModel>;
     this.themeConstantService.changeCurrentCartList(this._cartList);

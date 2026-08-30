@@ -141,6 +141,48 @@
         </nz-row>
         </nz-spin>
       </nz-tab>
+      <nz-tab nzTitle="Promociones">
+        <div class="promotion-heading">
+          <div><span>Beneficios por tiempo limitado</span><h2>Promociones para socios</h2><p>Aprovecha precios especiales antes de que finalice cada promoción.</p></div>
+          <button *ngIf="isAdmin" nz-button nzType="primary" (click)="openCreateProduct(true)"><i nz-icon nzType="plus"></i> Agregar promoción</button>
+        </div>
+
+        <nz-spin [nzSpinning]="loadingProducts">
+          <div class="promotion-empty" *ngIf="promotionList.length === 0">
+            <i nz-icon nzType="gift" nzTheme="outline"></i><strong>Promociones aún no disponibles</strong><span>Vuelve pronto para descubrir nuevos beneficios.</span>
+          </div>
+          <nz-row class="m-b-40 promotion-grid" *ngIf="promotionList.length > 0">
+            <nz-col *ngFor="let product of promotionList; let i = index" [nzXl]="8" [nzLg]="12" [nzSm]="24" [nzXs]="24" class="m-b-10 p-20">
+              <article class="store-product-card promotion-card" [class.draft]="!product.state">
+                <div class="promotion-ribbon"><i nz-icon nzType="thunderbolt"></i> PROMOCIÓN</div>
+                <div *ngIf="isAdmin" class="product-state promotion-status" [class.published]="isPromotionActive(product)">{{ getPromotionStatus(product) }}</div>
+                <div class="rounded bg-white product--image text-center">
+                  <img nz-image [nzSrc]="getImageUrl(product.file_image?.path)" [nzFallback]="CONSTANTS.IMAGE.FALLBACK" [alt]="product.title" class="img-fluid rounded">
+                </div>
+                <div class="product-content">
+                  <h3 class="product-name notranslate">{{ product.title }}</h3>
+                  <div class="promotion-dates-card"><i nz-icon nzType="calendar"></i><span>Del {{ product.promotion_start_at | date:'dd/MM/yyyy' }} al {{ product.promotion_end_at | date:'dd/MM/yyyy' }}</span></div>
+                  <div class="product-metadata"><span>{{ product.points }} puntos</span><span *ngIf="isAdmin">{{ product.stock }} disponibles</span></div>
+                  <div class="product-price">
+                    <strong>S/ {{ getPublicPrice(product) | number:'1.2-2' }}</strong>
+                  </div>
+                </div>
+                <div class="product-shop-actions" *ngIf="product.state && (!isAdmin || isPromotionActive(product))">
+                  <div class="buyer-buttons" *ngIf="product.stock > 0">
+                    <button nz-button nzType="primary" class="promotion-buy-button" (click)="buyPromotion(product)"><i nz-icon nzType="shopping-cart"></i> Comprar</button>
+                  </div>
+                  <span class="out-of-stock" *ngIf="product.stock === 0">Agotado</span>
+                </div>
+                <div class="admin-product-actions" *ngIf="isAdmin">
+                  <button nz-button nzSize="small" (click)="openEditProduct(product)"><i nz-icon nzType="edit"></i> Editar</button>
+                  <button nz-button nzSize="small" [nzType]="product.state ? 'default' : 'primary'" (click)="toggleProductStatus(product)"><i nz-icon [nzType]="product.state ? 'eye-invisible' : 'eye'"></i> {{ product.state ? 'Despublicar' : 'Publicar' }}</button>
+                  <button nz-button nzSize="small" nzDanger (click)="archiveProduct(product)"><i nz-icon nzType="delete"></i> Eliminar</button>
+                </div>
+              </article>
+            </nz-col>
+          </nz-row>
+        </nz-spin>
+      </nz-tab>
       <nz-tab nzTitle="Pedidos pendientes">
         <app-table-payment-product-order [searchLoader]="eventSearch"
           [queryParams]="queryParams"></app-table-payment-product-order>
