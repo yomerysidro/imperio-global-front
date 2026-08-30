@@ -981,8 +981,22 @@ $card-text-white: #102a56;
 .payout-amount-field small { display: block; margin-top: 5px; color: #8793a5; font-size: 9px; text-align: right; }
 .payout-modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 13px 20px; border-top: 1px solid #e8edf5; background: #fafcff; }
 .payout-modal-actions button { min-width: 110px; height: 37px; border-radius: 9px; font-size: 11px; font-weight: 750; }
+.period-filter { display:grid;grid-template-columns:1fr 110px auto;gap:8px; }
+.period-filter ::ng-deep .ant-select { width:100%; }.period-filter button{border-radius:8px}
+.period-title { margin:15px 0 9px;color:#173b8e;font-weight:850; }
+.balance-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px; }
+.balance-grid article { display:flex;flex-direction:column;gap:4px;padding:11px;border:1px solid #dce6f5;border-radius:10px;background:#f8fbff; }
+.balance-grid span { color:#64748b;font-size:9px;font-weight:750; }.balance-grid strong{color:#173b8e;font-size:15px}
+.balance-grid .pending{background:#fffbea;border-color:#f5dfa0}.balance-grid .pending strong{color:#a16207}.balance-grid .paid{background:#effcf5;border-color:#b7e8ca}.balance-grid .paid strong{color:#16834c}.balance-grid .available{background:#edf4ff;border-color:#bcd3ff}.balance-grid .available strong{color:#0866ff}
+.last-payment { margin:9px 0 0;color:#64748b;font-size:10px;text-align:right; }
+.no-balance,.historical-notice { margin-top:13px;padding:10px;border-radius:9px;background:#fff8e6;color:#9a6700;font-size:11px;font-weight:700;text-align:center; }
+.historical-notice{background:#eef4ff;color:#315b9d}
+.payment-history-wrap { max-height:190px;margin-top:15px;overflow:auto;border:1px solid #e3eaf4;border-radius:10px; }
+.payment-history-wrap table { width:100%;border-collapse:collapse;font-size:9px; }.payment-history-wrap th,.payment-history-wrap td{padding:8px;border-bottom:1px solid #edf1f6;text-align:left;white-space:nowrap}.payment-history-wrap th{position:sticky;top:0;background:#f5f8fc;color:#526176}
+.payment-status{padding:3px 6px;border-radius:10px;font-weight:800}.payment-status.pending{background:#fff3cd;color:#8a6500}.payment-status.paid{background:#dff7e9;color:#167447}.payment-status.rejected{background:#ffe5e5;color:#bd2525}
 
 @media(max-width:480px) {
   .payout-mode-grid { grid-template-columns: 1fr; }
   .payout-modal-actions button { min-width: 0; flex: 1; }
+  .period-filter,.balance-grid { grid-template-columns:1fr 1fr; }.period-filter button{grid-column:1/-1}.balance-grid article{min-height:65px}
 }

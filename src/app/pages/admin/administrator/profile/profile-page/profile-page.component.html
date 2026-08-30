@@ -316,7 +316,7 @@
               </div>
               <!-- 🔥 CORREGIDO: Solo ganancias (Bonos + Residual + Infinito) -->
               <div class="grand-total-amount-premium">
-                S/ {{ totalComisiones | number:'1.2-2' }}
+                S/ {{ availableWithdrawalBalance | number:'1.2-2' }}
               </div>
             </div>
 
@@ -325,9 +325,9 @@
                 <div class="grand-total-item bonuses-item">
                   <span class="grand-total-item-label">
                     <i class="fa-solid fa-hand-holding-dollar"></i>
-                    Bonos
+                    Disponible
                   </span>
-                  <span class="grand-total-item-value">S/ {{ pointPatrocinio | number:'1.2-2' }}</span>
+                  <span class="grand-total-item-value">S/ {{ availableWithdrawalBalance | number:'1.2-2' }}</span>
                 </div>
                 <div class="grand-total-divider"></div>
                 <div class="grand-total-item residual-item">
@@ -406,7 +406,7 @@
       <div><small>Retiro de ganancias</small><h3>Solicitar pago</h3><p>Selecciona cuánto deseas cobrar.</p></div>
     </header>
 
-    <div class="payout-modal-body">
+    <div class="payout-modal-body" *ngIf="false">
       <section class="available-balance">
         <span>Ganancia disponible</span>
         <strong>S/ {{ totalComisiones | number:'1.2-2' }}</strong>
@@ -430,9 +430,41 @@
       </label>
     </div>
 
+    <div class="payout-modal-body monthly-payout-body">
+      <div class="period-filter">
+        <nz-select [(ngModel)]="paymentMonth"><nz-option *ngFor="let month of paymentMonths" [nzValue]="month.value" [nzLabel]="month.label"></nz-option></nz-select>
+        <nz-select [(ngModel)]="paymentYear"><nz-option *ngFor="let year of paymentYears" [nzValue]="year" [nzLabel]="year"></nz-option></nz-select>
+        <button nz-button type="button" [nzLoading]="loadingPayoutBalance" (click)="consultPaymentPeriod()">Consultar</button>
+      </div>
+      <h4 class="period-title">Período: {{ paymentPeriodLabel(paymentBalance.period) }}</h4>
+      <div class="balance-grid">
+        <article><span>Total generado</span><strong>S/ {{ paymentBalance.generated | number:'1.2-2' }}</strong></article>
+        <article class="pending"><span>Pago pendiente</span><strong>S/ {{ paymentBalance.pending | number:'1.2-2' }}</strong></article>
+        <article class="paid"><span>Total cobrado</span><strong>S/ {{ paymentBalance.paid | number:'1.2-2' }}</strong></article>
+        <article class="available"><span>Disponible para cobrar</span><strong>S/ {{ paymentBalance.available | number:'1.2-2' }}</strong></article>
+      </div>
+      <p class="last-payment">Última fecha de cobro: <strong>{{ paymentBalance.last_paid_at ? (paymentBalance.last_paid_at | date:'dd/MM/yyyy') : 'Sin cobros registrados' }}</strong></p>
+      <div class="no-balance" *ngIf="isCurrentPaymentPeriod && paymentBalance.available <= 0">No tiene saldo disponible para cobrar en este período.</div>
+      <div class="historical-notice" *ngIf="!isCurrentPaymentPeriod">Este período se muestra solamente como historial.</div>
+      <label class="payout-amount-field" *ngIf="isCurrentPaymentPeriod && paymentBalance.available > 0">
+        <span>Cantidad que desea cobrar</span>
+        <nz-input-group nzPrefix="S/"><input nz-input type="number" min="0.01" [max]="paymentBalance.available" step="0.01" [(ngModel)]="payoutAmount" placeholder="0.00"></nz-input-group>
+        <small>Máximo disponible: S/ {{ paymentBalance.available | number:'1.2-2' }}</small>
+      </label>
+      <div class="payment-history-wrap" *ngIf="paymentHistory.length > 0">
+        <table><thead><tr><th>Monto</th><th>Período</th><th>Solicitud</th><th>Estado</th><th>Pago</th><th>Motivo</th><th>Comprobante</th></tr></thead>
+        <tbody><tr *ngFor="let request of paymentHistory">
+          <td>S/ {{ request.amount | number:'1.2-2' }}</td><td>{{ request.period }}</td><td>{{ request.requested_at | date:'dd/MM/yyyy' }}</td>
+          <td><span class="payment-status" [class.pending]="request.state == 1" [class.paid]="request.state == 2" [class.rejected]="request.state == 3">{{ paymentStatusLabel(request.state) }}</span></td>
+          <td>{{ request.paid_at ? (request.paid_at | date:'dd/MM/yyyy') : '-' }}</td><td>{{ request.rejection_reason || '-' }}</td>
+          <td><a *ngIf="request.file_model?.path; else noReceipt" [href]="env.hostUrl + '/storage/' + request.file_model.path" target="_blank" rel="noopener">Ver</a><ng-template #noReceipt>-</ng-template></td>
+        </tr></tbody></table>
+      </div>
+    </div>
+
     <footer class="payout-modal-actions">
       <button nz-button type="button" (click)="onCancelPatrocinio()">Cancelar</button>
-      <button nz-button nzType="primary" type="button" [nzLoading]="loadingPayoutRequest" (click)="onConfirmPatrocinio()">
+      <button nz-button nzType="primary" type="button" [nzLoading]="loadingPayoutRequest" [disabled]="!isCurrentPaymentPeriod || paymentBalance.available <= 0 || payoutAmount <= 0 || payoutAmount > paymentBalance.available" (click)="onConfirmPatrocinio()">
         <i nz-icon nzType="send" nzTheme="outline"></i> Solicitar pago
       </button>
     </footer>
