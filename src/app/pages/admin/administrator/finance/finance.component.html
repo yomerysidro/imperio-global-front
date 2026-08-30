@@ -46,9 +46,9 @@
         </button>
       </div>
       <h2>Ganancias Totales de Residuales</h2>
-      <div class="status-row"><span>Residual de productos</span><strong>{{ showResidualValues ? (residualProducto | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
-      <div class="status-row"><span>Residual de servicios</span><strong>{{ showResidualValues ? (residualServicio | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
-      <div class="card-total"><span>Ganancia Total residual</span><strong> S/. {{ showResidualValues ? (residual | number:'1.2-2') : '••••' }}</strong></div>
+      <div class="status-row"><span>Residual Producto (R)</span><strong>{{ showResidualValues ? (residualProducto | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
+      <div class="status-row"><span>Residual Servicio (RS)</span><strong>{{ showResidualValues ? (residualServicio | number:'1.2-2') + ' Soles' : '••••' }}</strong></div>
+      <div class="card-total"><span>Residual Total (R + RS)</span><strong> S/. {{ showResidualValues ? (residual | number:'1.2-2') : '••••' }}</strong></div>
     </article>
 
     <article class="summary-card global-card">
@@ -59,6 +59,23 @@
       <div class="status-row"><span>Bono infinito</span><strong> S/. {{ infinito | number:'1.2-2' }}</strong></div>
       <div class="card-total"><span>Total de comisiones</span><strong> S/. {{ total | number:'1.2-2' }}</strong></div>
     </article>
+  </section>
+
+  <section class="finance-payment-summary">
+    <article><span>Total generado</span><strong>S/. {{ totalGenerado | number:'1.2-2' }}</strong></article>
+    <article class="pending"><span>Pago pendiente</span><strong>S/. {{ pagoPendiente | number:'1.2-2' }}</strong></article>
+    <article class="paid"><span>Total cobrado</span><strong>S/. {{ totalCobrado | number:'1.2-2' }}</strong></article>
+    <article class="available"><span>Disponible por cobrar</span><strong>S/. {{ disponibleCobrar | number:'1.2-2' }}</strong></article>
+    <p>Última fecha de cobro: {{ ultimaFechaCobro ? (ultimaFechaCobro | date:'dd/MM/yyyy') : '-' }}</p>
+  </section>
+
+  <section class="finance-table-section" *ngIf="financeRows.length > 0">
+    <h2>Detalle financiero del período</h2>
+    <div class="finance-table-wrap"><table><thead><tr>
+      <th>Nombre y apellidos</th><th>ID usuario</th><th>Estado</th><th>Plan de afiliación</th><th>Bono personal</th><th>Bono de patrocinio</th><th>Patrocinio cobrado</th><th>Residual Producto</th><th>Residual Servicio</th><th>Residual Total</th><th>Bonos Totales</th><th>Puntos del plan</th><th>Puntos por compras personales</th><th>Bono Infinito</th><th>Gran Total</th><th>Rango</th><th>Total Generado</th><th>Pago Pendiente</th><th>Total Cobrado</th><th>Disponible por Cobrar</th><th>Última Fecha de Cobro</th>
+    </tr></thead><tbody><tr *ngFor="let row of financeRows">
+      <td>{{ row.name || '-' }}</td><td>{{ row.uuid || '-' }}</td><td>{{ row.state || '-' }}</td><td>{{ row.pack || '-' }}</td><td>{{ (row.bonoPersonal ?? 0) | number:'1.2-2' }}</td><td>{{ (row.patrocinio ?? 0) | number:'1.2-2' }}</td><td>{{ (row.patrocinioCobrado ?? 0) | number:'1.2-2' }}</td><td>{{ (row.residualProducto ?? 0) | number:'1.2-2' }}</td><td>{{ (row.residualServicio ?? 0) | number:'1.2-2' }}</td><td>{{ (row.residualTotal ?? 0) | number:'1.2-2' }}</td><td>{{ (row.bonosTotales ?? 0) | number:'1.2-2' }}</td><td>{{ (row.puntosPlan ?? 0) | number:'1.2-2' }}</td><td>{{ (row.puntosComprasPersonales ?? 0) | number:'1.2-2' }}</td><td>{{ (row.bonoInfinito ?? 0) | number:'1.2-2' }}</td><td>{{ (row.granTotal ?? 0) | number:'1.2-2' }}</td><td>{{ row.rango || '-' }}</td><td>{{ (row.generated ?? 0) | number:'1.2-2' }}</td><td>{{ (row.pending ?? 0) | number:'1.2-2' }}</td><td>{{ (row.paid ?? 0) | number:'1.2-2' }}</td><td>{{ (row.available ?? 0) | number:'1.2-2' }}</td><td>{{ row.last_paid_at ? (row.last_paid_at | date:'dd/MM/yyyy') : '-' }}</td>
+    </tr></tbody></table></div>
   </section>
 
   <section class="reports-section">

@@ -6,7 +6,7 @@ import { tap } from 'rxjs/operators';
 import { removeSessionLocalAll, stringFormat } from '@shared/utilities/functions';
 import { IResponse, IResponsePaginationModel } from './interfaces/response.interface';
 import { AuthModel, UserModel } from './models/user.interface';
-import { HttpParams } from '@angular/common/http';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { PackModel } from './models/packs.interface';
 import { IProductModel } from './models/product.interface';
 import { IProductPaymentOrder } from './models/product-payment-order.interface';
@@ -291,7 +291,6 @@ export class ApiService {
   }
 
   public postCurrentMonthExcelFinance(month: number, year: number): Observable<IResponse<any>> {
-    const parameters = { month, year };
     const httpParams = new HttpParams({
       fromObject: {
         month: month.toString(),
@@ -303,8 +302,8 @@ export class ApiService {
     // tiempo real del archivo histórico almacenado por el cierre anterior.
     return this.httpService.post<IResponse<any>>(
       '/users/excel-finance',
-      parameters,
-      { params: httpParams }
+      {},
+      { params: httpParams, headers: new HttpHeaders({ Accept: 'application/json' }) }
     ).pipe(tap(res => res));
   }
 

@@ -19,6 +19,12 @@ export class FinanceComponent implements OnInit {
   residualServicio: number = 0;
   infinito: number = 0;
   total: number = 0;
+  totalGenerado: number = 0;
+  pagoPendiente: number = 0;
+  totalCobrado: number = 0;
+  disponibleCobrar: number = 0;
+  ultimaFechaCobro: string | null = null;
+  financeRows: any[] = [];
   selectedPeriod: string = '';
   loadingSummary: boolean = false;
 
@@ -78,6 +84,12 @@ export class FinanceComponent implements OnInit {
           this.residualServicio = Number(data.residualServicio ?? 0);
           this.infinito = Number(data.infinito ?? 0);
           this.total = Number(data.bono_total ?? 0);
+          this.totalGenerado = Number(data.generated ?? 0);
+          this.pagoPendiente = Number(data.pending ?? 0);
+          this.totalCobrado = Number(data.paid ?? 0);
+          this.disponibleCobrar = Number(data.available ?? 0);
+          this.ultimaFechaCobro = data.last_paid_at ?? null;
+          this.financeRows = Array.isArray(data.items) ? data.items : (Array.isArray(data.users) ? data.users : []);
         },
         error: error => this.showDownloadError(error, 'No se pudo cargar el resumen de comisiones.')
       });
@@ -176,7 +188,7 @@ export class FinanceComponent implements OnInit {
   }
 
   private showDownloadError(error: any, fallback: string): void {
-    const message = error?.message || error?.error?.message ||
+    const message = error?.error?.message || error?.message ||
       (typeof error === 'string' ? error : null) || fallback;
     this.messageService.error(message);
   }
