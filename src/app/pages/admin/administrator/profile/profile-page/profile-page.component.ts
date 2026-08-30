@@ -78,10 +78,16 @@ export class ProfilePageComponent implements OnInit {
   public getOwnedPackNames(): string {
     const categories = (this.userModel as any)?.packs_by_category;
     const names = [categories?.product, categories?.service]
-      .filter(category => category?.owned === true && category?.pack)
+      .filter(category => category?.pack && (category?.owned === true || category?.active === true))
       .map(category => category.pack.title)
       .filter(Boolean);
-    return names.length > 0 ? names.join(' / ') : 'Sin plan';
+    if (names.length > 0) return [...new Set(names)].join(' / ');
+
+    // Compatibilidad con la estructura tradicional del perfil.
+    const legacyPack = (this.userModel as any)?.payment?.payment_order?.pack
+      ?? (this.userModel as any)?.payment?.pack
+      ?? (this.userModel as any)?.pack;
+    return legacyPack?.title || legacyPack?.name || this.userModel?.package_name || 'Sin plan';
   }
 
   constructor(
