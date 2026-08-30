@@ -3,7 +3,7 @@
     <span class="header-icon"><i nz-icon [nzType]="isEdit ? 'edit' : 'plus'" nzTheme="outline"></i></span>
     <div>
       <small>Administración de tienda</small>
-      <h2>{{ isEdit ? 'Editar producto' : 'Agregar nuevo producto' }}</h2>
+      <h2>{{ isEdit ? 'Editar producto' : (form.get('is_promotion')?.value ? 'Agregar promoción' : 'Agregar nuevo producto') }}</h2>
       <p>{{ isEdit ? 'Actualiza únicamente los datos que necesites.' : 'El producto se guardará inicialmente Sin publicar.' }}</p>
     </div>
   </header>
@@ -46,9 +46,28 @@
         </nz-form-item>
       </div>
 
+      <div class="promotion-dates" *ngIf="form.get('is_promotion')?.value">
+        <nz-form-item>
+          <nz-form-label nzRequired>Inicio de promoción</nz-form-label>
+          <nz-form-control nzErrorTip="Seleccione la fecha de inicio.">
+            <input nz-input type="datetime-local" formControlName="promotion_start_at">
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Fin de promoción</nz-form-label>
+          <nz-form-control [nzErrorTip]="promotionEndError">
+            <input nz-input type="datetime-local" formControlName="promotion_end_at">
+          </nz-form-control>
+          <ng-template #promotionEndError let-control>
+            <ng-container *ngIf="control.hasError('dateOrder'); else requiredEnd">La fecha final debe ser posterior o igual a la inicial.</ng-container>
+            <ng-template #requiredEnd>Seleccione la fecha de finalización.</ng-template>
+          </ng-template>
+        </nz-form-item>
+      </div>
+
       <label class="state-control" *ngIf="isEdit">
         <input type="checkbox" formControlName="state">
-        <span>Producto publicado</span>
+        <span>{{ form.get('is_promotion')?.value ? 'Promoción publicada' : 'Producto publicado' }}</span>
       </label>
     </div>
   </div>

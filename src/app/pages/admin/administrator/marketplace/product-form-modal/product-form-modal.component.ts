@@ -22,7 +22,7 @@ export class ProductFormModalComponent implements OnInit {
   private initialValue: any;
 
   constructor(
-    @Optional() @Inject(NZ_MODAL_DATA) data: { product?: IProductModel } | null,
+    @Optional() @Inject(NZ_MODAL_DATA) data: { product?: IProductModel; isPromotion?: boolean } | null,
     private fb: FormBuilder,
     private apiService: ApiService,
     private modalService: ModalService,
@@ -34,8 +34,12 @@ export class ProductFormModalComponent implements OnInit {
       price: [0, [Validators.required, Validators.min(0)]],
       points: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
       stock: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
-      state: [false]
+      state: [false],
+      is_promotion: [false],
+      promotion_start_at: [null],
+      promotion_end_at: [null]
     });
+    if (!this.product && data?.isPromotion) this.form.patchValue({ is_promotion: true });
   }
 
   ngOnInit(): void {
@@ -45,11 +49,16 @@ export class ProductFormModalComponent implements OnInit {
         price: Number(this.product.public_price ?? this.product.price),
         points: Number(this.product.points),
         stock: Number(this.product.stock),
-        state: this.product.state === true || Number(this.product.state) === 1
+        state: this.product.state === true || Number(this.product.state) === 1,
+        is_promotion: this.product.is_promotion === true || Number(this.product.is_promotion) === 1,
+        promotion_start_at: this.toDateTimeInput(this.product.promotion_start_at),
+        promotion_end_at: this.toDateTimeInput(this.product.promotion_end_at)
       });
       this.previewUrl = this.getImageUrl(this.product.file_image?.path);
     }
     this.initialValue = this.form.getRawValue();
+    this.updatePromotionValidators();
+    this.form.get('is_promotion')?.valueChanges.subscribe(() => this.updatePromotionValidators());
   }
 
   get isEdit(): boolean {
@@ -81,6 +90,13 @@ export class ProductFormModalComponent implements OnInit {
   }
 
   submit(): void {
+    if (this.form.get('is_promotion')?.value) {
+      const start = this.form.get('promotion_start_at')?.value;
+      const end = this.form.get('promotion_end_at')?.value;
+      if (start && end && new Date(end).getTime() < new Date(start).getTime()) {
+        this.form.get('promotion_end_at')?.setErrors({ dateOrder: true });
+      }
+    }
     if (this.form.invalid || this.fileError) {
       this.form.markAllAsTouched();
       return;
@@ -117,6 +133,11 @@ export class ProductFormModalComponent implements OnInit {
     data.append('points', String(value.points));
     data.append('stock', String(value.stock));
     data.append('state', '0');
+    data.append('is_promotion', value.is_promotion ? '1' : '0');
+    if (value.is_promotion) {
+      data.append('promotion_start_at', value.promotion_start_at);
+      data.append('promotion_end_at', value.promotion_end_at);
+    }
     if (this.selectedFile) data.append('file', this.selectedFile);
     return this.apiService.createProduct(data);
   }
@@ -135,7 +156,7 @@ export class ProductFormModalComponent implements OnInit {
     const data = new FormData();
     data.append('_method', 'PUT');
     Object.keys(changed).forEach(key => {
-      const value = key === 'state' ? (changed[key] ? '1' : '0') : String(changed[key]);
+      const value = key === 'state' || key === 'is_promotion' ? (changed[key] ? '1' : '0') : String(changed[key] ?? '');
       data.append(key, value);
     });
     data.append('file', this.selectedFile);
@@ -145,6 +166,20 @@ export class ProductFormModalComponent implements OnInit {
   private getImageUrl(path?: string): string {
     if (!path) return CONSTANTS.IMAGE.FALLBACK;
     return `${environment.apiStorageUrl}/${path.replace(/^\/?storage\//, '')}`;
+  }
+
+  private updatePromotionValidators(): void {
+    const required = this.form.get('is_promotion')?.value ? [Validators.required] : [];
+    ['promotion_start_at', 'promotion_end_at'].forEach(field => {
+      const control = this.form.get(field);
+      control?.setValidators(required);
+      if (!this.form.get('is_promotion')?.value) control?.setValue(null, { emitEvent: false });
+      control?.updateValueAndValidity({ emitEvent: false });
+    });
+  }
+
+  private toDateTimeInput(value?: string | null): string | null {
+    return value ? value.replace(' ', 'T').slice(0, 16) : null;
   }
 
   private getErrorMessage(error: any): string {
