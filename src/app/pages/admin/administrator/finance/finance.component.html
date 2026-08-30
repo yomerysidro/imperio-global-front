@@ -61,14 +61,6 @@
     </article>
   </section>
 
-  <section class="finance-payment-summary">
-    <article><span>Total generado</span><strong>S/. {{ totalGenerado | number:'1.2-2' }}</strong></article>
-    <article class="pending"><span>Pago pendiente</span><strong>S/. {{ pagoPendiente | number:'1.2-2' }}</strong></article>
-    <article class="paid"><span>Total cobrado</span><strong>S/. {{ totalCobrado | number:'1.2-2' }}</strong></article>
-    <article class="available"><span>Disponible por cobrar</span><strong>S/. {{ disponibleCobrar | number:'1.2-2' }}</strong></article>
-    <p>Última fecha de cobro: {{ ultimaFechaCobro ? (ultimaFechaCobro | date:'dd/MM/yyyy') : '-' }}</p>
-  </section>
-
   <section class="finance-table-section" *ngIf="financeRows.length > 0">
     <h2>Detalle financiero del período</h2>
     <div class="finance-table-wrap"><table><thead><tr>
