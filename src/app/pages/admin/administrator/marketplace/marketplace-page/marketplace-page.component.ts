@@ -50,7 +50,7 @@ export class MarketplacePageComponent implements OnInit {
 
   loadData(): void {
     this.loadingProducts = true;
-    forkJoin({ user: this.apiService.getAuthenticationUser(), products: this.apiService.getProducts(), personalPoints: this.apiService.getProductPaymnetPoints() }).subscribe({
+    forkJoin({ user: this.apiService.getAuthenticationUser(), products: this.apiService.getProducts(), personalPoints: this.apiService.getProductPaymnetPoints(this.getCurrentPeriodParams()) }).subscribe({
       next: ({ user, products, personalPoints }) => {
         this.userModel = user.data;
         if (this.currentUser) {
@@ -186,7 +186,7 @@ export class MarketplacePageComponent implements OnInit {
     ref.afterClose.subscribe(() => {
       this.onSearch();
       this.reloadProducts();
-      this.apiService.getProductPaymnetPoints().subscribe(response => {
+      this.apiService.getProductPaymnetPoints(this.getCurrentPeriodParams()).subscribe(response => {
         if (response.success) this.totalPointsPersonal = response.data.reduce((sum, item) => sum + Number(item.points ?? 0), 0);
       });
     });
@@ -234,5 +234,10 @@ export class MarketplacePageComponent implements OnInit {
       if (messages.length) return messages.join('\n');
     }
     return body?.message || fallback;
+  }
+
+  private getCurrentPeriodParams(): { month: number; year: number } {
+    const now = new Date();
+    return { month: now.getMonth() + 1, year: now.getFullYear() };
   }
 }
