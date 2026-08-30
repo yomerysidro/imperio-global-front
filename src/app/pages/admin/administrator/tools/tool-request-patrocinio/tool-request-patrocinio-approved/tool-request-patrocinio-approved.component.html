@@ -30,14 +30,19 @@
       <div class="detail-title"><span>Detalle de solicitud</span><i nz-icon nzType="file-done" nzTheme="outline"></i></div>
       <div class="detail-row">
         <div><small>Concepto</small><strong>Bono Patrocinio</strong></div>
-        <div class="points-value"><small>Monto solicitado</small><strong>{{ points }}</strong></div>
+        <div class="points-value"><small>Monto solicitado</small><strong>S/ {{ amount | number:'1.2-2' }}</strong></div>
       </div>
     </section>
+
+    <label class="reject-reason">
+      <span>Motivo de rechazo</span>
+      <textarea nz-input rows="2" [(ngModel)]="rejectionReason" placeholder="Obligatorio solamente al rechazar"></textarea>
+    </label>
 
     <section class="proof-section">
       <div class="proof-heading">
         <div><span>Comprobante de pago</span><small>Adjunta el documento antes de confirmar.</small></div>
-        <span class="required-label">Requerido</span>
+        <span class="required-label">Opcional</span>
       </div>
       <nz-upload nzType="drag" [nzMultiple]="false" [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload" [nzRemove]="onRemoveFile" class="proof-upload">
         <div class="upload-prompt">

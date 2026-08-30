@@ -29,6 +29,9 @@
           <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por nombre" appDelayedInput (delayedInput)="onSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
+        <nz-select [(ngModel)]="filterMonth" nzAllowClear nzPlaceHolder="Mes" class="search-control"><nz-option *ngFor="let month of months" [nzValue]="month.value" [nzLabel]="month.label"></nz-option></nz-select>
+        <nz-select [(ngModel)]="filterYear" nzAllowClear nzPlaceHolder="Año" class="search-control"><nz-option *ngFor="let year of years" [nzValue]="year" [nzLabel]="year"></nz-option></nz-select>
+        <button nz-button nzType="primary" (click)="onSearch()">Consultar</button>
         </div>
       </div>
     </nz-col>
@@ -54,7 +57,12 @@
             <th [nzAlign]="'center'">Código ID</th>
             <th [nzAlign]="'center'">Correo electrónico</th>
             <th [nzAlign]="'center'">Número de Contacto</th>
-            <th [nzAlign]="'center'">Descargar documento</th>
+            <th [nzAlign]="'center'">Monto</th>
+            <th [nzAlign]="'center'">Período</th>
+            <th [nzAlign]="'center'">Solicitud</th>
+            <th [nzAlign]="'center'">Pago</th>
+            <th [nzAlign]="'center'">Motivo</th>
+            <th [nzAlign]="'center'">Comprobante</th>
             <th [nzAlign]="'center'">Estado de solicitud</th>
           </tr>
         </thead>
@@ -73,6 +81,11 @@
             <td nzAlign="center">
               {{ item?.user.phone }}
             </td>
+            <td nzAlign="center"><strong>S/ {{ item.amount | number:'1.2-2' }}</strong></td>
+            <td nzAlign="center">{{ item.period || '-' }}</td>
+            <td nzAlign="center">{{ item.requested_at ? (item.requested_at | date:'dd/MM/yyyy') : '-' }}</td>
+            <td nzAlign="center">{{ item.paid_at ? (item.paid_at | date:'dd/MM/yyyy') : '-' }}</td>
+            <td nzAlign="center">{{ item.rejection_reason || '-' }}</td>
             <td nzAlign="center">
               <ng-container *ngIf="item.file_model != null">
                 <button nz-button nzType="primary" nzShape="circle" class="download-button" (click)="onDownload(item.file)" aria-label="Descargar documento"><i nz-icon nzType="cloud-download" nzTheme="outline"></i></button>
@@ -89,7 +102,7 @@
                 </button>
                 <nz-tag *ngIf="item.state == 1" class="status-tag status-pending m-0"><i nz-icon nzType="clock-circle" nzTheme="outline"></i>PENDIENTE</nz-tag>
                 <nz-tag *ngIf="item.state == 2" class="status-tag status-paid m-0"><i nz-icon nzType="check-circle" nzTheme="outline"></i>PAGADO</nz-tag>
-                <nz-tag *ngIf="item.state == 3" class="status-tag status-cancelled m-0"><i nz-icon nzType="close-circle" nzTheme="outline"></i>ANULADO</nz-tag>
+                <nz-tag *ngIf="item.state == 3" class="status-tag status-cancelled m-0"><i nz-icon nzType="close-circle" nzTheme="outline"></i>RECHAZADO</nz-tag>
               </div>
             </td>
           </tr>

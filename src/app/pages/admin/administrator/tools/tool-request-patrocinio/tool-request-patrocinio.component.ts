@@ -31,6 +31,10 @@ export class ToolRequestPatrocinioComponent implements OnInit {
   codeUser: string = "";
   nameUser: string = "";
   initLoad: boolean = true;
+  filterMonth: number | null = null;
+  filterYear: number | null = null;
+  months = Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: new Intl.DateTimeFormat('es-PE', { month: 'long' }).format(new Date(2026, index, 1)) }));
+  years = Array.from({ length: 6 }, (_, index) => new Date().getFullYear() - index);
 
   _listPoints: Array<any> = [];
 
@@ -56,12 +60,15 @@ export class ToolRequestPatrocinioComponent implements OnInit {
 
   public onSearch(): void{
     this.tableProductLoading = true;
-    this.apiService.getRequestPatrocinioFindAll({code: this.codeUser.trim(), name: this.nameUser.trim() , limit: this.pageSize , page: this.pageIndex }).subscribe(
+    const filters: any = { code: this.codeUser.trim(), name: this.nameUser.trim(), limit: this.pageSize, page: this.pageIndex };
+    if (this.filterMonth) filters.month = this.filterMonth;
+    if (this.filterYear) filters.year = this.filterYear;
+    this.apiService.getRequestPatrocinioFindAll(filters).subscribe(
       (response) =>{
         if( response.success ){
           console.log(response.data.items);
-          this.totalRecord = response.data.pagination.total;
-          this.tableProducts = response.data.items;
+          this.totalRecord = response.data?.pagination?.total ?? response.data?.length ?? 0;
+          this.tableProducts = response.data?.items ?? response.data ?? [];
         }
         this.tableProductLoading = false;
 
@@ -124,8 +131,9 @@ export class ToolRequestPatrocinioComponent implements OnInit {
       nzClassName: "payment-request-modal",
       nzData: {
         userModel: item.user,
-        points: item.points,
-        userId: item.user_id
+        amount: item.amount,
+        requestId: item.id,
+        request: item
       }
     });
 

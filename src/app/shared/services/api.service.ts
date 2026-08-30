@@ -364,8 +364,12 @@ export class ApiService {
   }
 
   public postRequestPatrocinioGenerate( command: any ): Observable<IResponse<any>>{
-    // let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    return this.httpService.post<IResponse<any>>( '/users/request-patrocinio/generate' , command ).pipe(tap( res => res ));
+    return this.httpService.postWithHttpError<IResponse<any>>( '/users/request-patrocinio/generate' , command ).pipe(tap( res => res ));
+  }
+
+  public getRequestPatrocinioBalance(parameters: any = {}): Observable<IResponse<any>> {
+    const httpParams = new HttpParams({ fromObject: parameters });
+    return this.httpService.get<IResponse<any>>('/users/request-patrocinio/balance', { params: httpParams }).pipe(tap(res => res));
   }
   
   public getRequestPatrocinioFindAll(parameters: any = {}): Observable<IResponse< any >>{
@@ -385,9 +389,7 @@ export class ApiService {
   }
 
   public postRequestPatrocinioApproved( command: any ): Observable<IResponse<any>>{
-    // let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    return this.httpService.post<IResponse<any>>( '/users/request-patrocinio/approve' , command , options).pipe(tap( res => res ));
+    return this.httpService.postWithHttpError<IResponse<any>>( '/users/request-patrocinio/approve' , command ).pipe(tap( res => res ));
   }
 
   public getRequestPatrocinioDownload(parameters: any = {}): Observable<IResponse< any >>{

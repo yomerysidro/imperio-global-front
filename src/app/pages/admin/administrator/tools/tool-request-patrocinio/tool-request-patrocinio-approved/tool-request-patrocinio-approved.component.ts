@@ -15,8 +15,10 @@ import { NzUploadFile } from 'ng-zorro-antd/upload';
 export class ToolRequestPatrocinioApprovedComponent implements OnInit {
 
   @Input() userModel: UserModel;
-  @Input() points: number;
-  @Input() userId: number;
+  @Input() amount: number;
+  @Input() requestId: number;
+  @Input() request: any;
+  rejectionReason: string = '';
   
     // @Output() back: EventEmitter<number> = new EventEmitter<number>();
   
@@ -25,7 +27,7 @@ export class ToolRequestPatrocinioApprovedComponent implements OnInit {
   loadingSave: boolean = false;
   loading: boolean = false;
   fileList: NzUploadFile[] = [];
-  disabledUpload: boolean = true;
+  disabledUpload: boolean = false;
   constructor(
     @Optional() @Inject(NZ_MODAL_DATA) private modalData: any,
     private apiService: ApiService,
@@ -46,6 +48,10 @@ export class ToolRequestPatrocinioApprovedComponent implements OnInit {
   }
 
   public onApproved(approved: number): void{
+    if (approved === 3 && !this.rejectionReason.trim()) {
+      this.modalMessage.warning('Ingrese el motivo del rechazo.');
+      return;
+    }
     
     this.modalMessage.confirm("¿Confirmas "+(approved == 2 ? "Pago" : "Anulación")+" de Bono patrocinio?" ,
       () => {
@@ -53,10 +59,11 @@ export class ToolRequestPatrocinioApprovedComponent implements OnInit {
 
         let formData = new FormData();
         formData.append("approve", approved.toString());
-        formData.append("userId", this.userId.toString());
+        formData.append("requestId", this.requestId.toString());
+        if (approved === 3) formData.append('reason', this.rejectionReason.trim());
         
         this.fileList.forEach((file: any) => {
-          formData.append('file', file);
+          formData.append('file', file.originFileObj ?? file);
         });
         this.apiService.postRequestPatrocinioApproved(formData).subscribe(
           (response) =>{
@@ -68,7 +75,7 @@ export class ToolRequestPatrocinioApprovedComponent implements OnInit {
             this.loading = false;
           }, (error) =>{
             this.modalRef.closeAll();
-            this.modalMessage.error(error.message ?? "")
+            this.modalMessage.error(error?.error?.message || error?.message || 'No se pudo procesar la solicitud.')
             this.loading = false;
           }
         )
@@ -86,7 +93,7 @@ export class ToolRequestPatrocinioApprovedComponent implements OnInit {
   onRemoveFile = (file: NzUploadFile): boolean => {
     
     this.fileList = [];
-    this.disabledUpload = true;
+    this.disabledUpload = false;
     return false;
   };
 

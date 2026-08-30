@@ -14,6 +14,7 @@ import { ProfileInvitedModalComponent } from './profile-invited-modal/profile-in
 import { Router } from '@angular/router';
 import { ToolsUserAddModalComponent } from '../../tools/tools-user-add-modal/tools-user-add-modal.component';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-profile-page',
@@ -56,11 +57,19 @@ export class ProfilePageComponent implements OnInit {
   payoutMode: 'all' | 'partial' = 'all';
   payoutAmount: number = 0;
   loadingPayoutRequest: boolean = false;
+  loadingPayoutBalance: boolean = false;
+  paymentBalance: any = { generated: 0, pending: 0, paid: 0, available: 0, last_paid_at: null, period: '' };
+  paymentHistory: any[] = [];
+  paymentMonth: number = new Date().getMonth() + 1;
+  paymentYear: number = new Date().getFullYear();
+  paymentMonths = Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: new Intl.DateTimeFormat('es-PE', { month: 'long' }).format(new Date(2026, index, 1)) }));
+  paymentYears = Array.from({ length: 6 }, (_, index) => new Date().getFullYear() - index);
   productsPayments: Array<any> = [];
   granTotalPuntos: number = 0;
   activePackages: any[] = [];
   totalPoints: number = 0;
   totalComisiones: number = 0;
+  availableWithdrawalBalance: number = 0;
 
   public isUserActive(): boolean {
     return isUserMembershipActive(this.userModel);
@@ -206,6 +215,7 @@ export class ProfilePageComponent implements OnInit {
         });
 
         this.loadOptions();
+        this.loadCurrentPaymentBalance();
       },
       (error) => {
         this.modalService.error(error?.message ?? "Hubo un error al cargar el perfil");
@@ -217,7 +227,17 @@ export class ProfilePageComponent implements OnInit {
   // GRAN TOTAL DE GANANCIAS (sin barrera)
   // ============================================
   getTotalEarnings(): number {
-    return this.totalComisiones;
+    return this.availableWithdrawalBalance;
+  }
+
+  private loadCurrentPaymentBalance(): void {
+    this.apiService.getRequestPatrocinioBalance().subscribe({
+      next: response => {
+        this.paymentBalance = response?.data ?? this.paymentBalance;
+        this.availableWithdrawalBalance = Number(this.paymentBalance.available ?? 0);
+      },
+      error: () => this.availableWithdrawalBalance = 0
+    });
   }
 
   // ============================================
@@ -472,23 +492,30 @@ export class ProfilePageComponent implements OnInit {
   }
 
   public onPointPatrocinio(): void {
-    this.payoutMode = 'all';
-    this.payoutAmount = Number(this.totalComisiones || 0);
-    this.nzModalService.create({
-      nzTitle: null,
-      nzFooter: null,
-      nzContent: this.renewPatrocinioModal,
-      nzWidth: '440px',
-      nzMaskClosable: false,
-      nzClassName: 'payout-request-modal'
+    const now = new Date();
+    this.paymentMonth = now.getMonth() + 1;
+    this.paymentYear = now.getFullYear();
+    this.payoutAmount = 0;
+    this.loadingPayoutBalance = true;
+    forkJoin({
+      balance: this.apiService.getRequestPatrocinioBalance(),
+      history: this.apiService.getRequestPatrocinioFindAll()
+    }).subscribe({
+      next: ({ balance, history }) => {
+        this.setPaymentData(balance, history);
+        this.loadingPayoutBalance = false;
+        this.nzModalService.create({ nzTitle: null, nzFooter: null, nzContent: this.renewPatrocinioModal, nzWidth: '760px', nzMaskClosable: false, nzClassName: 'payout-request-modal' });
+      },
+      error: error => {
+        this.loadingPayoutBalance = false;
+        this.modalService.error(this.getPayoutError(error, 'No se pudo consultar el saldo mensual.'));
+      }
     });
   }
 
   public onConfirmPatrocinio(): void {
-    const availableAmount = Number(this.totalComisiones || 0);
-    const requestedAmount = this.payoutMode === 'all'
-      ? availableAmount
-      : Number(this.payoutAmount || 0);
+    const availableAmount = Number(this.paymentBalance.available || 0);
+    const requestedAmount = Number(this.payoutAmount || 0);
 
     if (requestedAmount <= 0) {
       this.modalService.warning('Ingrese un monto mayor a cero.');
@@ -501,7 +528,7 @@ export class ProfilePageComponent implements OnInit {
     }
 
     this.loadingPayoutRequest = true;
-    this.apiService.postRequestPatrocinioGenerate({ points: requestedAmount }).subscribe(
+    this.apiService.postRequestPatrocinioGenerate({ amount: requestedAmount }).subscribe(
       (response) => {
         this.loadingPayoutRequest = false;
         if (!response?.success) {
@@ -509,14 +536,15 @@ export class ProfilePageComponent implements OnInit {
           return;
         }
 
-        this.nzModalService.closeAll();
-        this.modalService.success(response.message || `Solicitud de pago por S/ ${requestedAmount.toFixed(2)} registrada correctamente.`);
-        this.loadCurrentUser();
+        this.reloadPaymentData(() => {
+          this.nzModalService.closeAll();
+          this.modalService.success(response.message || 'Solicitud registrada como pago pendiente.');
+        });
       },
       (error) => {
         this.loadingPayoutRequest = false;
-        const message = typeof error === 'string' ? error : error?.message || error?.error?.message;
-        this.modalService.error(message || 'No se pudo registrar la solicitud de pago.');
+        this.modalService.error(this.getPayoutError(error, 'No se pudo registrar la solicitud de pago.'));
+        if (error?.status === 422) this.reloadPaymentData();
       }
     );
   }
@@ -524,6 +552,45 @@ export class ProfilePageComponent implements OnInit {
   public selectPayoutMode(mode: 'all' | 'partial'): void {
     this.payoutMode = mode;
     this.payoutAmount = mode === 'all' ? Number(this.totalComisiones || 0) : 0;
+  }
+
+  public consultPaymentPeriod(): void {
+    this.loadingPayoutBalance = true;
+    this.reloadPaymentData(() => this.loadingPayoutBalance = false);
+  }
+
+  public get isCurrentPaymentPeriod(): boolean {
+    const now = new Date();
+    return this.paymentMonth === now.getMonth() + 1 && this.paymentYear === now.getFullYear();
+  }
+
+  public paymentPeriodLabel(period?: string): string {
+    if (!period) return '-';
+    const [year, month] = period.split('-').map(Number);
+    const label = new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' }).format(new Date(year, month - 1, 1));
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  public paymentStatusLabel(state: number): string { return ({ 1: 'Pago pendiente', 2: 'Pagado', 3: 'Rechazado' } as any)[Number(state)] ?? 'Desconocido'; }
+
+  private reloadPaymentData(onComplete?: () => void): void {
+    const params = { month: this.paymentMonth, year: this.paymentYear };
+    forkJoin({ balance: this.apiService.getRequestPatrocinioBalance(params), history: this.apiService.getRequestPatrocinioFindAll(params) }).subscribe({
+      next: ({ balance, history }) => { this.setPaymentData(balance, history); onComplete?.(); },
+      error: error => { onComplete?.(); this.modalService.error(this.getPayoutError(error, 'No se pudo actualizar la información mensual.')); }
+    });
+  }
+
+  private setPaymentData(balance: any, history: any): void {
+    this.paymentBalance = balance?.data ?? this.paymentBalance;
+    if (this.isCurrentPaymentPeriod) this.availableWithdrawalBalance = Number(this.paymentBalance.available ?? 0);
+    const data = history?.data;
+    this.paymentHistory = Array.isArray(data) ? data : (data?.items ?? []);
+    this.payoutAmount = 0;
+  }
+
+  private getPayoutError(error: any, fallback: string): string {
+    return error?.error?.message || error?.message || (typeof error === 'string' ? error : fallback);
   }
 
   public onCancelPatrocinio(): void {
