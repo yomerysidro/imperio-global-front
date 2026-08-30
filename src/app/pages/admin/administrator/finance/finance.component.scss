@@ -39,6 +39,9 @@ $muted: #626262;
 .card-total { display: flex; justify-content: space-between; align-items: end; margin-top: 16px; }
 .card-total strong { color: $purple; font-size: 26px; }
 .global-card small { display: block; margin-top: 12px; color: $muted; }
+.finance-payment-summary { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px; }
+.finance-payment-summary article { display:flex;flex-direction:column;gap:5px;padding:16px;border:1px solid #dce6f6;border-radius:12px;background:#f8fbff; }.finance-payment-summary span{color:$muted;font-size:11px;font-weight:700}.finance-payment-summary strong{color:#173b8e;font-size:20px}.finance-payment-summary .pending{background:#fffbea;border-color:#f2dfa3}.finance-payment-summary .pending strong{color:#a16207}.finance-payment-summary .paid{background:#effcf5;border-color:#b8e8ca}.finance-payment-summary .paid strong{color:#16834c}.finance-payment-summary .available{background:#edf4ff;border-color:#bcd3ff}.finance-payment-summary .available strong{color:#0866ff}.finance-payment-summary p{grid-column:1/-1;margin:0;color:$muted;font-size:11px;text-align:right}
+.finance-table-section { margin-top:22px;padding:20px;border:1px solid rgba(8,102,255,.16);border-radius:16px;background:#fff;box-shadow:0 6px 20px rgba(8,102,255,.08); }.finance-table-section h2{font-size:18px}.finance-table-wrap{overflow:auto}.finance-table-wrap table{min-width:2400px;width:100%;border-collapse:collapse;font-size:10px}.finance-table-wrap th,.finance-table-wrap td{padding:9px;border-bottom:1px solid #edf1f6;text-align:left;white-space:nowrap}.finance-table-wrap th{position:sticky;top:0;background:#f3f7ff;color:#315b9d;font-weight:800}
 
 .reports-section { margin-top: 28px; padding: 24px; border: 1px solid rgba(8,102,255,.16); border-radius: 16px; background: linear-gradient(145deg, #fff 0%, #f5f8ff 100%); box-shadow: 0 6px 20px rgba(8,102,255,.08); }
 .section-heading h2, .excel-section-title { margin: 3px 0 18px; color: $text; font-weight: 700; }
@@ -70,4 +73,5 @@ $muted: #626262;
   .header-total { width: 100%; text-align: left; }
   .report-grid { grid-template-columns: 1fr; }
   .reports-section { padding: 18px; }
+  .finance-payment-summary { grid-template-columns:1fr 1fr; }
 }

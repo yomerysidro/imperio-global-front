@@ -222,6 +222,7 @@ export class ProfilePageComponent implements OnInit {
 
         this.loadOptions();
         this.loadCurrentPaymentBalance();
+        this.loadCurrentCommissionSummary();
       },
       (error) => {
         this.modalService.error(error?.message ?? "Hubo un error al cargar el perfil");
@@ -243,6 +244,22 @@ export class ProfilePageComponent implements OnInit {
         this.availableWithdrawalBalance = Number(this.paymentBalance.available ?? 0);
       },
       error: () => this.availableWithdrawalBalance = 0
+    });
+  }
+
+  private loadCurrentCommissionSummary(): void {
+    const now = new Date();
+    this.apiService.getCommissionSummary(now.getMonth() + 1, now.getFullYear()).subscribe({
+      next: response => {
+        const data = response?.data ?? {};
+        this.pointPatrocinio = Number(data.patrocinio ?? 0);
+        this.pointResudial = Number(data.residual ?? 0);
+        this.pointInfinity = Number(data.infinito ?? 0);
+        this.bonosTotalesHistorico = this.pointPatrocinio;
+        this.pointServicio = this.pointPatrocinio * 0.5;
+        this.pointProducto = this.pointPatrocinio * 0.5;
+      },
+      error: error => console.error('No se pudo cargar el resumen mensual de comisiones.', error)
     });
   }
 
