@@ -22,8 +22,12 @@ export const CommonLayout_ROUTES: Routes = [
       loadChildren: () => import(`../../pages/admin/administrator/tools/tools.module`).then(m => m.ToolsModule)
     },
     {
-      path: 'finance',
+      path: 'comision',
       loadChildren: () => import(`../../pages/admin/administrator/finance/finance.module`).then(m => m.FinanceModule)
+    },
+    {
+      path: 'finance',
+      loadChildren: () => import(`../../pages/admin/administrator/finance-ig/finance-ig.module`).then(m => m.FinanceIgModule)
     }
 
 ];

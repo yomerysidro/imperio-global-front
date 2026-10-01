@@ -34,7 +34,7 @@ export class SideNavComponent{
         this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
         this.themeService.isAdminUserChanges.subscribe(isAdmin => {
           this.isAdmin = isAdmin;
-          this.menuItems = ROUTES.filter(menuItem => menuItem).map(  m => { if( m.path == "/admin/tools" || m.path == "/admin/finance" ) m.show = this.isAdmin; return m } );
+          this.menuItems = ROUTES.filter(menuItem => menuItem).map(  m => { if( m.path == "/admin/tools" || m.path == "/admin/comision" || m.path == "/admin/finance" ) m.show = this.isAdmin; return m } );
         } );
 
 

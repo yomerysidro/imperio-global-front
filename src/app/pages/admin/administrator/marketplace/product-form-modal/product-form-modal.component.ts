@@ -33,7 +33,6 @@ export class ProductFormModalComponent implements OnInit {
       title: [null, [Validators.required]],
       price: [0, [Validators.required, Validators.min(0)]],
       points: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
-      stock: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
       state: [false],
       is_promotion: [false],
       promotion_start_at: [null],
@@ -48,7 +47,6 @@ export class ProductFormModalComponent implements OnInit {
         title: this.product.title,
         price: Number(this.product.public_price ?? this.product.price),
         points: Number(this.product.points),
-        stock: Number(this.product.stock),
         state: this.product.state === true || Number(this.product.state) === 1,
         is_promotion: this.product.is_promotion === true || Number(this.product.is_promotion) === 1,
         promotion_start_at: this.toDateTimeInput(this.product.promotion_start_at),
@@ -90,6 +88,7 @@ export class ProductFormModalComponent implements OnInit {
   }
 
   submit(): void {
+    if (this.loading) return;
     if (this.form.get('is_promotion')?.value) {
       const start = this.form.get('promotion_start_at')?.value;
       const end = this.form.get('promotion_end_at')?.value;
@@ -131,7 +130,7 @@ export class ProductFormModalComponent implements OnInit {
     data.append('title', value.title.trim());
     data.append('price', String(value.price));
     data.append('points', String(value.points));
-    data.append('stock', String(value.stock));
+    data.append('stock', '0');
     data.append('state', '0');
     data.append('is_promotion', value.is_promotion ? '1' : '0');
     if (value.is_promotion) {

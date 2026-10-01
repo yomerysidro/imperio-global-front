@@ -1,0 +1,319 @@
+<div class="finance-page">
+  <nav class="finance-tabs" aria-label="Secciones de Finanzas Imperio">
+    <button type="button" [class.active]="activeSection === 'summary'" [attr.aria-current]="activeSection === 'summary' ? 'page' : null" (click)="activeSection = 'summary'">Resumen mensual</button>
+    <button type="button" [class.active]="activeSection === 'inventory'" [attr.aria-current]="activeSection === 'inventory' ? 'page' : null" (click)="activeSection = 'inventory'">Inventario</button>
+  </nav>
+
+  <ng-container *ngIf="activeSection === 'summary'">
+  <header class="finance-header">
+    <div>
+      <span class="section-label">Panel financiero</span>
+      <h1>Finanzas Imperio</h1>
+      <p><i nz-icon nzType="calendar" nzTheeme="outline"></i> Reporte mensual de la empresa</p>
+      <label class="period-selector" for="finance-ig-period">
+        <span>Periodo</span>
+        <input id="finance-ig-period" type="month" min="2000-01" max="2100-12"
+          [value]="selectedPeriod" (change)="onPeriodChange($event)">
+      </label>
+    </div>
+    <div class="header-total">
+      <span>Total de ingresos y comisiones generadas</span>
+      <strong>{{ formatSoles(totalIncomeAndCommissions) }}</strong>
+    </div>
+  </header>
+
+  <section class="reports-section report-state" *ngIf="!loading && error" role="alert">
+    <div class="state-icon error-icon"><i nz-icon nzType="exclamation-circle" nzTheme="outline"></i></div>
+    <div><span class="section-label">Reporte mensual</span><h2>No se pudo mostrar la información</h2><p>{{ error }}</p></div>
+    <button type="button" class="retry-button" (click)="loadReport()">Reintentar</button>
+  </section>
+
+  <section class="reports-section report-state" *ngIf="!loading && !error && !report" role="status">
+    <div class="state-icon"><i nz-icon nzType="inbox" nzTheme="outline"></i></div>
+    <div><span class="section-label">Reporte mensual</span><h2>Sin datos para este periodo</h2><p>Selecciona otro mes para consultar el reporte.</p></div>
+  </section>
+
+  <section class="summary-grid" aria-label="Resumen de Finanzas Imperio" [attr.aria-busy]="loading">
+      <article class="summary-card sales-card">
+        <div class="card-heading"><div class="card-icon"><i nz-icon nzType="shopping-cart" nzTheme="outline"></i></div></div>
+        <h2>Ventas</h2>
+        <div class="status-row"><span>Precio público bruto</span><strong [ngClass]="amountColor(report?.gross_public_sales)">{{ formatSoles(report?.gross_public_sales) }}</strong></div>
+        <div class="status-row"><span>Descuentos o ajustes</span><strong [ngClass]="amountColor(report?.price_adjustment)">{{ formatSoles(report?.price_adjustment) }}</strong></div>
+        <div class="card-total"><span>Ingresos cobrados</span><strong [ngClass]="amountColor(report?.sales_collected)">{{ formatSoles(report?.sales_collected) }}</strong></div>
+      </article>
+
+      <article class="summary-card profit-card">
+        <div class="card-heading"><div class="card-icon"><i nz-icon nzType="fund" nzTheme="outline"></i></div></div>
+        <h2>Rentabilidad</h2>
+        <div class="status-row"><span>Costo de productos vendidos</span><strong [ngClass]="amountColor(report?.cost_of_sales)">{{ formatSoles(report?.cost_of_sales) }}</strong></div>
+        <div class="key-result gross-result"><span>Utilidad bruta <i nz-icon nzType="info-circle" nzTheme="outline" title="Ingresos cobrados menos el costo de los productos vendidos. No descuenta comisiones ni otros gastos." aria-label="La utilidad bruta resta el costo de productos, pero no comisiones ni otros gastos."></i></span><strong [ngClass]="amountColor(report?.gross_profit)">{{ formatSoles(report?.gross_profit) }}</strong></div>
+        <div class="key-result after-result"><span>Ganancia luego de comisiones <span class="finance-help"><button type="button" class="finance-help-trigger" (click)="toggleFinanceHelp('after-commissions')" (keydown.escape)="financeHelpOpen = null" [attr.aria-expanded]="financeHelpOpen === 'after-commissions'" aria-label="Explicación de la ganancia luego de comisiones" aria-describedby="after-commissions-help"><i nz-icon nzType="info-circle" nzTheme="outline" aria-hidden="true"></i></button><span id="after-commissions-help" class="finance-help-popover" [class.open]="financeHelpOpen === 'after-commissions'" role="tooltip">Utilidad bruta menos comisiones generadas. No incluye otros gastos de la empresa.</span></span></span><strong class="after-commissions-value" [ngClass]="amountColor(report?.profit_after_commissions)">{{ formatSoles(report?.profit_after_commissions) }}</strong></div>
+        <small>Este resultado no incluye otros gastos de la empresa.</small>
+      </article>
+
+      <article class="summary-card commissions-card">
+        <div class="card-heading"><div class="card-icon"><i nz-icon nzType="dollar-circle" nzTheme="outline"></i></div></div>
+        <h2>Comisiones generadas</h2>
+        <div class="status-row"><span>Patrocinio</span><strong [ngClass]="amountColor(report?.commissions_generated?.sponsorship)">{{ formatSoles(report?.commissions_generated?.sponsorship) }}</strong></div>
+        <div class="status-row"><span>Residual</span><strong [ngClass]="amountColor(report?.commissions_generated?.residual)">{{ formatSoles(report?.commissions_generated?.residual) }}</strong></div>
+        <div class="status-row"><span>Infinito</span><strong [ngClass]="amountColor(report?.commissions_generated?.infinity)">{{ formatSoles(report?.commissions_generated?.infinity) }}</strong></div>
+        <div class="card-total"><span>Total generado</span><strong [ngClass]="amountColor(report?.commissions_generated?.total)">{{ formatSoles(report?.commissions_generated?.total) }}</strong></div>
+        <small>Las comisiones pagadas se muestran en Dinero del período.</small>
+      </article>
+
+      <article class="summary-card cash-card">
+        <div class="card-heading"><div class="card-icon"><i nz-icon nzType="bar-chart" nzTheme="outline"></i></div></div>
+        <h2>Dinero del período</h2>
+        <div class="status-row"><span>Mercancía comprada</span><strong [ngClass]="amountColor(report?.merchandise_purchased)">{{ formatSoles(report?.merchandise_purchased) }}</strong></div>
+        <div class="status-row"><span>Comisiones pagadas</span><strong [ngClass]="amountColor(report?.commissions_paid)">{{ formatSoles(report?.commissions_paid) }}</strong></div>
+        <div class="key-result cash-result"><span>Flujo neto de dinero <span class="finance-help"><button type="button" class="finance-help-trigger" (click)="toggleFinanceHelp('net-cash-flow')" (keydown.escape)="financeHelpOpen = null" [attr.aria-expanded]="financeHelpOpen === 'net-cash-flow'" aria-label="Explicación del flujo neto de dinero" aria-describedby="net-cash-flow-help"><i nz-icon nzType="info-circle" nzTheme="outline" aria-hidden="true"></i></button><span id="net-cash-flow-help" class="finance-help-popover" [class.open]="financeHelpOpen === 'net-cash-flow'" role="tooltip">Movimiento neto registrado: ingresos cobrados menos mercancía comprada y comisiones pagadas.</span></span></span><strong [ngClass]="amountColor(report?.net_cash_flow)">{{ formatSoles(report?.net_cash_flow) }}</strong></div>
+      </article>
+  </section>
+
+    <section class="reports-section origin-section">
+      <div class="section-heading"><span class="section-label">Detalle de ventas</span><h2>Origen de las ventas</h2></div>
+      <div class="origin-grid">
+        <article class="summary-card origin-card">
+          <div class="card-heading"><div class="card-icon"><i nz-icon nzType="shop" nzTheme="outline"></i></div></div>
+          <div class="origin-title-row"><h3>Tienda</h3><button type="button" class="origin-detail-button" (click)="openProductSalesDetails('store')" [disabled]="!report || loading" aria-label="Ver detalle de ventas de Tienda" title="Ver detalle"><i nz-icon nzType="eye" nzTheme="outline" aria-hidden="true"></i></button></div>
+          <div class="status-row"><span>Ventas</span><strong [ngClass]="amountColor(report?.store?.sales)">{{ formatSoles(report?.store?.sales) }}</strong></div>
+          <div class="status-row"><span>Costo de productos</span><strong [ngClass]="amountColor(report?.store?.cost_of_sales)">{{ formatSoles(report?.store?.cost_of_sales) }}</strong></div>
+          <div class="card-total"><span>Utilidad bruta</span><strong [ngClass]="amountColor(report?.store?.gross_profit)">{{ formatSoles(report?.store?.gross_profit) }}</strong></div>
+        </article>
+        <article class="summary-card origin-card">
+          <div class="card-heading"><div class="card-icon"><i nz-icon nzType="reload" nzTheme="outline"></i></div></div>
+          <div class="origin-title-row"><h3>Reactivaciones</h3><button type="button" class="origin-detail-button" (click)="openProductSalesDetails('reactivations')" [disabled]="!report || loading" aria-label="Ver detalle de Reactivaciones" title="Ver detalle"><i nz-icon nzType="eye" nzTheme="outline" aria-hidden="true"></i></button></div>
+          <div class="status-row"><span>Ventas</span><strong [ngClass]="amountColor(report?.reactivations?.sales)">{{ formatSoles(report?.reactivations?.sales) }}</strong></div>
+          <div class="status-row"><span>Costo de productos</span><strong [ngClass]="amountColor(report?.reactivations?.cost_of_sales)">{{ formatSoles(report?.reactivations?.cost_of_sales) }}</strong></div>
+          <div class="card-total"><span>Utilidad bruta</span><strong [ngClass]="amountColor(report?.reactivations?.gross_profit)">{{ formatSoles(report?.reactivations?.gross_profit) }}</strong></div>
+        </article>
+        <article class="summary-card origin-card">
+          <div class="card-heading"><div class="card-icon"><i nz-icon nzType="team" nzTheme="outline"></i></div></div>
+          <div class="affiliation-title-row">
+            <h3>Packs de afiliación</h3>
+            <button type="button" class="affiliation-detail-button" (click)="openAffiliationDetails()" [disabled]="!report || loading" aria-label="Ver detalle de packs de afiliación" title="Ver detalle"><i nz-icon nzType="eye" nzTheme="outline" aria-hidden="true"></i></button>
+          </div>
+          <div class="status-row"><span>Ventas de packs</span><strong [ngClass]="amountColor(report?.affiliation_packs?.sales)">{{ formatSoles(report?.affiliation_packs?.sales) }}</strong></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="entry-modal-backdrop affiliation-backdrop" *ngIf="affiliationModalOpen">
+      <section class="entry-modal affiliation-modal" role="dialog" aria-modal="true" aria-labelledby="affiliation-modal-title">
+        <header class="entry-modal-header">
+          <div><span class="section-label">Detalle de ingresos</span><h2 id="affiliation-modal-title">Packs de afiliación · {{ affiliationPeriod }}</h2></div>
+          <button type="button" class="entry-modal-close" (click)="closeAffiliationDetails()" aria-label="Cerrar detalle">×</button>
+        </header>
+        <div class="entry-modal-body" id="affiliation-detail-body">
+          <div class="inventory-message" *ngIf="affiliationLoading" role="status">Cargando packs del período...</div>
+          <div class="inventory-message error" *ngIf="!affiliationLoading && affiliationError" role="alert">{{ affiliationError }} <button type="button" (click)="openAffiliationDetails()">Reintentar</button></div>
+          <ng-container *ngIf="!affiliationLoading && !affiliationError && affiliationTotal !== null">
+            <p class="inventory-note" *ngIf="!affiliationRows.length">No hay packs de afiliación en este período.</p>
+            <div class="stock-table-wrap" *ngIf="affiliationRows.length">
+              <table>
+                <thead><tr><th>Fecha</th><th>Comprador</th><th>Pack</th><th>Importe</th></tr></thead>
+                <tbody><tr *ngFor="let item of visibleAffiliationRows"><td>{{ formatEntryDate(item.date.slice(0, 10)) }}</td><td>{{ item.buyer }}</td><td>{{ item.pack }}</td><td>{{ formatSoles(item.amount) }}</td></tr></tbody>
+                <tfoot><tr><th colspan="3">Total del período</th><th>{{ formatSoles(affiliationTotal) }}</th></tr></tfoot>
+              </table>
+            </div>
+              <nav class="detail-pagination" *ngIf="affiliationPageCount > 1" aria-label="Paginación de packs de afiliación">
+                <button type="button" (click)="setAffiliationPage(affiliationPage - 1)" [disabled]="affiliationPage === 1">Anterior</button>
+                <span>Página {{ affiliationPage }} de {{ affiliationPageCount }} · {{ affiliationRows.length }} packs</span>
+                <button type="button" (click)="setAffiliationPage(affiliationPage + 1)" [disabled]="affiliationPage === affiliationPageCount">Siguiente</button>
+              </nav>
+          </ng-container>
+        </div>
+      </section>
+    </div>
+
+    <div class="entry-modal-backdrop affiliation-backdrop" *ngIf="productSalesModalOpen">
+      <section class="entry-modal product-sales-modal" role="dialog" aria-modal="true" aria-labelledby="product-sales-modal-title">
+        <header class="entry-modal-header">
+          <div><span class="section-label">Detalle de ventas y utilidad bruta</span><h2 id="product-sales-modal-title">{{ productSalesTitle }} · {{ productSalesPeriod }}</h2></div>
+          <button type="button" class="entry-modal-close" (click)="closeProductSalesDetails()" aria-label="Cerrar detalle">×</button>
+        </header>
+        <div class="entry-modal-body" id="product-sales-detail-body">
+          <div class="inventory-message" *ngIf="productSalesLoading" role="status">Cargando compras del período...</div>
+          <div class="inventory-message error" *ngIf="!productSalesLoading && productSalesError" role="alert">{{ productSalesError }} <button type="button" (click)="openProductSalesDetails(productSalesSource)">Reintentar</button></div>
+          <ng-container *ngIf="!productSalesLoading && !productSalesError && productSalesTotals">
+            <p class="inventory-note" *ngIf="!productSalesOrders.length">No hay compras ni anulaciones en este período.</p>
+            <details class="product-sales-user" *ngFor="let history of visibleProductSalesHistories; trackBy: trackProductSalesHistory">
+              <summary class="product-sales-user-header">
+                <span class="product-sales-user-icon"><i nz-icon nzType="user" nzTheme="outline" aria-hidden="true"></i></span>
+                <span class="product-sales-buyer"><strong>{{ history.buyer }}</strong><small>Historial · {{ history.orders.length }} {{ history.orders.length === 1 ? 'movimiento' : 'movimientos' }}</small></span>
+                <i class="product-sales-toggle" nz-icon nzType="down" nzTheme="outline" aria-hidden="true"></i>
+              </summary>
+              <div class="product-sales-history">
+                <details class="product-sales-order" *ngFor="let order of history.orders">
+                  <summary class="product-sales-order-header">
+                    <span class="product-sales-kind" [class.cancellation-kind]="order.movement_type === 'SALE_CANCELLATION'" [class.purchase-kind]="order.movement_type === 'SALE_EXIT'">
+                      <i nz-icon [nzType]="order.movement_type === 'SALE_CANCELLATION' ? 'close-circle' : 'check-circle'" nzTheme="outline" aria-hidden="true"></i>
+                      {{ order.movement_type === 'SALE_CANCELLATION' ? 'Anulación' : 'Compra' }}
+                    </span>
+                    <span class="product-sales-order-date"><i nz-icon nzType="calendar" nzTheme="outline" aria-hidden="true"></i> {{ formatEntryDate(order.date.slice(0, 10)) }} · Registro #{{ order.movement_id }}</span>
+                    <span class="product-sales-order-total"><strong>{{ formatSoles(order.sales) }}</strong><small>Ver productos <i nz-icon nzType="down" nzTheme="outline" aria-hidden="true"></i></small></span>
+                  </summary>
+                  <div class="stock-table-wrap"><table>
+                    <thead><tr><th>Producto</th><th>Cantidad</th><th>Importe vendido</th><th>Costo del producto</th><th>Utilidad bruta</th></tr></thead>
+                    <tbody><tr *ngFor="let item of order.items"><td>{{ item.product }}</td><td>{{ item.quantity }}</td><td>{{ formatSoles(item.sales) }}</td><td>{{ formatSoles(item.cost_of_sales) }}</td><td>{{ formatSoles(item.gross_profit) }}</td></tr></tbody>
+                    <tfoot><tr><th colspan="2">{{ order.movement_type === 'SALE_CANCELLATION' ? 'Total de la anulación' : 'Total de la compra' }}</th><th>{{ formatSoles(order.sales) }}</th><th>{{ formatSoles(order.cost_of_sales) }}</th><th>{{ formatSoles(order.gross_profit) }}</th></tr></tfoot>
+                  </table></div>
+                </details>
+              </div>
+            </details>
+            <nav class="detail-pagination" *ngIf="productSalesPageCount > 1" aria-label="Paginación del historial de compradores">
+              <button type="button" (click)="setProductSalesPage(productSalesPage - 1)" [disabled]="productSalesPage === 1">Anterior</button>
+              <span>Página {{ productSalesPage }} de {{ productSalesPageCount }} · {{ productSalesHistories.length }} compradores</span>
+              <button type="button" (click)="setProductSalesPage(productSalesPage + 1)" [disabled]="productSalesPage === productSalesPageCount">Siguiente</button>
+            </nav>
+            <div class="product-sales-period-total"><strong>Total del período</strong><span>Ventas: {{ formatSoles(productSalesTotals.sales) }}</span><span>Costo: {{ formatSoles(productSalesTotals.cost_of_sales) }}</span><span>Utilidad bruta: {{ formatSoles(productSalesTotals.gross_profit) }}</span></div>
+          </ng-container>
+        </div>
+      </section>
+    </div>
+
+  <section class="reports-section excel-section">
+    <div class="section-heading"><span class="section-label">Documentos</span><h2>Reporte general en Excel</h2></div>
+    <button type="button" class="excel-report-card" (click)="downloadExcel()" [disabled]="!report || loading">
+      <span class="report-icon"><i nz-icon nzType="file-excel" nzTheme="outline"></i></span>
+      <span class="report-copy"><span>Excel del periodo</span><strong>{{ selectedPeriod }}</strong><small>{{ report ? 'Descargar datos reales de Finanzas Imperio' : 'Disponible cuando cargue el reporte' }}</small></span>
+      <i nz-icon nzType="download" nzTheme="outline" class="download-icon"></i>
+    </button>
+  </section>
+  </ng-container>
+
+  <ng-container *ngIf="activeSection === 'inventory'">
+    <header class="finance-header inventory-header">
+      <div><span class="section-label">Control de mercancía</span><h1>Inventario</h1><p>Registra entradas y consulta los importes de las salidas automáticas.</p></div>
+    </header>
+
+    <nav class="inventory-tabs" aria-label="Movimientos de inventario">
+      <button type="button" [class.active]="inventorySection === 'entries'" [attr.aria-current]="inventorySection === 'entries' ? 'page' : null" (click)="selectInventorySection('entries')">Entradas</button>
+      <button type="button" [class.active]="inventorySection === 'exits'" [attr.aria-current]="inventorySection === 'exits' ? 'page' : null" (click)="selectInventorySection('exits')">Salidas</button>
+      <button type="button" [class.active]="inventorySection === 'movements'" [attr.aria-current]="inventorySection === 'movements' ? 'page' : null" (click)="selectInventorySection('movements')">Movimientos</button>
+    </nav>
+
+    <section class="reports-section inventory-panel" *ngIf="inventorySection === 'entries'">
+      <div class="section-heading"><span class="section-label">Productos</span><h2>Stock actual</h2></div>
+      <p class="inventory-note">Pulsa el lápiz del producto para registrar su entrada. Si compras varios productos juntos, agrégalos en ese mismo formulario; se guardarán en un solo movimiento.</p>
+      <div class="inventory-message success" *ngIf="entrySuccess" role="status">
+        <strong>{{ entrySuccess }}</strong>
+        <ul><li *ngFor="let item of entryConfirmation">El {{ formatEntryDate(item.date) }} {{ item.type === 'PURCHASE_ENTRY' ? 'se ingresaron' : 'se documentaron' }} {{ item.quantity }} unidades de {{ item.productTitle }}, a {{ formatSoles(item.unitCost) }} por unidad.</li></ul>
+        <small *ngIf="entryMovementId !== null">Registro #{{ entryMovementId }}. Consulta el historial en la pestaña «Movimientos».</small>
+      </div>
+      <div class="inventory-message" *ngIf="loadingProducts" role="status">Actualizando productos...</div>
+      <div class="inventory-message error" *ngIf="productsError" role="alert">{{ productsError }} <button type="button" (click)="loadProducts()">Reintentar</button></div>
+      <div class="stock-table-wrap" *ngIf="products.length">
+        <table><thead><tr><th>Producto</th><th>Stock</th><th *ngIf="showCompanyCost">Costo promedio empresa</th><th>Precio público</th><th>Acción</th></tr></thead>
+          <tbody><tr *ngFor="let product of products"><td>{{ product.title }}</td><td>{{ product.stock }}</td><td *ngIf="showCompanyCost">{{ getCompanyCost(product) !== null ? formatSoles(getCompanyCost(product)) : 'No disponible' }}</td><td>{{ formatSoles(product.public_price ?? product.price) }}</td><td><button type="button" class="row-entry-button" (click)="openProductEntry(product)" [disabled]="loadingProducts || submittingEntry || confirmingEntry" [attr.aria-label]="'Registrar entrada de ' + product.title" [attr.title]="'Registrar entrada de ' + product.title"><i nz-icon nzType="edit" nzTheme="outline" aria-hidden="true"></i></button></td></tr></tbody>
+        </table>
+      </div>
+      <p *ngIf="!loadingProducts && !productsError && !products.length">No hay productos registrados.</p>
+    </section>
+
+    <section class="reports-section inventory-panel" *ngIf="inventorySection === 'exits'">
+      <div class="section-heading"><span class="section-label">Salidas automáticas</span><h2>Mercancía vendida</h2></div>
+      <p class="inventory-note">El backend registra la salida al confirmarse una venta de tienda o una reactivación. Aquí no se registra otra salida manual para evitar descontar el stock dos veces.</p>
+      <label class="inventory-period" for="finance-ig-exits-period">Periodo
+        <input id="finance-ig-exits-period" type="month" min="2000-01" max="2100-12" [value]="selectedPeriod" (change)="onPeriodChange($event)">
+      </label>
+      <div class="inventory-message" *ngIf="loading" role="status">Cargando importes del periodo...</div>
+      <div class="inventory-message error" *ngIf="!loading && error" role="alert">{{ error }} <button type="button" (click)="loadReport()">Reintentar</button></div>
+      <div class="exit-grid">
+        <article class="summary-card exit-card"><div class="card-heading"><div class="card-icon"><i nz-icon nzType="shop" nzTheme="outline"></i></div></div><h3>Ventas de tienda</h3><div class="status-row"><span>Costo de productos vendidos</span><strong>{{ formatSoles(report?.store?.cost_of_sales) }}</strong></div></article>
+        <article class="summary-card exit-card"><div class="card-heading"><div class="card-icon"><i nz-icon nzType="reload" nzTheme="outline"></i></div></div><h3>Reactivaciones</h3><div class="status-row"><span>Costo de productos vendidos</span><strong>{{ formatSoles(report?.reactivations?.cost_of_sales) }}</strong></div></article>
+        <article class="summary-card exit-card"><div class="card-heading"><div class="card-icon"><i nz-icon nzType="bar-chart" nzTheme="outline"></i></div></div><h3>Total del periodo</h3><div class="card-total"><span>Costo de ventas</span><strong>{{ formatSoles(report?.cost_of_sales) }}</strong></div></article>
+      </div>
+      <div class="inventory-detail-note"><strong>Detalle disponible</strong><p>Consulta fecha, productos, cantidades y costos en la pestaña «Movimientos».</p></div>
+    </section>
+
+    <section class="reports-section inventory-panel" *ngIf="inventorySection === 'movements'">
+      <div class="section-heading"><span class="section-label">Inventario</span><h2>Movimientos registrados</h2></div>
+      <div class="movement-filters">
+        <label>Periodo<input type="month" min="2000-01" max="2100-12" [value]="selectedPeriod" (change)="onPeriodChange($event)"></label>
+        <label>Tipo<select [value]="movementDirection" (change)="onMovementDirectionChange($event)">
+          <option value="">Entradas y salidas</option><option value="entry">Entradas</option><option value="exit">Salidas</option>
+        </select></label>
+      </div>
+      <div class="inventory-message" *ngIf="movementsLoading" role="status">Cargando movimientos...</div>
+      <div class="inventory-message error" *ngIf="!movementsLoading && movementsError" role="alert">{{ movementsError }} <button type="button" (click)="loadMovements()">Reintentar</button></div>
+      <p class="inventory-note" *ngIf="!movementsLoading && !movementsError && movementPage && !movementPage.data.length">No hay movimientos para este periodo y filtro.</p>
+      <div class="movement-card" *ngFor="let movement of movementPage?.data">
+        <div class="movement-heading"><div><strong>{{ movementTypeLabel(movement.movement_type) }}</strong><span> · {{ formatEntryDate(movement.movement_date.slice(0, 10)) }} · Registro #{{ movement.id }}</span></div><span>{{ movement.total_quantity }} unidades</span></div>
+        <p *ngIf="movement.description">{{ movement.description }}</p>
+        <div class="stock-table-wrap"><table><thead><tr><th>Producto</th><th>Cantidad</th><th>Costo por unidad</th><th>Costo adicional</th><th>Costo registrado</th><th>Código físico</th></tr></thead>
+          <tbody><tr *ngFor="let detail of movement.details"><td>{{ detail.product_title }}</td><td>{{ detail.quantity }}</td><td>{{ formatSoles(detail.company_unit_cost) }}</td><td>{{ formatSoles(detail.additional_cost) }}</td><td>{{ formatSoles(detail.total_cost) }}</td><td>{{ detail.lot_code || '—' }}</td></tr></tbody>
+        </table></div>
+        <div class="movement-total">Costo del movimiento: <strong>{{ formatSoles(movement.total_cost) }}</strong></div>
+      </div>
+      <div class="movement-pagination" *ngIf="movementPage && movementPage.last_page > 1">
+        <button type="button" (click)="loadMovements(movementPage.current_page - 1)" [disabled]="movementsLoading || movementPage.current_page <= 1">Anterior</button>
+        <span>Página {{ movementPage.current_page }} de {{ movementPage.last_page }} · {{ movementPage.total }} movimientos</span>
+        <button type="button" (click)="loadMovements(movementPage.current_page + 1)" [disabled]="movementsLoading || movementPage.current_page >= movementPage.last_page">Siguiente</button>
+      </div>
+    </section>
+
+    <div class="entry-modal-backdrop" *ngIf="modalProduct as product">
+      <section class="entry-modal" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title">
+        <header class="entry-modal-header">
+          <div><span class="section-label">Inventario · Registrar entrada</span><h2 id="entry-modal-title">{{ product.title }}</h2></div>
+          <button type="button" class="entry-modal-close" (click)="closeProductEntry()" [disabled]="submittingEntry || confirmingEntry" aria-label="Cerrar">×</button>
+        </header>
+        <div class="entry-modal-body">
+          <div class="entry-modal-stats">
+            <div><span>Stock actual</span><strong>{{ product.stock }}</strong></div>
+            <div><span>Costo promedio empresa</span><strong>{{ getCompanyCost(product) !== null ? formatSoles(getCompanyCost(product)) : 'No disponible' }}</strong></div>
+            <div><span>Precio público</span><strong>{{ formatSoles(product.public_price ?? product.price) }}</strong></div>
+          </div>
+          <div class="inventory-message" *ngIf="modalFetching" role="status">Consultando el producto actualizado...</div>
+          <div class="inventory-message error" *ngIf="modalFetchError" role="alert">{{ modalFetchError }}</div>
+          <div class="inventory-message error" *ngIf="modalCostUnavailable && !modalFetching && !modalFetchError" role="alert">La API no entregó el costo promedio de este producto. Se necesita para determinar si corresponde stock inicial o compra a proveedor.</div>
+          <div class="entry-modal-operation" *ngIf="!modalFetching && !modalFetchError && !modalCostUnavailable">
+            <strong>{{ modalType === 'INITIAL_ENTRY' ? 'Registrar stock inicial' : 'Compra a proveedor / Aumentar stock' }}</strong>
+            <p *ngIf="modalType === 'INITIAL_ENTRY'">Se cargaron {{ product.stock }} unidades del stock existente. Registra el costo de compra de ese lote; estas unidades no se añadirán otra vez.</p>
+            <p *ngIf="modalType === 'PURCHASE_ENTRY'">{{ product.stock === 0 ? 'El producto tiene stock cero. Ingresa la nueva compra para abastecerlo.' : 'Ingresa las unidades nuevas de la compra. El backend actualizará el stock y el costo promedio.' }}</p>
+          </div>
+          <div class="inventory-message error" *ngIf="modalErrors.length" role="alert"><strong>Revisa la entrada:</strong><ul><li *ngFor="let message of modalErrors">{{ message }}</li></ul></div>
+          <div class="entry-modal-fields" *ngIf="!modalFetching && !modalFetchError && !modalCostUnavailable">
+            <label>{{ modalType === 'INITIAL_ENTRY' ? 'Cantidad del stock existente' : 'Cantidad nueva a ingresar' }}<input type="number" required min="1" step="1" [(ngModel)]="modalLine.quantity" [readonly]="modalType === 'INITIAL_ENTRY'" [disabled]="submittingEntry || confirmingEntry"></label>
+            <label>Costo de compra por unidad del lote (S/)<input type="number" required min="0" step="0.01" [(ngModel)]="modalLine.company_unit_cost" [disabled]="submittingEntry || confirmingEntry"></label>
+            <label>Costo adicional (S/)<input type="number" required min="0" step="0.01" [(ngModel)]="modalLine.additional_cost" [disabled]="submittingEntry || confirmingEntry"></label>
+            <label>Fecha de ingreso<input type="date" required [(ngModel)]="modalDate" [disabled]="submittingEntry || confirmingEntry"></label>
+            <label class="modal-lot">Descripción de la entrada<input type="text" required maxlength="500" [(ngModel)]="modalDescription" [disabled]="submittingEntry || confirmingEntry" placeholder="Proveedor o referencia"></label>
+          </div>
+          <div class="group-lines" *ngIf="!modalFetching && !modalFetchError && !modalCostUnavailable">
+            <div class="group-line" *ngFor="let line of modalExtraLines; let i = index">
+              <div class="line-heading"><h3>Producto del grupo {{ i + 2 }}</h3><button type="button" (click)="removeModalProduct(i)" [disabled]="submittingEntry || confirmingEntry">Quitar</button></div>
+              <div class="entry-modal-fields">
+                <label class="modal-lot">Producto<select [(ngModel)]="line.product_id" (ngModelChange)="onExtraProductChange(line, $event)" [disabled]="submittingEntry || confirmingEntry">
+                  <option value="">Selecciona un producto</option>
+                  <option *ngFor="let option of products" [value]="option.id" [disabled]="!isExtraProductEligible(option, line)">{{ option.title }} · stock: {{ option.stock }}</option>
+                </select></label>
+                <label>{{ modalType === 'INITIAL_ENTRY' ? 'Cantidad del stock existente' : 'Cantidad nueva' }}<input type="number" required min="1" step="1" [(ngModel)]="line.quantity" [readonly]="modalType === 'INITIAL_ENTRY'" [disabled]="submittingEntry || confirmingEntry"></label>
+                <label>Costo de compra por unidad (S/)<input type="number" required min="0" step="0.01" [(ngModel)]="line.company_unit_cost" [disabled]="submittingEntry || confirmingEntry"></label>
+                <label>Costo adicional (S/)<input type="number" required min="0" step="0.01" [(ngModel)]="line.additional_cost" [disabled]="submittingEntry || confirmingEntry"></label>
+              </div>
+              <p class="stock-hint" *ngIf="line.product_id && getProduct(line.product_id) as extraProduct">Stock actual: <strong>{{ extraProduct.stock }}</strong>. Costo promedio: <strong>{{ formatSoles(getCompanyCost(extraProduct)) }}</strong>.</p>
+            </div>
+            <button type="button" class="group-add-button" (click)="addModalProduct()" [disabled]="submittingEntry || confirmingEntry">+ Agregar otro producto al grupo</button>
+          </div>
+          <div class="entry-preview" *ngIf="!modalFetching && !modalFetchError && !modalCostUnavailable">
+            <strong>{{ modalType === 'INITIAL_ENTRY' ? 'Grupo de stock que vas a documentar' : 'Grupo que vas a registrar' }}</strong>
+            <span>{{ modalLine.quantity || '—' }} unidades de {{ product.title }} a {{ formatSoles(modalLine.company_unit_cost) }} por unidad</span>
+            <span *ngFor="let line of modalExtraLines">{{ line.quantity || '—' }} unidades de {{ getProduct(line.product_id)?.title || 'Producto sin elegir' }} a {{ formatSoles(line.company_unit_cost) }} por unidad; costo adicional {{ formatSoles(line.additional_cost) }}</span>
+            <span>Costo adicional: {{ formatSoles(modalLine.additional_cost) }} · Fecha: {{ modalDate ? formatEntryDate(modalDate) : '—' }}</span>
+            <span>Importe del movimiento: <strong>{{ formatSoles(modalGroupPreviewTotal) }}</strong></span>
+            <small>Vista previa calculada con los datos ingresados. El costo registrado se consultará en «Movimientos».</small>
+            <small *ngIf="modalType === 'INITIAL_ENTRY'">El stock existente de cada producto no se sumará de nuevo; el backend registrará sus costos.</small>
+            <small *ngIf="modalType === 'PURCHASE_ENTRY'">El stock y el costo promedio nuevos se mostrarán después de consultar la API.</small>
+          </div>
+          <p class="inventory-note" *ngIf="!modalFetching && !modalFetchError && !modalCostUnavailable">Primero revisa los datos. El stock solo se actualiza después de que confirmes la operación.</p>
+        </div>
+        <footer class="entry-modal-actions">
+          <button type="button" class="add-line-button" (click)="closeProductEntry()" [disabled]="submittingEntry || confirmingEntry">Cancelar</button>
+          <button type="button" class="submit-entry-button" (click)="submitProductEntry()" [disabled]="modalFetching || !!modalFetchError || modalCostUnavailable || submittingEntry || confirmingEntry">{{ submittingEntry ? 'Registrando...' : 'Revisar datos' }}</button>
+        </footer>
+      </section>
+    </div>
+  </ng-container>
+</div>
