@@ -11,7 +11,8 @@
 .file-button { padding:7px 12px; border:1px solid #0866ff; border-radius:7px; color:#0866ff; cursor:pointer; }
 .image-column small { color:#64748b; font-size:10px; text-align:center; }
 .file-error { color:#ef4444; font-size:11px; text-align:center; }
-.numeric-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.numeric-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.inventory-note { margin: 0 0 16px; padding: 10px 12px; border: 1px solid #cfe0ff; border-radius: 8px; background: #f3f7ff; color: #173b8e; font-size: 12px; }
 .state-control { display:flex; gap:8px; align-items:center; cursor:pointer; }
 .promotion-control { display:flex;gap:10px;align-items:flex-start;margin:2px 0 16px;padding:13px;border:1px solid #cfe0ff;border-radius:10px;background:#f3f7ff;cursor:pointer; }
 .promotion-control input { margin-top:4px; }

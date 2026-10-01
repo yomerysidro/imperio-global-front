@@ -38,13 +38,9 @@
             <input nz-input type="number" min="0" step="1" formControlName="points">
           </nz-form-control>
         </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired>Stock</nz-form-label>
-          <nz-form-control nzErrorTip="Ingrese un stock entero mayor o igual a cero.">
-            <input nz-input type="number" min="0" step="1" formControlName="stock">
-          </nz-form-control>
-        </nz-form-item>
       </div>
+      <p class="inventory-note" *ngIf="!isEdit">El producto se crea con stock 0. Registra la cantidad comprada y su costo en Finanzas Imperio → Inventario.</p>
+      <p class="inventory-note" *ngIf="isEdit">Stock actual: <strong>{{ product?.stock }}</strong>. Las compras y el costo se registran en Finanzas Imperio → Inventario.</p>
 
       <div class="promotion-dates" *ngIf="form.get('is_promotion')?.value">
         <nz-form-item>

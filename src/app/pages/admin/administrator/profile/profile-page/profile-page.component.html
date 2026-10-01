@@ -316,7 +316,7 @@
               </div>
               <!-- 🔥 CORREGIDO: Solo ganancias (Bonos + Residual + Infinito) -->
               <div class="grand-total-amount-premium">
-                S/ {{ availableWithdrawalBalance | number:'1.2-2' }}
+                S/ {{ (pointPatrocinio + pointResudial + pointInfinity) | number:'1.2-2' }}
               </div>
             </div>
 
@@ -438,10 +438,10 @@
       </div>
       <h4 class="period-title">Período: {{ paymentPeriodLabel(paymentBalance.period) }}</h4>
       <div class="balance-grid">
-        <article><span>Total generado</span><strong>S/ {{ paymentBalance.generated | number:'1.2-2' }}</strong></article>
+        <article><span>Total generado</span><strong>S/ {{ (isCurrentPaymentPeriod ? (pointPatrocinio + pointResudial + pointInfinity) : paymentBalance.generated) | number:'1.2-2' }}</strong></article>
         <article class="pending"><span>Pago pendiente</span><strong>S/ {{ paymentBalance.pending | number:'1.2-2' }}</strong></article>
         <article class="paid"><span>Total cobrado</span><strong>S/ {{ paymentBalance.paid | number:'1.2-2' }}</strong></article>
-        <article class="available"><span>Disponible para cobrar</span><strong>S/ {{ paymentBalance.available | number:'1.2-2' }}</strong></article>
+        <article class="available"><span>Disponible para cobrar</span><strong>S/ {{ (isCurrentPaymentPeriod && (userModel?.is_admin || userModel?.uuid === 'DOSB') ? (pointPatrocinio + pointResudial + pointInfinity) - (paymentBalance.generated - paymentBalance.available) : paymentBalance.available) | number:'1.2-2' }}</strong></article>
       </div>
       <p class="last-payment">Última fecha de cobro: <strong>{{ paymentBalance.last_paid_at ? (paymentBalance.last_paid_at | date:'dd/MM/yyyy') : 'Sin cobros registrados' }}</strong></p>
       <div class="no-balance" *ngIf="isCurrentPaymentPeriod && paymentBalance.available <= 0">No tiene saldo disponible para cobrar en este período.</div>

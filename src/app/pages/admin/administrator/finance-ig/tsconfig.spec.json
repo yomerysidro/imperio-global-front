@@ -1,0 +1,9 @@
+{
+  "extends": "../../../../../../tsconfig.spec.json",
+  "files": [
+    "../../../../../test.ts",
+    "../../../../../polyfills.ts",
+    "./finance-ig.component.spec.ts"
+  ],
+  "include": []
+}

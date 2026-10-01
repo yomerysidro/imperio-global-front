@@ -46,11 +46,20 @@ export const ROUTES: SideNavInterface[] = [
       show: true
     },
     {
+      path: '/admin/comision',
+      title: 'Comisiones Imperio',
+      iconType: 'nzIcon',
+      iconTheme: 'outline',
+      icon: 'account-book',
+      submenu: [],
+      show: true
+    },
+    {
       path: '/admin/finance',
       title: 'Finanzas Imperio',
       iconType: 'nzIcon',
       iconTheme: 'outline',
-      icon: 'account-book',
+      icon: 'percentage',
       submenu: [],
       show: true
     }
