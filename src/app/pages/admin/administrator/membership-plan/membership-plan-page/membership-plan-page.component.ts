@@ -115,6 +115,14 @@ export class MembershipPlanPageComponent implements OnInit {
       ];
     }
 
+    if (title.includes('consumidor') || Number(plan?.price) === 120) {
+      return [
+        '2 productos incluidos',
+        '45% de descuento',
+        'Oficina virtual'
+      ];
+    }
+
     if (title.includes('servicio') || title.includes('digital')) {
       return ['Oficina virtual'];
     }
