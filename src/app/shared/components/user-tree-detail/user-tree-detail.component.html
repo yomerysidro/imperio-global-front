@@ -52,9 +52,9 @@
       <article class="metric-card network"><span class="metric-icon"><i nz-icon nzType="team"></i></span><div><strong>{{ pointRed || 0 }}</strong><span>Puntos de red</span></div></article>
     </div>
     <div class="network-stats">
-      <article class="network-stat"><span class="stat-icon blue"><i nz-icon nzType="apartment"></i></span><strong>{{ usuarioTotal }}</strong><span>Red total</span></article>
-      <article class="network-stat"><span class="stat-icon purple"><i nz-icon nzType="share-alt"></i></span><strong>{{ usuarioDirectos }}</strong><span>Directos</span></article>
-      <article class="network-stat"><span class="stat-icon green"><i nz-icon nzType="check-circle"></i></span><strong>{{ usuarioActivos }}</strong><span>Activos</span></article>
+      <article class="network-stat"><span class="stat-icon blue"><i nz-icon nzType="apartment"></i></span><strong>{{ usuarioTotal ?? 'No informado' }}</strong><span>Red total</span></article>
+      <article class="network-stat"><span class="stat-icon purple"><i nz-icon nzType="share-alt"></i></span><strong>{{ usuarioDirectos ?? 'No informado' }}</strong><span>Directos</span></article>
+      <article class="network-stat"><span class="stat-icon green"><i nz-icon nzType="check-circle"></i></span><strong>{{ usuarioActivos ?? 'No informado' }}</strong><span>Activos</span></article>
     </div>
   </div>
 </div>
