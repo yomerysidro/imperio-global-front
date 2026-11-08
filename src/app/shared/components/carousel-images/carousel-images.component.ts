@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { OwlOptions } from 'ngx-owl-carousel-o';
 
 @Component({
   selector: 'app-carousel-images',
@@ -10,7 +9,7 @@ export class CarouselImagesComponent implements OnInit {
 
   @Input() fullWidth: boolean = false;
 
-  customOptions: OwlOptions = {
+  customOptions = {
     loop: true,
     autoplay: true,
     mouseDrag: true,

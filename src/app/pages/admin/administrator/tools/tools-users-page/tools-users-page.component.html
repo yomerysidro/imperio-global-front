@@ -207,7 +207,7 @@
   </ng-container>
 
   <ng-container *ngIf="tabModal == 2">
-    <app-tools-users-sponsor-modal [userModel]="userModel" (back)="onBack($event)"></app-tools-users-sponsor-modal>
+    <app-tools-users-sponsor-modal [userModel]="userModel" (back)="onBack($event)" (confirmed)="onNetworkMoveConfirmed()"></app-tools-users-sponsor-modal>
   </ng-container>
 
   <ng-container *ngIf="tabModal == 3">
