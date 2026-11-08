@@ -773,3 +773,24 @@ perfect-scrollbar>.ps {
   border-radius: 8px;
   font-size: 12px;
 }
+
+/* Movement dialogs: shared overlay styles for the two administrative entry points. */
+.network-branch-move-modal,
+.user-options-modal:has(.movement-options) {
+  top: 24px;
+  width: 760px !important;
+  max-width: calc(100vw - 32px);
+  padding-bottom: 0;
+  .ant-modal-content { padding: 0 !important; overflow: hidden; border: 0 !important; border-radius: 14px !important; background: #0866ff; box-shadow: 0 20px 64px rgba(20, 49, 91, .2); }
+  .ant-modal-body { margin: 0; padding: 0 !important; border-radius: 0; }
+  .user-options-content.movement-options { margin: 0; padding: 0; overflow: visible; border-radius: 0; background: transparent; }
+  .movement-options .options-body { margin: 0; padding: 0 !important; }
+  .ant-modal-close { top: 14px; right: 12px; color: #fff; }
+  .ant-modal-close-x { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; background: rgba(255,255,255,.14); line-height: 1; }
+  .ant-modal-close:hover .ant-modal-close-x { color: #0866ff; background: #fff; }
+  .ant-modal-close:focus-visible { outline: 3px solid #9fc3ff; outline-offset: 2px; }
+}
+@media (max-width: 767px) {
+  .network-branch-move-modal,
+  .user-options-modal:has(.movement-options) { top: 16px; width: calc(100vw - 24px) !important; max-width: calc(100vw - 24px); margin: 0 auto; padding-bottom: 0; }
+}

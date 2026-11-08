@@ -60,10 +60,10 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
   }
   get confirmationBlockReason(): string {
     if (!this.isAdmin) return 'Se requieren permisos administrativos.';
-    if (this.backendLocked) return 'El movimiento real todavía está deshabilitado en Laravel';
-    if (this.moveStatusLoading) return 'Consultando disponibilidad real de Laravel.';
-    if (!this.moveConfirmationEnabled) return this.moveStatusError || 'Laravel mantiene deshabilitada la confirmación de movimientos.';
-    if (this.loadingDetail || this.loadingSearch) return 'Consultando genealogía en Laravel.';
+    if (this.backendLocked) return 'El movimiento de ramas está temporalmente deshabilitado.';
+    if (this.moveStatusLoading) return 'Consultando disponibilidad de movimientos.';
+    if (!this.moveConfirmationEnabled) return this.moveStatusError || 'La confirmación de movimientos está deshabilitada.';
+    if (this.loadingDetail || this.loadingSearch) return 'Consultando la red de patrocinio.';
     if (!this.userModel?.genealogyVerified) return 'Falta verificar el detalle genealógico del socio.';
     if (!this.newSponsor?.genealogyVerified) return 'Selecciona y verifica el nuevo patrocinador.';
     if (this.userModel.uuid === this.newSponsor.uuid) return 'El socio no puede ser su propio patrocinador.';
@@ -104,11 +104,11 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
         this.moveConfirmationEnabled = status?.confirmation_enabled === true;
         this.moveStatusMode = status?.mode || 'disabled';
         this.moveStatusLoading = false;
-        if (!this.moveConfirmationEnabled) this.moveStatusError = 'Laravel mantiene deshabilitada la confirmaci?n (' + this.moveStatusMode + ').';
+        if (!this.moveConfirmationEnabled) this.moveStatusError = 'La confirmación de movimientos está deshabilitada (' + this.moveStatusMode + ').';
       },
       error: error => {
         this.moveConfirmationEnabled = false; this.moveStatusLoading = false;
-        this.moveStatusError = error?.error?.message || 'No se pudo consultar el estado de movimientos de Laravel.';
+        this.moveStatusError = error?.error?.message || 'No se pudo consultar la disponibilidad de movimientos.';
       }
     });
   }
@@ -138,7 +138,7 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
       next: response => {
         if (revision !== this.lineRevision) return;
         if (!Array.isArray(response?.data) || response.current_page !== page || !Number.isInteger(response.last_page) || response.last_page < page) {
-          this.loadingPrimaryLine = false; this.lineError = 'Laravel devolvió una página de genealogía inválida.'; return;
+          this.loadingPrimaryLine = false; this.lineError = 'No se pudo cargar la red: la información recibida no es válida.'; return;
         }
         const members = [...accumulated, ...response.data.filter((row: any) => row.connected === true && row.uuid)];
         if (page < response.last_page) { this.loadGenealogyPage(rootUuid, page + 1, members, revision); return; }
@@ -149,7 +149,7 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
           bySponsor.set(sponsor, [...(bySponsor.get(sponsor) || []), member]);
         });
         const root = members.find(member => String(member.uuid).toUpperCase() === rootUuid.toUpperCase());
-        if (!root) { this.loadingPrimaryLine = false; this.lineError = 'La raíz configurada no aparece conectada en la genealogía de Laravel.'; return; }
+        if (!root) { this.loadingPrimaryLine = false; this.lineError = 'La raíz corporativa no aparece conectada en la red de patrocinio.'; return; }
         this.loadingPrimaryLine = false;
         const initialReference = this.userModel?.uuid || root.uuid;
         this.selectReference(initialReference);
@@ -161,6 +161,7 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
   selectReference(uuid: string): void {
     if (!uuid) return;
     this.referenceUuid = uuid;
+    this.loadingPrimaryLine = true;
     this.apiService.getNetworkMember(uuid).subscribe({
       next: detail => {
         const route = [...(detail.routeAscending || [])].reverse();
@@ -171,7 +172,8 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
             user: { ...(account || {}), ...row, current_sponsor_code: row.sponsor_code, genealogyVerified: true } as UserModel,
             status: 'correct' as PrimaryLineStatus };
         });
-      }, error: error => { this.primaryLine = []; this.lineError = this.moveHttpErrorMessage(error); }
+        this.loadingPrimaryLine = false;
+      }, error: error => { this.loadingPrimaryLine = false; this.primaryLine = []; this.lineError = this.moveHttpErrorMessage(error); }
     });
   }
 
@@ -201,10 +203,10 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
   primaryLineFacts(user: UserModel | null): { level: unknown; direct: unknown; descendants: unknown; pack: string } {
     const data = user as any;
     return {
-      level: data?.level ?? 'No informado por Laravel',
-      direct: data?.directos ?? 'No informado por Laravel',
-      descendants: data?.descendantsCount ?? 'No informado por Laravel',
-      pack: data?.package_name || data?.payment?.payment_order?.pack?.title || 'No informado por Laravel'
+      level: data?.level ?? 'No disponible',
+      direct: data?.directos ?? 'No disponible',
+      descendants: data?.descendantsCount ?? 'No disponible',
+      pack: data?.package_name || data?.payment?.payment_order?.pack?.title || 'No disponible'
     };
   }
 
@@ -294,24 +296,24 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
         this.moveStatusMode = status?.mode || 'disabled';
         this.moveStatusLoading = false;
         if (!this.moveConfirmationEnabled) {
-          this.moveStatusError = 'Laravel mantiene deshabilitada la confirmaci?n (' + this.moveStatusMode + ').';
+          this.moveStatusError = 'La confirmación de movimientos está deshabilitada (' + this.moveStatusMode + ').';
           return;
         }
         this.moveStatusError = '';
         if (command.userCode !== this.userModel?.uuid || command.newSponsorCode !== this.newSponsor?.uuid || this.loadingConfirm) return;
-        this.modalMessage.confirm('Laravel permite el movimiento en modo ' + this.moveStatusMode + '. ?Confirmas trasladar toda la rama seleccionada?', () => {
+        this.modalMessage.confirm('Movimiento disponible (' + this.moveStatusMode + '). ¿Confirmas trasladar toda la rama seleccionada?', () => {
           if (this.loadingConfirm || command.userCode !== this.userModel?.uuid || command.newSponsorCode !== this.newSponsor?.uuid || !this.moveConfirmationEnabled) return;
           this.loadingConfirm = true;
           this.moveError = '';
           this.apiService.confirmNetworkMove(command).subscribe({
             next: result => {
               this.loadingConfirm = false;
-              if (result?.status !== 'confirmed') { this.moveError = result?.message || 'Laravel no confirm? el movimiento.'; return; }
+              if (result?.status !== 'confirmed') { this.moveError = result?.message || 'El movimiento no fue confirmado.'; return; }
               this.confirmed.emit();
               this.loadSelectedMember();
               this.loadPrimaryLine();
               this.onSponsorQueryChanged();
-              this.modalMessage.success(result.message || 'Laravel confirm? el movimiento.');
+              this.modalMessage.success(result.message || 'Movimiento confirmado correctamente.');
             },
             error: error => {
               this.loadingConfirm = false;
@@ -324,7 +326,7 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
       error: error => {
         this.moveConfirmationEnabled = false;
         this.moveStatusLoading = false;
-        this.moveStatusError = error?.error?.message || 'No se pudo consultar el estado de movimientos de Laravel.';
+        this.moveStatusError = error?.error?.message || 'No se pudo consultar la disponibilidad de movimientos.';
       }
     });
   }
@@ -333,11 +335,11 @@ export class ToolsUsersSponsorModalComponent implements OnInit {
     const message = error?.error?.message || error?.error?.error || error?.message;
     switch (error?.status) {
       case 403: return message || 'Permisos insuficientes para mover esta rama (HTTP 403).';
-      case 422: return message || 'Laravel rechazó los datos del movimiento (HTTP 422).';
-      case 423: return 'El movimiento real todavía está deshabilitado en Laravel';
-      case 404: return message || 'La ruta de confirmación no está disponible en Laravel (HTTP 404).';
-      case 500: return message || 'Laravel encontró un error al procesar el movimiento (HTTP 500).';
-      default: return message || 'Laravel rechazó la confirmación del movimiento.';
+      case 422: return message || 'Los datos del movimiento no son válidos (HTTP 422).';
+      case 423: return 'El movimiento de ramas está temporalmente deshabilitado.';
+      case 404: return message || 'La confirmación del movimiento no está disponible (HTTP 404).';
+      case 500: return message || 'Ocurrió un error al procesar el movimiento (HTTP 500).';
+      default: return message || 'No se pudo confirmar el movimiento.';
     }
   }
 

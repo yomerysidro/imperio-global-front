@@ -114,8 +114,8 @@
 </nz-card>
 
 <ng-template #tplContent let-params>
-  <div class="user-options-content">
-  <header class="options-header">
+  <div class="user-options-content" [class.movement-options]="tabModal == 2">
+  <header class="options-header" *ngIf="tabModal != 2">
     <span class="options-header-icon"><i nz-icon nzType="setting" nzTheme="outline"></i></span>
     <div>
       <small>Opciones de usuario</small>

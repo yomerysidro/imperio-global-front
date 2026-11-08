@@ -10,7 +10,7 @@ import { UserModel } from '@shared/services/models/user.interface';
 import { saveSessionStoraheUser } from '@shared/utilities/functions';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
 import { ModalService } from '@shared/utilities/modal-services';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
 import { forkJoin } from 'rxjs';
 import { ToolsUserAddModalComponent } from '../tools-user-add-modal/tools-user-add-modal.component';
@@ -43,6 +43,7 @@ export class ToolsUsersPageComponent implements OnInit {
   userModel: UserModel;
 
   tabModal: number = 0;
+  private userOptionsModal?: NzModalRef;
   tabTitle: string = titleModalGeneral;
 
   public isUserActive(user: any): boolean {
@@ -106,6 +107,7 @@ export class ToolsUsersPageComponent implements OnInit {
   public onNetworkMoveConfirmed(): void {
     this.onSearch();
     this.loadData();
+    this.userOptionsModal?.destroy();
   }
 
   public onFilterSearch(): void {
@@ -310,6 +312,8 @@ export class ToolsUsersPageComponent implements OnInit {
 
       },
     });
+
+    this.userOptionsModal = modal;
 
     // modal.afterOpen.subscribe( () => {
     //   this.avatarUrl = userModel.file?.path ? environment.hostUrl + '/storage/' + userModel.file?.path : CONSTANTS.IMAGE.FALLBACK;
