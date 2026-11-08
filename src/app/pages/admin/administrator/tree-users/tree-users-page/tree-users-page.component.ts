@@ -31,9 +31,9 @@ export class TreeUsersPageComponent implements OnInit {
   fallback = CONSTANTS.IMAGE.FALLBACK;
 
   // Contadores de cabecera
-  usuarioDirectos: number = 0;
-  usuarioActivos: number = 0;
-  usuarioTotal: number = 0;
+  usuarioDirectos: number | null = null;
+  usuarioActivos: number | null = null;
+  usuarioTotal: number | null = null;
 
   // Info del Patrocinador
   userSponsor: string = "--";
@@ -126,7 +126,7 @@ export class TreeUsersPageComponent implements OnInit {
    */
   public loadData(): void {
     this.isChart = false;
-    this.usuarioTotal = 0;
+    this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
 
     forkJoin({
       pointsRes: this.apiService.getPointListUser(),
@@ -140,12 +140,15 @@ export class TreeUsersPageComponent implements OnInit {
           const pointsUser = pointsData?.user || {};
           const { points, ...pointsUserProps } = pointsData || {};
 
-          const user = {
+          const user: any = {
             ...authUser,
             ...pointsUser,
             ...pointsUserProps
           };
           this.currentUser = user;
+          this.usuarioTotal = this.readNetworkCount(pointsData?.network_meta?.total_network);
+          this.usuarioDirectos = this.readNetworkCount(pointsData?.network_meta?.total_directs);
+          this.usuarioActivos = this.readNetworkCount(pointsData?.network_meta?.total_active);
           if (this.isAdministrator) {
             this.loadAdministrativeTree();
             return;
@@ -169,16 +172,6 @@ export class TreeUsersPageComponent implements OnInit {
           
           // 🔥 Construir árbol REAL (sin placeholders para los contadores)
           let realChildren = this.nodeTreeParse(this.listPoints, myId);
-          
-          // 🔥 CALCULAR ESTADÍSTICAS REALES (sin placeholders)
-          const realStats = this.getTreeStats(realChildren);
-
-          // 🔥 CONTADORES - USAR LOS VALORES DEL BACKEND PRIMERO
-          this.usuarioDirectos = user?.directos !== undefined ? user.directos : realChildren.length;
-          this.usuarioActivos = user?.activos !== undefined ? user.activos : realStats.active;
-          this.usuarioTotal = user?.red_total !== undefined ? user.red_total : realStats.total;
-
-        
           // Renderizar únicamente cuentas reales; una rama vacía no requiere nodos ficticios.
           const childrenForDisplay = realChildren;
 
@@ -238,7 +231,6 @@ export class TreeUsersPageComponent implements OnInit {
   /** Administrative relationships come exclusively from sponsor_relations via Laravel. */
   private loadAdministrativeTree(): void {
     this.branchMoveError = '';
-    this.usuarioTotal = null; this.usuarioDirectos = null; this.usuarioActivos = null;
     this.apiService.getNetworkRoot().subscribe({
       next: root => {
         this.apiService.getNetworkMember(root.uuid).subscribe({
@@ -268,8 +260,6 @@ export class TreeUsersPageComponent implements OnInit {
                 };
                 try {
                   this.data = node(detail);
-                  this.usuarioDirectos = detail.directos ?? null;
-                  this.usuarioTotal = detail.descendantsCount ?? null;
                   this.userSponsor = detail.sponsor?.name || 'Raíz corporativa';
                   this.codeSponsor = detail.sponsor?.uuid || '--';
                   this.isChart = true;
@@ -282,6 +272,10 @@ export class TreeUsersPageComponent implements OnInit {
         });
       }, error: () => { this.branchMoveError = 'No se pudo consultar la raíz configurada en Laravel.'; }
     });
+  }
+
+  private readNetworkCount(value: unknown): number | null {
+    return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
   }
 
   public searchTreeNode(): void {
@@ -424,30 +418,6 @@ export class TreeUsersPageComponent implements OnInit {
     const nodes = Array.from(viewport.querySelectorAll<HTMLElement>('[data-node-code]'));
     const target = nodes.find(element => element.dataset.nodeCode === this.highlightedNodeCode);
     target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-  }
-
-  /**
-   * Calcula estadísticas del árbol (Red Total y Activos)
-   */
-  private getTreeStats(nodes: IECONode[]): { total: number, active: number } {
-    let total = 0;
-    let active = 0;
-
-    const traverse = (childrenList: IECONode[]) => {
-      for (const node of childrenList) {
-        if (node.data?.id?.startsWith('-')) continue;
-        total++;
-        if (node.active) {
-          active++;
-        }
-        if (node.children && node.children.length > 0) {
-          traverse(node.children);
-        }
-      }
-    };
-
-    traverse(nodes);
-    return { total, active };
   }
 
   /** Parsea la lista plana usando la regla mensual común de actividad. */

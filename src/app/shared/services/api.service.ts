@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { removeSessionLocalAll, stringFormat } from '@shared/utilities/functions';
 import { IResponse, IResponsePaginationModel } from './interfaces/response.interface';
-import { AuthModel, UserModel } from './models/user.interface';
+import { AuthModel, PointsUsersResponse, UserModel } from './models/user.interface';
 import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { PackModel } from './models/packs.interface';
 import { IProductModel } from './models/product.interface';
@@ -70,12 +70,12 @@ export class ApiService {
     return this.httpService.get<IResponse< Array<any> >>(url, { params: httpParams}).pipe(tap( res => res ));
   }
 
-  public getPointListUser(parameters: any = {}): Observable<IResponse< any >>{
+  public getPointListUser(parameters: any = {}): Observable<IResponse<PointsUsersResponse>>{
     let url = stringFormat(  '/points/users' );
     let httpParams = new HttpParams({
       fromObject: parameters
     });
-    return this.httpService.get<IResponse< any >>(url, { params: httpParams}).pipe(tap( res => res ));
+    return this.httpService.get<IResponse<PointsUsersResponse>>(url, { params: httpParams}).pipe(tap( res => res ));
   }
 
   public getOptionsSearch(parameters: any = {}): Observable<IResponse< Array<any> >>{

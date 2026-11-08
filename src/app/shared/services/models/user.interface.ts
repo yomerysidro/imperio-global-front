@@ -11,6 +11,25 @@ export interface UserDetail {
   rango_actual: string;
 }
 
+export interface NetworkMetrics {
+  total_network?: number | null;
+  total_directs?: number | null;
+  total_active?: number | null;
+  total_directs_active?: number | null;
+  returned_nodes?: number | null;
+  complete?: boolean;
+}
+
+export interface PointsUsersResponse {
+  network_meta?: NetworkMetrics | null;
+  network_summary?: NetworkMetrics | null;
+  user?: UserModel;
+  points?: UserPoint;
+  point_records?: Array<any>;
+  volume_records?: Array<any>;
+  [key: string]: any;
+}
+
 export interface UserModel {
   descendantsCount?: number | null;
   genealogyVerified?: boolean;
@@ -48,6 +67,7 @@ export interface UserModel {
   volume_records?: Array<any>;
   commission_records?: Array<any>;
   point_records?: Array<any>;
+  network_summary?: NetworkMetrics | null;
   user_detail?: UserDetail; // 🔥 NUEVO: datos detallados del usuario
 }
 
@@ -84,6 +104,7 @@ export interface UserPoint {
   residualServicio: number;
   total_general?: number;
   total_comisiones?: number;
+  patrocinioTotal?: number;
 }
 
 export interface RangeModel {

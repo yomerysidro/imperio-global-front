@@ -8,6 +8,16 @@ describe('Network API contract', () => {
  const url = environment.hostUrl + '/api/v1';
  beforeEach(() => { TestBed.configureTestingModule({ imports: [HttpClientTestingModule] }); api = TestBed.inject(ApiService); http = TestBed.inject(HttpTestingController); flags = [environment.networkMoveBackendCertified, environment.networkMoveConfirmationEnabled]; });
  afterEach(() => { environment.networkMoveBackendCertified = flags[0]; environment.networkMoveConfirmationEnabled = flags[1]; http.verify(); });
+ it('preserves network_meta from the points users endpoint including zero', () => {
+  api.getPointListUser().subscribe(response => expect(response.data.network_meta.total_active).toBe(0));
+  const request = http.expectOne(url + '/points/users');
+  expect(request.request.method).toBe('GET');
+  request.flush({ success: true, data: { network_meta: { total_network: 12, total_directs: 2, total_active: 0 } } });
+ });
+ it('propagates points HTTP failures without manufacturing zero counts', () => {
+  api.getPointListUser().subscribe({ next: () => fail('Expected HTTP failure'), error: error => expect(error).toBeTruthy() });
+  http.expectOne(url + '/points/users').flush({ message: 'Unavailable' }, { status: 500, statusText: 'Server Error' });
+ });
  it('reads encoded UUID from the administrative detail route', () => {
   api.getNetworkMember('a/b').subscribe(u => expect(u.descendantsCount).toBe(0));
   http.expectOne(url + '/admin/network/genealogy/a%2Fb').flush({ user: { uuid: 'a/b' }, descendants_count: 0 });

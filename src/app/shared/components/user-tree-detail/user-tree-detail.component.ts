@@ -21,9 +21,9 @@ export class UserTreeDetailComponent implements OnInit {
   fallback: string = CONSTANTS.IMAGE.FALLBACK;
   avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
 
-  usuarioDirectos: number = 0;
-  usuarioActivos: number = 0;
-  usuarioTotal: number = 0;
+  usuarioDirectos: number | null = null;
+  usuarioActivos: number | null = null;
+  usuarioTotal: number | null = null;
   gananciaPatrocinio: number = 0;
   gananciaResidual: number = 0;
   bonoInfinito: number = 0;
@@ -78,21 +78,11 @@ export class UserTreeDetailComponent implements OnInit {
       // 4. Estado activo
       this.isNodeActive = isUserMembershipActive(this.userModel, undefined, this.paymentOrder);
 
-      // 5. Contadores de Red (Confía en la data estructural si el árbol local es menor)
-      const uuid = this.userModel.uuid || this.userModel.id?.toString();
-      if (uuid) {
-        this.usuarioTotal = 0;
-        this.usuarioActivos = 0;
-        this.usuarioDirectos = 0;
-        this.nodeTreeParse(uuid, true);
-
-        // 🔥 CORRECCIÓN: Si el parse local da 0 pero el backend sabe que hay red, conservamos el del backend
-        if (this.usuarioTotal === 0) {
-          this.usuarioTotal = this.userModel.red_total ?? 0;
-          this.usuarioDirectos = this.userModel.directos ?? 0;
-          this.usuarioActivos = this.userModel.activos ?? 0;
-        }
-      }
+      // Estos indicadores oficiales los devuelve Laravel en network_summary.
+      const network = this.userModel.network_summary;
+      this.usuarioTotal = this.readNetworkCount(network?.total_network);
+      this.usuarioDirectos = this.readNetworkCount(network?.total_directs);
+      this.usuarioActivos = this.readNetworkCount(network?.total_active);
 
       // 6. Packs adquiridos: permanecen visibles aunque estén inactivos este mes.
       const categories = this.userModel.packs_by_category || {};
@@ -110,32 +100,12 @@ export class UserTreeDetailComponent implements OnInit {
     }
   }
 
-  public onImgError(): void {
-    this.avatarUrl = this.fallback;
+  private readNetworkCount(value: unknown): number | null {
+    return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
   }
 
-  private nodeTreeParse(code: string, isFirstLevel: boolean = false) {
-    if (!this.listPoints) return;
-
-    const children = this.listPoints.filter((p: any) =>
-      p.sponsor_code?.toLowerCase() === code.toLowerCase()
-    );
-
-    const processedCodes = new Set();
-
-    children.forEach((point: any) => {
-      if (processedCodes.has(point.user_code)) return;
-      processedCodes.add(point.user_code);
-
-      this.usuarioTotal++;
-      const pointUser = point.user || point.user_point || point;
-      const isActive = isUserMembershipActive(pointUser, point);
-
-      if (isActive) this.usuarioActivos++;
-      if (isFirstLevel) this.usuarioDirectos++;
-
-      this.nodeTreeParse(point.user_code, false);
-    });
+  public onImgError(): void {
+    this.avatarUrl = this.fallback;
   }
 
   private safeParse(pts: any): any {
