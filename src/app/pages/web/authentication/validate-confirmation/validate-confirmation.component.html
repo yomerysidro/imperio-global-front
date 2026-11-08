@@ -1,214 +1,44 @@
-
-
-
-
-<div class="container-fluid p-0  " >
-
-  <nav class="navbar navbar-expand-lg border-bottom d-flex d-md-none" id="navbar-example2">
-    <div class="container-xxl align-items-center ">
-      <a class="navbar-brand pt-1" [routerLink]="'/home'">
-        <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid" width="169px">
-      </a>
-      <div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="19" viewBox="0 0 24 19" fill="none">
-            <rect width="24" height="3" rx="1.5" fill="#423838"/>
-            <rect y="8" width="24" height="3" rx="1.5" fill="#423838"/>
-            <rect x="10" y="16" width="13.8947" height="3" rx="1.5" fill="#423838"/>
-          </svg>
-        </button>
-
-        <img nz-image *ngIf="isAuth" width="40px" height="40px" [nzSrc]="avatarUrl" [nzDisablePreview]="true" class="d-md-none rounded-circle ml-1 border border-3"/>
-
-      </div>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item" >
-            <a class="nav-link"  href="javascript: void(0)" (click)="goTo('inicio-section')">Inicio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="javascript: void(0)" (click)="goTo('productos-section')">Productos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="javascript: void(0)" (click)="goTo('planes-section')">Planes y rangos</a>
-          </li>
-          <li class="nav-item d-block d-md-none" >
-            <a class="nav-link" href="javascript: void(0)" (click)="goTo('contact-section')">Contacto</a>
-          </li>
-          <li class="nav-item d-block d-md-none" >
-            <a class="nav-link" [routerLink]="'/auth/login'" [routerLinkActive]="'active'">Inicio Sesión</a>
-          </li>
-
-        </ul>
-
-      </div>
+﻿<main class="recovery-page">
+  <section class="recovery-card" aria-labelledby="recovery-title" [attr.aria-busy]="loadingSubmit">
+    <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="Imperio Global" class="brand">
+    <div class="lock-icon" aria-hidden="true">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/></svg>
     </div>
-  </nav>
+    <p class="step-label">Recuperación de contraseña</p>
+    <h1 id="recovery-title">{{ step === 'code' ? 'Verifica tu código' : step === 'success' ? 'Contraseña actualizada correctamente' : step === 'expired' ? 'Solicita un nuevo código' : 'Crear nueva contraseña' }}</h1>
 
-    <div class="row align-items-center justify-content-center m-0 p-0 container-mobile bg--auth-shape" style="height: 100vh; background-image: url('assets/images/Shape.png');" >
-        <!-- <div class="col-lg-5 d-none d-lg-flex bg-gris p-4" style="height: 100vh;">
-          <app-carousel-images [fullWidth]="true"></app-carousel-images>
-        </div> -->
-        <div class="col-md-4 " >
-          <nz-card class="card--auth">
-            <div class="row no-gutters  align-items-center" >
-              <ng-container *ngIf="!continuePageSuccess">
-                <div class="col-md-11 col-xl-11 col-12 mx-auto p-t-30">
-                  <!-- <img src="assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png" alt="" class="img-fluid mb-4" width="367px"> -->
-                  <h1 class="ff-poppins fs-22 fw-bolder container-form-mobile text-center" style="color: #202224;">Verificación de Código</h1>
-                  <p class="m-b-20 fs-15 container-form-mobile text-center" style="color: #202224;">Para recuperar tu contraseña, escribe el código que enviamos a tu correo electrónico, escribe el código que enviamos a tu correo</p>
-                  <form
-                    nz-form
-                    [formGroup]="frmValidateCode"
-                    nzLayout="vertical"
-                    class="login-form"
-                  >
-                    <nz-row class="m-b-30">
-                      <nz-col [nzSm]="24" [nzXs]="24">
-                        <div class="d-flex justify-content-center d-input--code ">
-                          <div>
-                            <nz-form-item class="p-l-10 p-r-10">
-                              <nz-form-control >
-                                <input
-                                  type="text"
-                                  nz-input
-                                  formControlName="code1"
-                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
-                                  class="input--font-only"
-                                  id="code1"
-                                  (keyup)="nextStep($event,1)" (focus)="focused(1)"
-                                />
-
-                              </nz-form-control>
-                            </nz-form-item>
-                          </div>
-
-                          <div>
-                            <nz-form-item class="p-l-10 p-r-10">
-                              <nz-form-control >
-                                <input
-                                  type="text"
-                                  nz-input
-                                  formControlName="code2"
-                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
-                                  class="input--font-only"
-                                  id="code2"
-                                  (keyup)="nextStep($event,2)" (focus)="focused(2)"
-                                />
-
-                              </nz-form-control>
-                            </nz-form-item>
-                          </div>
-
-                          <div>
-                            <nz-form-item class="p-l-10 p-r-10">
-                              <nz-form-control >
-                                <input
-                                  type="text"
-                                  nz-input
-                                  formControlName="code3"
-                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
-                                  class="input--font-only"
-                                  id="code3"
-                                  (keyup)="nextStep($event,3)" (focus)="focused(3)"
-                                />
-
-                              </nz-form-control>
-                            </nz-form-item>
-                          </div>
-
-                          <div>
-                            <nz-form-item class="p-l-10 p-r-10">
-                              <nz-form-control >
-                                <input
-                                  type="text"
-                                  nz-input
-                                  formControlName="code4"
-                                  maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'');"
-                                  class="input--font-only"
-                                  id="code4"
-                                  (keyup)="nextStep($event,4)" (focus)="focused(4)"
-                                />
-
-                              </nz-form-control>
-                            </nz-form-item>
-                          </div>
-
-                        </div>
-
-                      </nz-col>
-                    </nz-row>
-
-                    <nz-row class="mb-5">
-                      <nz-col [nzSm]="24" [nzXs]="24">
-                        <nz-form-control>
-                          <div
-                            class="d-flex align-items-center justify-content-between"
-                          >
-                            <button
-                              nz-button
-                              class="login-form-button w-100 border-0 p-t-20 p-b-20"
-                              [nzType]="'primary'"
-                              (click)="onSubmit()"
-                              [nzLoading]="loadingSubmit"
-                            style="height: auto; border-radius: 15px !important;"
-                            >
-                              Confirmar
-                            </button>
-                          </div>
-                        </nz-form-control>
-                      </nz-col>
-                    </nz-row>
-                    <div class="mb-3" *ngIf="showError">
-                      <div class="d-flex w-100 align-items-center p-2" style="background: rgba(113, 113, 113, 1);border-radius: 5px;">
-                        <p class="mb-0 text-white" ><i nz-icon nzType="close" style="font-size: 18px;" nzTheme="outline"></i>&nbsp;&nbsp;{{ textError }}</p>
-                      </div>
-                    </div>
-                  </form>
-
-                </div>
-              </ng-container>
-
-              <ng-container *ngIf="continuePageSuccess">
-                <div class="col-md-11 col-xl-11 col-12 mx-auto p-t-30">
-                  <div class="text-center">
-                    <svg width="106" height="106" viewBox="0 0 106 106" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="53" cy="53" r="51.5" fill="#FF8D4D" fill-opacity="0.06" stroke="url(#paint0_linear_796_4008)" stroke-width="3"/>
-                      <path d="M45.243 64.6282C44.2558 63.6411 44.2558 62.0406 45.243 61.0534L64.1377 42.1586C65.1249 41.1715 66.7254 41.1715 67.7126 42.1586C68.6997 43.1458 68.6997 44.7463 67.7126 45.7334L48.8178 64.6282C47.8306 65.6154 46.2301 65.6154 45.243 64.6282Z" fill="#D9D9D9"/>
-                      <path d="M45.243 64.6282C44.2558 63.6411 44.2558 62.0406 45.243 61.0534L64.1377 42.1586C65.1249 41.1715 66.7254 41.1715 67.7126 42.1586C68.6997 43.1458 68.6997 44.7463 67.7126 45.7334L48.8178 64.6282C47.8306 65.6154 46.2301 65.6154 45.243 64.6282Z" fill="url(#paint1_linear_796_4008)"/>
-                      <rect x="40.1172" y="52.7188" width="14.3973" height="4.80558" rx="2.40279" transform="rotate(45 40.1172 52.7188)" fill="#D9D9D9"/>
-                      <rect x="40.1172" y="52.7188" width="14.3973" height="4.80558" rx="2.40279" transform="rotate(45 40.1172 52.7188)" fill="url(#paint2_linear_796_4008)"/>
-                      <defs>
-                      <linearGradient id="paint0_linear_796_4008" x1="53" y1="0" x2="53" y2="106" gradientUnits="userSpaceOnUse">
-                      <stop stop-color="#FF8D4D"/>
-                      <stop offset="1" stop-color="#F87C47"/>
-                      </linearGradient>
-                      <linearGradient id="paint1_linear_796_4008" x1="49.2864" y1="46.202" x2="63.4926" y2="60.4083" gradientUnits="userSpaceOnUse">
-                      <stop stop-color="#FF8D4D"/>
-                      <stop offset="1" stop-color="#F87C47"/>
-                      </linearGradient>
-                      <linearGradient id="paint2_linear_796_4008" x1="47.3159" y1="45.4542" x2="47.3159" y2="64.5515" gradientUnits="userSpaceOnUse">
-                      <stop stop-color="#FF8D4D"/>
-                      <stop offset="1" stop-color="#F87C47"/>
-                      </linearGradient>
-                      </defs>
-                    </svg>
-
-                  </div>
-                  <div class="p-t-30 p-b-30">
-                    <p class="fs-22 fw-700  text-center">Success!</p>
-                    <p class="fs-18 fw-500 mb-0 text-center" style="color: rgba(182, 182, 182, 1);" [innerHTML]="textSuccess"></p>
-                  </div>
-                  <div class="text-center mb-3">
-                    <a [routerLink]="'/auth/login'" style="background-color: rgba(72, 128, 255, 1) !important;" class="btn btn-primary login-form-button w-100 border-0 p-t-20 p-b-20" >Ir a Login</a>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </nz-card>
-        </div>
+    <form *ngIf="step === 'code'" [formGroup]="frmValidateCode" (ngSubmit)="onSubmit()">
+      <p>Ingresa el código de cuatro dígitos enviado a tu correo. El código vence en 15 minutos.</p>
+      <div class="code-inputs">
+        <input *ngFor="let digit of digits" nz-input type="text" inputmode="numeric" maxlength="1"
+          [id]="'code' + digit" [formControlName]="'code' + digit" [attr.aria-label]="'Dígito ' + digit"
+          [readOnly]="loadingSubmit" (input)="onDigit($event, digit)" autocomplete="off">
       </div>
-</div>
+      <p class="field-error" *ngIf="frmValidateCode.touched && frmValidateCode.invalid">Ingresa los cuatro dígitos del código.</p>
+      <button nz-button nzType="primary" type="submit" class="save-button" [disabled]="loadingSubmit" [nzLoading]="loadingSubmit">Confirmar código</button>
+    </form>
 
+    <form *ngIf="step === 'password'" [formGroup]="passwordForm" (ngSubmit)="savePassword()">
+      <p>Elige una contraseña segura para proteger tu cuenta.</p>
+      <label for="new-password">Nueva contraseña</label>
+      <div class="password-input">
+        <input nz-input id="new-password" formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="new-password" aria-describedby="password-help password-error" [readOnly]="loadingSubmit">
+        <button type="button" class="visibility-button" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Ocultar nueva contraseña' : 'Mostrar nueva contraseña'" [attr.aria-pressed]="showPassword"><i nz-icon [nzType]="showPassword ? 'eye-invisible' : 'eye'"></i></button>
+      </div>
+      <p id="password-error" class="field-error" *ngIf="passwordForm.get('password').touched && passwordForm.get('password').invalid">Ingresa una contraseña de al menos 8 caracteres.</p>
+      <label for="confirm-password">Confirmar contraseña</label>
+      <div class="password-input">
+        <input nz-input id="confirm-password" formControlName="password_confirmation" [type]="showConfirmation ? 'text' : 'password'" autocomplete="new-password" aria-describedby="confirmation-error" [readOnly]="loadingSubmit">
+        <button type="button" class="visibility-button" (click)="showConfirmation = !showConfirmation" [attr.aria-label]="showConfirmation ? 'Ocultar confirmación' : 'Mostrar confirmación'" [attr.aria-pressed]="showConfirmation"><i nz-icon [nzType]="showConfirmation ? 'eye-invisible' : 'eye'"></i></button>
+      </div>
+      <p id="confirmation-error" class="field-error" *ngIf="passwordForm.get('password_confirmation').touched && (passwordForm.get('password_confirmation').invalid || passwordForm.hasError('mismatch'))">{{ passwordForm.get('password_confirmation').hasError('required') ? 'Confirma tu contraseña.' : 'Las contraseñas deben coincidir.' }}</p>
+      <p id="password-help" class="security-help">Mínimo 8 caracteres. Recomendamos combinar mayúsculas, minúsculas, números y símbolos. La autorización dura 5 minutos.</p>
+      <button nz-button nzType="primary" type="submit" class="save-button" [disabled]="loadingSubmit" [nzLoading]="loadingSubmit">{{ loadingSubmit ? 'Guardando...' : 'Guardar nueva contraseña' }}</button>
+    </form>
+
+    <div *ngIf="textError" class="error-message" role="alert">{{ textError }}</div>
+    <p *ngIf="step === 'success'" class="success-message" role="status">Tu contraseña se guardó. Te llevaremos al inicio de sesión.</p>
+    <a *ngIf="step !== 'success'" routerLink="/auth/recover-password" class="recovery-link">Solicitar un nuevo código</a>
+    <a routerLink="/auth/login" class="login-link">{{ step === 'success' ? 'Iniciar sesión' : 'Volver al inicio de sesión' }}</a>
+  </section>
+</main>

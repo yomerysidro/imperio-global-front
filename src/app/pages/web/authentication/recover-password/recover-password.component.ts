@@ -5,6 +5,7 @@ import { ApiService } from '@shared/services/api.service';
 import { IResponse } from '@shared/services/interfaces/response.interface';
 import { FormValidator } from '@shared/utilities/form-validator';
 import { ModalService } from '@shared/utilities/modal-services';
+import { recoveryError } from '@shared/services/password-recovery-error';
 
 @Component({
   selector: 'app-recover-password',
@@ -50,14 +51,21 @@ export class RecoverPasswordComponent implements OnInit {
 
 
   onSubmit(): void {
+    if (this.loadingSubmit) return;
     if( !this.formValidator.validForm( this.frmRecoverPassword ) ) return;
     this.loadingSubmit = true;
 
     this.showError = false;
     this.apiService.postRecoverPassword( {email: this.frmRecoverPassword.get('email').value } ).subscribe(
       ( response: IResponse<any> ) => {
+        this.loadingSubmit = false;
         if( response.success ){
-          this.router.navigate(['/auth/verification-code/' + response.data.validation])
+          if (response.data?.validation) {
+            this.router.navigate(['/auth/verification-code', response.data.validation]);
+          } else {
+            this.textSuccess = response.message || 'Si el correo está registrado, recibirás un código de recuperación.';
+            this.continuePageSuccess = true;
+          }
         }else{
           this.textError = response.message
           this.onShowError();
@@ -65,7 +73,8 @@ export class RecoverPasswordComponent implements OnInit {
       },(error) => {
 
         this.loadingSubmit = false;
-        this.modalService.error( error?.message ?? error );
+        this.textError = recoveryError(error);
+        this.showError = true;
       }
     )
 

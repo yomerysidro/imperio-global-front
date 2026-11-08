@@ -108,14 +108,18 @@ export class ApiService {
     return this.httpService.post<IResponse<any>>( '/payment/cash-confirm' , command ).pipe(tap( res => res ));
   }
 
-  public postValidateCode( command: any , uuid: string): Observable<IResponse<any>>{
+  public postValidateCode(command: {code: string}, uuid: string): Observable<IResponse<{validation: string; recovery_token: string; expires_in: number}>> {
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    return this.httpService.post<IResponse<any>>( '/auth/validate-code/' + uuid , command ).pipe(tap( res => res ));
+    return this.httpService.postWithHttpError<IResponse<{validation: string; recovery_token: string; expires_in: number}>>( '/auth/validate-code/' + encodeURIComponent(uuid) , command );
   }
 
   public postRecoverPassword( command: any ): Observable<IResponse<any>>{
     // let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    return this.httpService.post<IResponse<any>>( '/auth/recover-password'  , command ).pipe(tap( res => res ));
+    return this.httpService.postWithHttpError<IResponse<any>>( '/auth/recover-password' , command );
+  }
+
+  public postResetPassword(command: {validation: string; recovery_token: string; password: string; password_confirmation: string}): Observable<IResponse<any>> {
+    return this.httpService.postWithHttpError<IResponse<any>>('/auth/reset-password', command);
   }
 
   public getUsersFindAll(parameters: any = {}): Observable< IResponse< IResponsePaginationModel< Array<UserModel> >> >{
