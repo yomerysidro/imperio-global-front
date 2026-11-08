@@ -11,6 +11,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/user-tree-detail.component';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { ToolsUsersSponsorModalComponent } from '../../tools/tools-users-page/tools-users-sponsor-modal/tools-users-sponsor-modal.component';
 
 @Component({
   selector: 'app-tree-users-page',
@@ -50,12 +51,56 @@ export class TreeUsersPageComponent implements OnInit {
 
   treeSearch: string = '';
   searchMessage: string = '';
+  branchMoveError: string = '';
   highlightedNodeCode: string = '';
   treeZoom: number = 1;
   isFullScreen: boolean = false;
 
   get zoomPercent(): number {
     return Math.round(this.treeZoom * 100);
+  }
+
+  get isAdministrator(): boolean {
+    return this.currentUser?.is_admin === true || Number(this.currentUser?.is_admin) === 1;
+  }
+
+  public canMoveBranch(userCode: string, isAdminNode = false): boolean {
+
+    return this.isAdministrator && !!userCode && !isAdminNode && userCode !== this.data?.data?.id;
+  }
+
+  public openBranchMove(userCode: string, event?: Event): void {
+    event?.stopPropagation();
+    this.branchMoveError = '';
+    if (!this.canMoveBranch(userCode)) return;
+    this.apiService.getUsersSearch({ code: userCode }).subscribe({
+      next: response => {
+        const user = response?.success && Array.isArray(response.data)
+          ? response.data.find(item => String(item.uuid || '').trim().toUpperCase() === userCode.trim().toUpperCase())
+          : null;
+        if (!user) {
+          this.branchMoveError = 'No se encontró el socio seleccionado. Actualiza el árbol e inténtalo de nuevo.';
+          return;
+        }
+        const moveModal = this.nzModalService.create({
+          nzTitle: null,
+          nzContent: ToolsUsersSponsorModalComponent,
+          nzData: { userModel: user },
+          nzFooter: null,
+          nzWidth: 560,
+          nzClassName: 'network-branch-move-modal'
+        });
+        moveModal.afterOpen.subscribe(() => {
+          const content = moveModal.getContentComponent() as ToolsUsersSponsorModalComponent;
+          content?.back.subscribe(() => moveModal.destroy());
+          content?.confirmed.subscribe(() => { this.loadData(); moveModal.destroy(); });
+        });
+      },
+      error: error => {
+        this.branchMoveError = error?.message || error?.error?.message
+          || 'No se pudo cargar el socio seleccionado. Verifica tu sesión e inténtalo de nuevo.';
+      }
+    });
   }
 
   get treeCanvasWidth(): number {
@@ -101,6 +146,10 @@ export class TreeUsersPageComponent implements OnInit {
             ...pointsUserProps
           };
           this.currentUser = user;
+          if (this.isAdministrator) {
+            this.loadAdministrativeTree();
+            return;
+          }
 
           // 🔥 FILTRAR SOLO PUNTOS DE TIPO COMPRA (B) Y LEGACY
           const allPoints = Array.isArray(pointsData?.volume_records)
@@ -130,22 +179,8 @@ export class TreeUsersPageComponent implements OnInit {
           this.usuarioTotal = user?.red_total !== undefined ? user.red_total : realStats.total;
 
         
-          // 🔥 SOLO USAR PLACEHOLDERS PARA EL ÁRBOL VISUAL (no para contadores)
-          let childrenForDisplay = realChildren;
-          if (childrenForDisplay.length === 0) {
-            if (myId === 'DOSB' || this.listPoints.length === 0) {
-              childrenForDisplay = [];
-              for (let index = 0; index < 4; index++) {
-                childrenForDisplay.push({
-                  data: { id: "-" + index, photo: 'assets/images/Ellipse 4.png', name: "Vacío" },
-                  active: false,
-                  selected: true,
-                  children: [],
-                  admin: false
-                });
-              }
-            }
-          }
+          // Renderizar únicamente cuentas reales; una rama vacía no requiere nodos ficticios.
+          const childrenForDisplay = realChildren;
 
           // 🔥 PUNTOS DEL USUARIO
           if (user?.points) {
@@ -197,6 +232,55 @@ export class TreeUsersPageComponent implements OnInit {
       error: (err) => {
         console.error("Error al cargar la red", err);
       }
+    });
+  }
+
+  /** Administrative relationships come exclusively from sponsor_relations via Laravel. */
+  private loadAdministrativeTree(): void {
+    this.branchMoveError = '';
+    this.usuarioTotal = null; this.usuarioDirectos = null; this.usuarioActivos = null;
+    this.apiService.getNetworkRoot().subscribe({
+      next: root => {
+        this.apiService.getNetworkMember(root.uuid).subscribe({
+          next: detail => {
+            const accounts: any[] = [];
+            const readPage = (page: number) => this.apiService.getNetworkAccounts(page).subscribe({
+              next: response => {
+                if (!Array.isArray(response?.data) || response.current_page !== page || !Number.isInteger(response.last_page) || response.last_page < page) {
+                  this.branchMoveError = 'Contrato inválido al leer el árbol administrativo.';
+                  return;
+                }
+                accounts.push(...response.data);
+                if (page < response.last_page) { readPage(page + 1); return; }
+                const children = new Map<string, any[]>();
+                accounts.filter(account => account.connected === true).forEach(account => {
+                  const key = String(account.sponsor_code ?? '').toUpperCase();
+                  children.set(key, [...(children.get(key) || []), account]);
+                });
+                const visited = new Set<string>();
+                const node = (account: any): IECONode => {
+                  const key = account.uuid.toUpperCase();
+                  if (visited.has(key)) throw new Error('Ciclo o UUID duplicado en la genealogía administrativa.');
+                  visited.add(key);
+                  return { data: { id: account.uuid, name: account.name, email: account.email || '', photo: this.fallback },
+                    active: account.active === true, selected: true,
+                    children: (children.get(key) || []).map(node) };
+                };
+                try {
+                  this.data = node(detail);
+                  this.usuarioDirectos = detail.directos ?? null;
+                  this.usuarioTotal = detail.descendantsCount ?? null;
+                  this.userSponsor = detail.sponsor?.name || 'Raíz corporativa';
+                  this.codeSponsor = detail.sponsor?.uuid || '--';
+                  this.isChart = true;
+                  this.scheduleInitialTreeCenter();
+                } catch (error) { this.branchMoveError = error.message; }
+              }, error: () => { this.branchMoveError = 'No se pudo leer una página del árbol. Vuelve a actualizar.'; }
+            });
+            readPage(1);
+          }, error: () => { this.branchMoveError = 'No se pudo consultar la genealogía de la raíz. Vuelve a actualizar.'; }
+        });
+      }, error: () => { this.branchMoveError = 'No se pudo consultar la raíz configurada en Laravel.'; }
     });
   }
 
@@ -396,7 +480,8 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
         id: point.user_code,
         photo: image,
         name: uHijo.name,
-        email: uHijo.email
+        email: uHijo.email,
+        admin: !!uHijo.is_admin
       },
       selected: true,
       active: isNodeActive, // ✅ Ahora solo será verde si cumple la condición

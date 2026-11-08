@@ -439,3 +439,5 @@ $text-muted: #8c8c8c;
   justify-content: center !important;
   align-items: center !important;
 }
+.move-branch-action { display:block; margin:5px auto 0; padding:4px 7px; border:1px solid #cfe0ff; border-radius:7px; background:#f4f8ff; color:#075bdd; font-size:8px; font-weight:800; cursor:pointer; }
+.move-branch-action:hover { background:#0866ff; color:#fff; }

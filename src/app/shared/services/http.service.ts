@@ -25,6 +25,8 @@ export class HttpService {
     );
   }
 
+  public getWithHttpError<T>(url: string): Observable<T> { return this.httpClient.get<T>(this.urlBase + url); }
+  public putWithHttpError<T>(url: string, data: any): Observable<T> { return this.httpClient.put<T>(this.urlBase + url, data); }
   public post<T>(url: string, data: any, options?: any): Observable<T> {
     return this.httpClient.post( this.urlBase + url, data, options).pipe(
       map((res: any) => {

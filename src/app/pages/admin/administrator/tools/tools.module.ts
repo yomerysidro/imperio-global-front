@@ -6,7 +6,6 @@ import { SharedModule } from '@shared/shared.module';
 import { ToolsUsersPageComponent } from './tools-users-page/tools-users-page.component';
 import { ToolsOrderPageComponent } from './tools-order-page/tools-order-page.component';
 import { ToolsUsersUpdateModalComponent } from './tools-users-page/tools-users-update-modal/tools-users-update-modal.component';
-import { ToolsUsersSponsorModalComponent } from './tools-users-page/tools-users-sponsor-modal/tools-users-sponsor-modal.component';
 import { ToolsUsersResetModalComponent } from './tools-users-page/tools-users-reset-modal/tools-users-reset-modal.component';
 import { ToolsCashPageComponent } from './tools-cash-page/tools-cash-page.component';
 import { ToolsUsersReactiveModalComponent } from './tools-users-page/tools-users-reactive-modal/tools-users-reactive-modal.component';
@@ -63,7 +62,6 @@ const routes: Routes = [
     ToolsUsersPageComponent,
     ToolsOrderPageComponent,
     ToolsUsersUpdateModalComponent,
-    ToolsUsersSponsorModalComponent,
     ToolsUsersResetModalComponent,
     ToolsCashPageComponent,
     ToolsUsersReactiveModalComponent,

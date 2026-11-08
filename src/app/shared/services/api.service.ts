@@ -1,8 +1,9 @@
+import { mapGenealogy } from './models/network-genealogy';
 import { Injectable } from '@angular/core';
 import { HttpService } from './http.service';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { removeSessionLocalAll, stringFormat } from '@shared/utilities/functions';
 import { IResponse, IResponsePaginationModel } from './interfaces/response.interface';
 import { AuthModel, UserModel } from './models/user.interface';
@@ -10,6 +11,7 @@ import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { PackModel } from './models/packs.interface';
 import { IProductModel } from './models/product.interface';
 import { IProductPaymentOrder } from './models/product-payment-order.interface';
+import { throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -271,13 +273,21 @@ export class ApiService {
     return this.httpService.post<IResponse<any>>( '/users/active-residual' , command ).pipe(tap( res => res ));
   }
 
-  public postUsercodeChangeSponsor( command: any ): Observable<IResponse<any>>{
-    // let options = { contentType: false, mimeType: 'multiplart/form-data' };
-    return this.httpService.post<IResponse<any>>( '/users/change-sponsor' , command ).pipe(tap( res => res ));
+  public getNetworkMember(uuid: string): Observable<UserModel> {
+    return this.httpService.getWithHttpError<any>('/admin/network/genealogy/' + encodeURIComponent(uuid)).pipe(map(r => mapGenealogy(r, uuid)));
   }
-
-  public postUsercodeChangeSponsorWithNetwork( command: any ): Observable<IResponse<any>>{
-    return this.httpService.post<IResponse<any>>( '/users/change-sponsor-with-network' , command ).pipe(tap( res => res ));
+  public getNetworkRoot(): Observable<{ uuid: string; name: string }> {
+    return this.httpService.getWithHttpError<any>('/admin/network/root');
+  }
+  public getNetworkAccounts(page: number): Observable<any> {
+    return this.httpService.getWithHttpError<any>('/admin/network/genealogy?perPage=100&page=' + page);
+  }
+  public getNetworkMoveStatus(): Observable<{ confirmation_enabled: boolean; mode: string }> {
+    return this.httpService.getWithHttpError<any>('/admin/network/moves/status');
+  }
+  /** Laravel remains authoritative and validates every confirmation. */
+  public confirmNetworkMove(command: { userCode: string; newSponsorCode: string }): Observable<any> {
+    return this.httpService.postWithHttpError<any>('/admin/network/moves/confirm', command);
   }
 
   public postUserPdfFinance( command: any ): Observable<IResponse<any>>{

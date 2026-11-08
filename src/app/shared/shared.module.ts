@@ -20,6 +20,7 @@ import { PaymentProductsModalComponent } from './components/payment/payment-prod
 import { TablePaymentProductOrderComponent } from './components/table/table-payment-product-order/table-payment-product-order.component';
 import { PaymentViewVoucherModalComponent } from './components/payment/payment-view-voucher-modal/payment-view-voucher-modal.component';
 import { PaymentOfflineEfectivoComponent } from './components/payment/payment-offline-efectivo/payment-offline-efectivo.component';
+import { ToolsUsersSponsorModalComponent } from '../pages/admin/administrator/tools/tools-users-page/tools-users-sponsor-modal/tools-users-sponsor-modal.component';
 
 // ✅ MÓDULOS NG-ZORRO
 import { NgZorroAntdModule } from './ng-zorro-antd.module';
@@ -68,7 +69,8 @@ const COMPONENTS = [
     DelayedInputDirective,
     TablePaymentProductOrderComponent,
     PaymentViewVoucherModalComponent,
-    PaymentOfflineEfectivoComponent
+    PaymentOfflineEfectivoComponent,
+    ToolsUsersSponsorModalComponent
 ];
 
 @NgModule({

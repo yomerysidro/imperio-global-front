@@ -1,58 +1,104 @@
 <div class="sponsor-editor">
-<nz-row class="sponsor-content">
-  <nz-col [nzXs]="24">
-    <section class="user-summary">
-      <img [src]="avatarUrl" [alt]="userModel.name">
-      <div><small>Usuario seleccionado</small><strong>{{ userModel.name }}</strong><span>ID: <b class="text-uppercase">{{ userModel.uuid }}</b> · {{ userModel.created_at | date: 'dd/MM/yyyy' }}</span></div>
+  <div class="sponsor-title">
+    <span><i nz-icon nzType="branches" nzTheme="outline"></i></span>
+    <div><strong>MOVER Y REORGANIZAR RED MLM</strong><small>Validación y cambios confirmados por Laravel</small></div>
+  </div>
+
+  <nz-alert *ngIf="!isAdmin" nzType="error" nzShowIcon nzMessage="Acceso exclusivo para administradores"></nz-alert>
+
+  <ng-container *ngIf="isAdmin">
+    <ol class="move-steps" aria-label="Movimiento de socio">
+      <li [class.current]="step === 1" [class.done]="step > 1" (click)="setStep(1)"><b>1</b> Socio</li>
+      <li [class.current]="step === 2" (click)="setStep(2)"><b>2</b> Nuevo patrocinador</li>
+    </ol>
+
+    <section class="step-panel" *ngIf="step === 1">
+      <h3>Socio seleccionado</h3><p class="error-message" *ngIf="detailError" role="alert">{{ detailError }}</p>
+      <button nz-button (click)="loadSelectedMember()" [disabled]="loadingDetail">Actualizar detalle del socio</button>
+      <div class="user-summary">
+        <img [src]="avatarUrl" [alt]="userModel?.name || 'Socio'">
+        <div><small>Cuenta desde Administración</small><strong>{{ userModel?.name || '—' }}</strong>
+          <span>UUID: <b>{{ userModel?.uuid || '—' }}</b></span>
+          <span>Patrocinador actual: <b>{{ userModel?.sponsor?.name || userModel?.current_sponsor_code || userModel?.sponsor_code || 'No informado por Laravel' }}</b></span>
+        </div>
+      </div>
+      <section class="primary-line" aria-label="Línea vertical principal verificada por Laravel">
+        <div class="primary-line-heading"><div><h3>Línea vertical principal</h3><p>Identidades consultadas por UUID. Cada conexión refleja el patrocinador actual devuelto por Laravel.</p></div>
+          <button nz-button nzSize="small" (click)="loadPrimaryLine()" [disabled]="loadingPrimaryLine" [nzLoading]="loadingPrimaryLine">Actualizar línea</button></div>
+        <p *ngIf="loadingPrimaryLine" role="status">Consultando cuentas en Laravel…</p>
+        <p class="error-message" *ngIf="lineError" role="alert">{{ lineError }}</p>
+        <label>Socio de referencia para la ruta real</label>
+        <nz-select [ngModel]="referenceUuid" [ngModelOptions]="{standalone: true}" (ngModelChange)="selectReference($event)" nzShowSearch nzPlaceHolder="Seleccionar socio">
+          <nz-option *ngFor="let account of genealogyAccounts" [nzValue]="account.uuid" [nzLabel]="account.name + ' ? ' + account.uuid"></nz-option>
+        </nz-select>
+        <p>Esta lista muestra una sola ruta ascendente. El ?rbol completo conserva todas las ramas laterales.</p>
+        <div class="primary-line-list">
+          <ng-container *ngFor="let member of primaryLine; let last = last">
+            <article class="primary-line-card" [attr.data-state]="member.status">
+              <div class="primary-line-card-head"><strong>{{ member.user?.name || 'Cuenta no identificada' }}</strong><span class="line-state" [attr.data-state]="member.status">{{ primaryLineStatusLabel(member.status) }}</span></div>
+              <dl><div><dt>UUID</dt><dd>{{ member.user?.uuid || member.code || 'Pendiente de identificar' }}</dd></div>
+                <div><dt>Patrocinador actual</dt><dd>{{ member.user ? (member.user.sponsor?.name || actualSponsorCode(member.user) || 'No informado por Laravel') : '—' }}</dd></div>
+                <div><dt>Patrocinador objetivo</dt><dd>{{ primaryLineTargetLabel(member) }}</dd></div>
+                <div><dt>Nivel</dt><dd>{{ primaryLineFacts(member.user).level }}</dd></div>
+                <div><dt>Hijos directos</dt><dd>{{ primaryLineFacts(member.user).direct }}</dd></div>
+                <div><dt>Descendientes totales</dt><dd>{{ primaryLineFacts(member.user).descendants }}</dd></div>
+                <div><dt>Estado · pack</dt><dd>{{ member.user ? (member.user.active === true ? 'Activo' : member.user.active === false ? 'Inactivo' : 'No informado') : '—' }} · {{ primaryLineFacts(member.user).pack }}</dd></div>
+              </dl>
+              <p *ngIf="member.error" class="error-message">{{ member.error }}</p>
+              <button *ngIf="canMovePrimaryLineMember(member)" nz-button nzType="primary" nzSize="small" (click)="selectPrimaryLineMove(member)">MOVER RAMA</button>
+            </article>
+            <div *ngIf="!last" class="primary-line-arrow" aria-hidden="true">↓</div>
+          </ng-container>
+        </div>
+      </section>
+      <p class="step-note">Niveles y conteos se muestran solo cuando vienen informados por Laravel. La vista no inventa relaciones ni calcula métricas genealógicas localmente.</p>
+      <button nz-button nzType="primary" (click)="setStep(2)" [disabled]="!userModel?.uuid">Elegir patrocinador</button>
     </section>
-  </nz-col>
-  <nz-col [nzXs]="24" >
-    <form
-      nz-form
-      [nzLayout]="'vertical'"
-      [formGroup]="validateForm"
-      class="sponsor-form"
-    >
-      <nz-form-item class="m-b-30">
-        <nz-form-label [nzSpan]="24"><i nz-icon nzType="user" nzTheme="outline"></i>Patrocinador actual</nz-form-label>
-        <nz-form-control [nzSpan]="24" nzErrorTip="">
-          <nz-input-group [nzSuffix]="suffixIconFile">
-            <input nz-input formControlName="sponsor" placeholder="" class="text-uppercase" />
-          </nz-input-group>
-          <ng-template #suffixIconFile>
-            <img [src]="avatarUrlSponsor" alt="" class="rounded-circle img-fluid" style="max-width: 30px; height: 30px;">
-          </ng-template>
-        </nz-form-control>
-      </nz-form-item>
 
+    <section class="step-panel" *ngIf="step === 2">
+      <h3>Nuevo patrocinador</h3>
+      <form nz-form [formGroup]="validateForm" class="sponsor-form" (ngSubmit)="onSearchSponsor()">
+        <nz-form-item><nz-form-label>Patrocinador actual</nz-form-label><nz-form-control><input nz-input formControlName="sponsor"></nz-form-control></nz-form-item>
+        <nz-form-item><nz-form-label>Buscar cuenta por</nz-form-label><nz-form-control>
+          <nz-select [(ngModel)]="searchMode" [ngModelOptions]="{standalone: true}" aria-label="Tipo de búsqueda">
+            <nz-option nzValue="code" nzLabel="UUID"></nz-option><nz-option nzValue="name" nzLabel="Nombre"></nz-option><nz-option nzValue="email" nzLabel="Correo"></nz-option>
+          </nz-select>
+          <nz-input-group [nzSuffix]="suffixIconFileNew"><input nz-input formControlName="sponsorNew" placeholder="UUID, nombre o correo" (input)="onSponsorQueryChanged()" (keyup.enter)="onSearchSponsor()"></nz-input-group>
+          <ng-template #suffixIconFileNew><i nz-icon nzType="loading" *ngIf="loadingSearch"></i><img *ngIf="isSponsorNew" [src]="avatarUrlNewSponsor" alt=""></ng-template>
+        </nz-form-control></nz-form-item>
+      </form>
+      <p class="error-message" *ngIf="searchError" role="alert">{{ searchError }}</p>
+      <div class="user-summary" *ngIf="newSponsor"><img [src]="avatarUrlNewSponsor" [alt]="newSponsor.name"><div><small>Genealogía verificada por Laravel</small><strong>{{ newSponsor.name }}</strong><span>UUID: {{ newSponsor.uuid }} · {{ newSponsor.email }}</span>
+        <span>Nivel: {{ primaryLineFacts(newSponsor).level }} · Hijos directos: {{ primaryLineFacts(newSponsor).direct }} · Descendientes: {{ primaryLineFacts(newSponsor).descendants }}</span>
+        <span>Pack: {{ primaryLineFacts(newSponsor).pack }} · Estado: {{ newSponsor.active === true ? 'Activo' : newSponsor.active === false ? 'Inactivo' : 'No informado' }}</span>
+      </div></div>
 
-      <nz-form-item>
-        <nz-form-label [nzSpan]="24"><i nz-icon nzType="idcard" nzTheme="outline"></i>ID del nuevo patrocinador</nz-form-label>
-        <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
-          <nz-input-group [nzSuffix]="suffixIconFileNew">
-            <input nz-input formControlName="sponsorNew" placeholder="" class="text-uppercase" appDelayedInput (delayedInput)="onSearchSponsor()"/>
-          </nz-input-group>
-          <ng-template #suffixIconFileNew>
-            <i nz-icon nzType="loading" nzTheme="outline" *ngIf="loadingSearch"></i>
-            <img [src]="avatarUrlNewSponsor" alt="" *ngIf="isSponsorNew" class="rounded-circle img-fluid" style="max-width: 30px; height: 30px;">
-          </ng-template>
-        </nz-form-control>
-      </nz-form-item>
+      <div class="move-confirmation-summary" *ngIf="newSponsor">
+        <h4>Movimiento solicitado</h4>
+        <p><b>Socio:</b> {{ userModel?.name }} · {{ userModel?.uuid }}</p>
+        <p><b>Patrocinador actual:</b> {{ userModel?.sponsor?.name || userModel?.current_sponsor_code || userModel?.sponsor_code || 'No informado por Laravel' }}</p>
+        <p><b>Nuevo patrocinador:</b> {{ newSponsor.name }} · {{ newSponsor.uuid }}</p>
+        <p><b>Patrocinador real del nuevo patrocinador:</b> {{ newSponsor.sponsor?.name || 'Raíz / no informado' }} · {{ actualSponsorCode(newSponsor) }}</p>
+        <p><b>Total afectado incluyendo al socio raíz:</b> {{ selectedDescendantCount === null ? 'No informado por Laravel' : selectedDescendantCount + 1 }}</p>
+        <p><b>Descendientes:</b> {{ selectedDescendantCount === null ? 'No informado por Laravel' : selectedDescendantCount }}</p>
+      </div>
+      <p class="error-message" *ngIf="detailError" role="alert">{{ detailError }}</p>
+      <button nz-button (click)="loadSelectedMember()" [disabled]="loadingDetail || loadingConfirm">Actualizar detalle del socio</button>
+      <details *ngIf="userModel?.routeAscending?.length"><summary>Ruta ascendente actual</summary>
+        <ol><li *ngFor="let ancestor of userModel.routeAscending">{{ ancestor.name }} · {{ ancestor.uuid }}</li></ol>
+      </details>
+      <p *ngIf="confirmationBlockReason" role="status">{{ confirmationBlockReason }}</p>
+      <nz-alert *ngIf="!moveConfirmationEnabled && !moveStatusLoading" nzType="warning" nzShowIcon [nzMessage]="confirmationBlockReason"></nz-alert>
+      <p class="error-message" *ngIf="moveError" role="alert">{{ moveError }}</p>
 
-      <nz-form-item>
-        <nz-form-label [nzSpan]="24"><i nz-icon nzType="mail" nzTheme="outline"></i>Correo del nuevo patrocinador</nz-form-label>
-        <nz-form-control [nzSpan]="24" nzErrorTip="Este campo es requerido">
-          <input nz-input formControlName="sponsorEmailNew" placeholder="" class="text-uppercase" />
-        </nz-form-control>
-      </nz-form-item>
+      <div class="step-actions">
+        <button nz-button (click)="setStep(1)">Atrás</button>
+        <button nz-button nzType="default" (click)="onSearchSponsor()" [nzLoading]="loadingSearch">Buscar</button>
+        <button nz-button nzType="primary" class="save-button" (click)="onSave()" [disabled]="!canConfirm()" [nzLoading]="loadingConfirm">CONFIRMAR MOVIMIENTO</button>
+      </div>
+      <p class="step-note" *ngIf="moveConfirmationEnabled">Laravel volverá a validar permisos, elegibilidad, ciclos y relaciones al procesar el movimiento.</p>
+    </section>
+  </ng-container>
 
-    </form>
-  </nz-col>
-
-</nz-row>
-
-<div class="sponsor-actions">
-  <button nz-button class="back-button" (click)="onBack()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>Retroceder</button>
-  <button nz-button nzType="primary" class="save-button" (click)="onSave()" [nzLoading]="loadingSave"><i nz-icon nzType="save" nzTheme="outline"></i>Modificar patrocinador</button>
-</div>
+  <div class="sponsor-actions"><button nz-button class="back-button" (click)="onBack()"><i nz-icon nzType="arrow-left" nzTheme="outline"></i>Retroceder</button></div>
 </div>

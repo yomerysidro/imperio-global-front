@@ -103,6 +103,11 @@ export class ToolsUsersPageComponent implements OnInit {
     )
   }
 
+  public onNetworkMoveConfirmed(): void {
+    this.onSearch();
+    this.loadData();
+  }
+
   public onFilterSearch(): void {
     // Un filtro nuevo debe comenzar en la primera pagina. Si conserva una
     // pagina posterior, el total puede ser 1 mientras `items` llega vacio.

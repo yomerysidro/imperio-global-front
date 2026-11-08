@@ -4,6 +4,8 @@
 
 export const environment = {
   production: false,
+  networkMoveBackendCertified: false,
+  networkMoveConfirmationEnabled: false,
   hostUrl: 'http://127.0.0.1:8000', //'https://api.imperioglobal.net' ,// 'http://127.0.0.1:8000',
   apiStorageUrl: 'http://127.0.0.1:8000/storage',
   serveUrl: "https://imperioglobal.org"

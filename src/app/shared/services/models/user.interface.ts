@@ -12,6 +12,10 @@ export interface UserDetail {
 }
 
 export interface UserModel {
+  descendantsCount?: number | null;
+  genealogyVerified?: boolean;
+  level?: number | null;
+  routeAscending?: Array<{ uuid: string; name: string; level: number; sponsor_code: string | null }>;
   id: number;
   name: string;
   email: string;
@@ -28,6 +32,9 @@ export interface UserModel {
   range?: RangeModel;
   creatxlssed: string;
   is_admin?: boolean | number;
+  current_sponsor_code?: string | null;
+  sponsor_code?: string | null;
+  sponsor?: { uuid: string; name: string; file?: FileModel | null } | null;
   totalPoints?: number;
   active?: boolean;
   manual_reactivation_active?: boolean;
