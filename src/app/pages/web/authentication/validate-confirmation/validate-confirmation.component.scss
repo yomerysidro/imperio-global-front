@@ -1,78 +1,24 @@
-.navbar{
-  position: fixed;
-  z-index: 99;
-  width: 100%;
-  padding-top: 0.3rem !important;
-  padding-bottom: 0.3rem !important;
-}
-
-.logo-text-title,
-.logo-text-subtitle{
-  vertical-align: middle;
-  font-size: 16px;
-}
-
-.ant-form-item-label label{
-
-}
-
-@media (min-width: 768px) {
-  .navbar-nav {
-    .nav-link{
-        color: var(--bs-gray);
-        font-size: 16px;
-
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-top: 12px;
-    }
-
-    .nav-link.active , .nav-link.show{
-        color: #000;
-    }
-
-    .nav-link.active::after{
-        content: " ";
-        width: 7px;
-        height: 7px;
-        background: var(--bs-blue);
-        display: block;
-        border-radius: 50%;
-        margin: 0 auto;
-        margin-top: 4px;
-    }
-  }
-
-}
-
-@media (max-width: 992px){
-  .navbar-nav .nav-link{
-    background-color: #FF909A;
-    color: #FFF;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    text-transform: uppercase;
-    margin-left: -12px;
-    margin-right: -12px;
-    padding-left: 12px;
-    padding-right: 12px;
-    font-weight: 400;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-  .navbar-nav .nav-link.active{
-    background-color: #ED6672;
-  }
-  .logo-text-title{
-    font-size: 22px;
-  }
-  .logo-text-subtitle{
-    font-size: 10px;
-    line-height: 1;
-  }
-}
-
-.input--font-only{
-  text-align: center;
-  font-weight: 800;
-  height: 52px;
-}
+﻿:host { display: block; }
+.recovery-page { min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 32px 18px; background: linear-gradient(135deg, #1a3f8a, #215ee9 60%, #4f8cff); font-family: 'Poppins', sans-serif; }
+.recovery-card { width: 100%; max-width: 480px; padding: 36px; background: #fff; border-radius: 24px; box-shadow: 0 24px 70px #102b6550; }
+.brand { display: block; max-width: 170px; max-height: 55px; margin: 0 auto 24px; }
+.lock-icon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 20px; color: #215ee9; background: #edf3ff; }
+h1 { font-size: 25px; line-height: 1.3; color: #17386e; text-align: center; margin-bottom: 16px; font-weight: 700; }
+p { color: #536178; line-height: 1.6; font-size: 14px; }
+.step-label { text-align: center; color: #215ee9; font-size: 12px; margin-bottom: 8px; }
+label { display: block; color: #17386e; font-weight: 600; margin: 20px 0 8px; }
+.password-input { position: relative; }
+.password-input input { width: 100%; padding: 12px 50px 12px 14px; border-radius: 10px; font-size: 16px; }
+.visibility-button { position: absolute; right: 3px; top: 3px; bottom: 3px; width: 42px; border: 0; background: transparent; color: #215ee9; cursor: pointer; border-radius: 8px; }
+.security-help { background: #edf3ff; border-radius: 10px; padding: 12px; margin-top: 20px; font-size: 12px; }
+.save-button { width: 100%; height: auto; min-height: 50px; white-space: normal; border-radius: 12px; margin-top: 12px; background: #215ee9; font-weight: 600; }
+.save-button:disabled { background: #e6eaf2; }
+.code-inputs { display: flex; gap: 12px; justify-content: center; margin: 24px 0; }
+.code-inputs input { width: 54px; height: 58px; text-align: center; font-size: 24px; border-radius: 10px; }
+.field-error { color: #ad2132; font-size: 12px; margin-top: 6px; }
+.error-message { color: #942037; background: #fff0f2; padding: 14px; border-radius: 10px; margin-top: 20px; }
+.success-message { color: #12643c; background: #eaf8ef; padding: 14px; border-radius: 10px; }
+a { display: block; text-align: center; margin-top: 20px; color: #215ee9; }
+.login-link { font-size: 13px; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #6e9eff; outline-offset: 3px; }
+@media (max-width: 480px) { .recovery-card { padding: 26px 20px; } h1 { font-size: 23px; } .code-inputs { gap: 8px; } }
