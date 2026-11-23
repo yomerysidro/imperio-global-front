@@ -16,38 +16,80 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. Descargar Codigo desde GitHub
+      - name: 1. Descargar codigo
         uses: actions/checkout@v4
 
       - name: 2. Configurar Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
-      - name: 3. Instalar Dependencias
+      - name: 3. Instalar dependencias
         run: npm ci
 
-      - name: 4. Compilar Angular para Produccion
+      - name: 4. Compilar Angular para produccion
         run: npm run buildProd
 
-      - name: 5. Verificar Archivos Compilados
+      - name: 5. Verificar compilacion
         run: |
           test -f dist/imperio-global/index.html
           echo "Angular compilado correctamente"
 
-      
-     
-      - name: 6. Desplegar Frontend en V2Networks
-        uses: appleboy/scp-action@v1
-        with:
-          host: '205.234.243.127'
-          username: 'ubuntu'
-          key: ${{ secrets.V2_SSH_PASSWORD }}
-          port: 22
-          fingerprint: 'SHA256:zrXAwTBx3+1smpR+vc0Tjj78+jYk2gGitm4H/vxjos0'
-          source: "dist/imperio-global/*"
-          target: "/var/www/imperio-global-front"
-          strip_components: 2
-          overwrite: true
-          rm: false
+      - name: 6. Configurar SSH seguro
+        env:
+          SSH_KEY_B64: ${{ secrets.V2_SSH_PASSWORD }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          if [ -z "$SSH_KEY_B64" ]; then
+            echo "ERROR: Falta el secreto SSH"
+            exit 1
+          fi
+
+          printf '%s' "$SSH_KEY_B64" | base64 -d > ~/.ssh/imperio_deploy
+          chmod 600 ~/.ssh/imperio_deploy
+
+          ssh-keygen -y -f ~/.ssh/imperio_deploy > /dev/null
+          echo "Clave SSH valida"
+
+          ssh-keyscan -T 10 -t ecdsa 205.234.243.127 \
+            > ~/.ssh/known_hosts 2>/dev/null
+
+          FINGERPRINT=$(ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | awk '{print $2}')
+
+          test "$FINGERPRINT" = "SHA256:zrXAwTBx3+1smpR+vc0Tjj78+jYk2gGitm4H/vxjos0"
+
+          chmod 600 ~/.ssh/known_hosts
+          echo "Identidad SSH del VPS verificada"
+
+      - name: 7. Verificar acceso al VPS
+        run: |
+          ssh \
+            -i ~/.ssh/imperio_deploy \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            ubuntu@205.234.243.127 \
+            "echo 'Conexion SSH correcta'"
+
+      - name: 8. Desplegar Angular en V2Networks
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/imperio_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes" \
+            dist/imperio-global/ \
+            ubuntu@205.234.243.127:/var/www/imperio-global-front/
+
+          echo "Frontend desplegado correctamente"
+
+      - name: 9. Verificar archivos en servidor
+        run: |
+          ssh \
+            -i ~/.ssh/imperio_deploy \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o BatchMode=yes \
+            ubuntu@205.234.243.127 \
+            "test -f /var/www/imperio-global-front/index.html && echo 'INDEX.HTML INSTALADO CORRECTAMENTE'"
