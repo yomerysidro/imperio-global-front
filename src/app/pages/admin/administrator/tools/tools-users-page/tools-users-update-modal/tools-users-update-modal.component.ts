@@ -147,7 +147,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         this.serviceActive = serviceData?.active === true;
 
         this.currentPackId = this.productOwned ? productData?.pack?.id || null : null;
-        this.currentPackName = this.productOwned ? productData?.pack?.title || 'Sin plan' : 'Sin plan';
+        this.currentPackName = this.productOwned ? productData?.pack?.title || '' : '';
         this.currentServiceId = this.serviceOwned ? serviceData?.pack?.id || null : null;
         this.currentServiceName = this.serviceOwned ? serviceData?.pack?.title || 'Ninguno' : 'Ninguno';
         this.isSponsordata = !this.productOwned && !this.serviceOwned;
@@ -216,10 +216,10 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   public getPackName(): string {
-    if (!this.currentPackId) return 'Sin plan';
+    if (!this.currentPackId) return '';
     if (this.currentPackName) return this.currentPackName;
     const pack = this.productPlans.find(p => p.id === this.currentPackId);
-    return pack?.title || 'Sin plan';
+    return pack?.title || '';
   }
 
   public getServiceName(): string {
