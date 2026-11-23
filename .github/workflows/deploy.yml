@@ -37,12 +37,13 @@ jobs:
           echo "Angular compilado correctamente"
 
       
+     
       - name: 6. Desplegar Frontend en V2Networks
         uses: appleboy/scp-action@v1
         with:
           host: '205.234.243.127'
           username: 'ubuntu'
-          key: ${{ secrets.V2_FRONT_SSH_KEY }}
+          key: ${{ secrets.V2_SSH_PASSWORD }}
           port: 22
           fingerprint: 'SHA256:zrXAwTBx3+1smpR+vc0Tjj78+jYk2gGitm4H/vxjos0'
           source: "dist/imperio-global/*"
