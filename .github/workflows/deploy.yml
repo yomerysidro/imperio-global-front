@@ -1,9 +1,15 @@
+
 name: Deploy Angular 18 Imperio Global
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+concurrency:
+  group: imperio-frontend-production
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -13,24 +19,33 @@ jobs:
       - name: 1. Descargar Codigo desde GitHub
         uses: actions/checkout@v4
 
-      - name: 2. Configurar Entorno Node.js (Version 20)
+      - name: 2. Configurar Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: 3. Instalar Dependencias Limpias
+      - name: 3. Instalar Dependencias
         run: npm ci
 
-      - name: 4. Compilar Frontend con Memoria Expandida de 8GB
+      - name: 4. Compilar Angular para Produccion
         run: npm run buildProd
 
-      - name: 5. Desplegar Activos Estaticos al VPS de Contabo via SFTP
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          ARGS: "-rlgoDzsub --delete"
-          REMOTE_HOST: "144.126.156.149"
-          REMOTE_USER: "root"
-          SOURCE: "dist/imperio-global/"
-          TARGET: "/var/www/imperio_global_front/dist/imperio-global-front/"
+      - name: 5. Verificar Archivos Compilados
+        run: |
+          test -f dist/imperio-global/index.html
+          echo "Angular compilado correctamente"
+
+      - name: 6. Desplegar Frontend en V2Networks
+        uses: appleboy/scp-action@v1
+        with:
+          host: '205.234.243.127'
+          username: 'ubuntu'
+          password: ${{ secrets.V2_SSH_PASSWORD }}
+          port: 22
+          fingerprint: 'SHA256:NuevMHOTwobPmjHLMGNvJq/VM5J8G3TdXbGgVHjAAbg'
+          source: "dist/imperio-global/*"
+          target: "/var/www/imperio-global-front"
+          strip_components: 2
+          overwrite: true
+          rm: false
