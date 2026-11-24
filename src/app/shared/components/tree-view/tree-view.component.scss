@@ -23,6 +23,12 @@
 }
 
 /* --- Wrapper interno --- */
+.positioned-node {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 20;
+}
+
 .wrapper {
   position: relative;
   margin: 0 auto;

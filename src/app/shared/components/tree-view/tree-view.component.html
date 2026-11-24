@@ -1,7 +1,7 @@
 <div class="tree" *ngIf="tree.width && tree.height">
   <div class="wrapper" [style.width.px]="tree.width" [style.height.px]="tree.height">
     <svg class="treeLink" [style.width]="tree.width + 'px'" [style.height]="tree.height + 'px'">
-      <ng-container *ngFor="let node of tree.nDatabaseNodes">
+      <ng-container *ngFor="let node of tree.nDatabaseNodes; trackBy: trackNode">
         <path *ngIf="node.branchPath" [attr.stroke]="node.linkColor" [attr.d]="node.branchPath" />
         <ng-container *ngFor="let path of node.paths; let i = index">
           <path class="tree-child-link"
@@ -11,16 +11,9 @@
       </ng-container>
     </svg>
 
-    <ng-container *ngFor="let node of tree.nDatabaseNodes; let i = index">
-      <div [ngStyle]="{
-          'position': 'absolute',
-          'left': node.XPosition + 'px',
-          'top': node.YPosition + 'px',
-          'width': node.w + 'px',
-          'height': node.h + 'px',
-          'border-radius': '50%',
-          'z-index': '20'
-        }">
+    <ng-container *ngFor="let node of tree.nDatabaseNodes; trackBy: trackNode">
+      <div class="positioned-node" [style.left.px]="node.XPosition" [style.top.px]="node.YPosition"
+        [style.width.px]="node.w" [style.height.px]="node.h">
         <ng-container *ngTemplateOutlet="template ? template : defaultTemplate; context:{$implicit:node}"></ng-container>
       </div>
     </ng-container>

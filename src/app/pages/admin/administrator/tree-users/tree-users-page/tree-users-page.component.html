@@ -113,6 +113,12 @@
     </nz-col>
 
     <nz-col [nzSpan]="24" class="tree-content">
+      <p *ngIf="isTreeLoading" class="tree-load-status stat-status" role="status">
+        <span class="stat-spinner" aria-hidden="true"></span> Cargando árbol de afiliados…
+      </p>
+      <p *ngIf="treeLoadError" class="tree-load-status search-message not-found" role="alert">{{ treeLoadError }}</p>
+      <p *ngIf="!isTreeLoading && !treeLoadError && isChart && !data.children?.length"
+        class="tree-load-status stat-status" role="status">No hay afiliados en esta red.</p>
       <div #treeViewport class="tree-viewport">
         <div class="tree-stage">
           <div #treeCanvas class="tree-canvas" [style.zoom]="treeZoom">

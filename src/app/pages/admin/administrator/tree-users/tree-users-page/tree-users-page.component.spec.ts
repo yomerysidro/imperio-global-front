@@ -38,6 +38,7 @@ describe('Affiliate tree viewport', () => {
         schemas: [NO_ERRORS_SCHEMA]
       }).compileComponents();
 
+      const requests = spyOn(TestBed.inject(ApiService), 'getNetworkAccounts').and.callThrough();
       const fixture = TestBed.createComponent(TreeUsersPageComponent);
       fixture.nativeElement.style.display = 'block';
       fixture.nativeElement.style.width = `${width}px`;
@@ -77,12 +78,15 @@ describe('Affiliate tree viewport', () => {
       expect(firstDirect.top).toBeGreaterThan(branchButton.bottom);
 
       const originalWidth = root().getBoundingClientRect().width;
+      const originalData = page.data;
       page.zoomIn();
       fixture.detectChanges();
       expect(root().getBoundingClientRect().width).toBeGreaterThan(originalWidth);
       viewport.scrollTo(30, 100);
       const navigatedTop = viewport.scrollTop;
       expect(navigatedTop).toBeGreaterThan(0);
+      expect(page.data).toBe(originalData);
+      expect(requests).toHaveBeenCalledTimes(1);
 
       accounts = [...accounts, account('new-descendant', 'descendant-7')];
       page.loadData();
@@ -92,6 +96,8 @@ describe('Affiliate tree viewport', () => {
       expect(viewport.scrollTop).toBe(navigatedTop);
       expect(page.zoomPercent).toBe(110);
       expect(viewport.querySelector('[data-node-code="new-descendant"]')).toBeTruthy();
+      expect(viewport.querySelector('[data-node-code="WAdz"]')).toBe(child);
+      expect(requests).toHaveBeenCalledTimes(2);
 
       page.resetTreeView();
       fixture.detectChanges();
@@ -121,6 +127,29 @@ describe('Administrative genealogy tree', () => {
   expect(c.data.data.id).toBe('configured-root'); expect(c.data.children[0].data.id).toBe('parent'); expect(c.data.children[0].children[0].data.id).toBe('child');
   expect(c.usuarioTotal).toBe(2); expect(c.usuarioDirectos).toBe(1); expect(c.usuarioActivos).toBeNull();
  });
+ it('renders the complete administrative tree while counters are pending and keeps page order', () => {
+  const points = new Subject<any>();
+  const second = new Subject<any>();
+  const third = new Subject<any>();
+  const account = (uuid: string) => ({ uuid, sponsor_code: 'configured-root', connected: true });
+  api.getPointListUser.and.returnValue(points);
+  api.getNetworkAccounts.and.returnValues(
+    of({ current_page: 1, last_page: 3, data: [account('first')] }), second, third
+  );
+  c.loadData();
+  expect(api.getNetworkAccounts.calls.allArgs()).toEqual([[1], [2], [3]]);
+  third.next({ current_page: 3, last_page: 3, data: [account('third')] });
+  third.complete();
+  expect(c.isChart).toBeFalse();
+  second.next({ current_page: 2, last_page: 3, data: [account('second')] });
+  second.complete();
+  expect(c.data.children.map(node => node.data.id)).toEqual(['first', 'second', 'third']);
+  expect(c.areIndicatorsLoading).toBeTrue();
+  expect(c.isTreeLoading).toBeFalse();
+  points.error(new Error('Counters unavailable'));
+  expect(c.indicatorsLoadFailed).toBeTrue();
+  expect(c.treeLoadError).toBe('');
+ });
  it('re-reads relationships when refreshed after a confirmation', () => {
   c.loadData(); api.getNetworkMember.and.returnValue(of({ uuid: 'configured-root', descendantsCount: 0, directos: 0 }));
   api.getNetworkAccounts.and.returnValue(of({ current_page: 1, last_page: 1, data: [] })); c.loadData();
@@ -128,7 +157,7 @@ describe('Administrative genealogy tree', () => {
  });
  it('does not show a partial tree when another page fails', () => {
   api.getNetworkAccounts.and.callFake((page: number) => page === 1 ? of({ current_page: 1, last_page: 2, data: [] }) : throwError({ status: 500 })); c.loadData();
-  expect(c.isChart).toBeFalse(); expect(c.branchMoveError).toBeTruthy();
+  expect(c.isChart).toBeFalse(); expect(c.treeLoadError).toBeTruthy();
  });
  it('protects the configured corporate root without hardcoded UUIDs', () => {
   c.loadData(); expect(c.canMoveBranch('configured-root')).toBeFalse(); expect(c.canMoveBranch('new-account')).toBeTrue();

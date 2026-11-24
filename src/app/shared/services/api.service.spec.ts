@@ -2,12 +2,25 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiService } from './api.service';
 import { HttpService } from './http.service';
+import { AuthenticationService } from './authentication.service';
 import { environment } from '@env/environment';
 describe('Network API contract', () => {
  let api: ApiService; let http: HttpTestingController; let flags: boolean[];
  const url = environment.hostUrl + '/api/v1';
  beforeEach(() => { TestBed.configureTestingModule({ imports: [HttpClientTestingModule] }); api = TestBed.inject(ApiService); http = TestBed.inject(HttpTestingController); flags = [environment.networkMoveBackendCertified, environment.networkMoveConfirmationEnabled]; });
  afterEach(() => { environment.networkMoveBackendCertified = flags[0]; environment.networkMoveConfirmationEnabled = flags[1]; http.verify(); });
+ it('shares concurrent authentication for the same session and fetches again after completion', () => {
+  const auth = TestBed.inject(AuthenticationService);
+  spyOnProperty(auth, 'currentUserValue').and.returnValue({ token: 'test-token' } as any);
+  spyOnProperty(auth, 'currentTokenValue').and.returnValue('test-token');
+  const received = jasmine.createSpy('auth response');
+  api.getAuthenticationUser().subscribe(received);
+  api.getAuthenticationUser().subscribe(received);
+  http.expectOne(url + '/auth').flush({ success: true, data: { uuid: 'member' } });
+  expect(received).toHaveBeenCalledTimes(2);
+  api.getAuthenticationUser().subscribe();
+  http.expectOne(url + '/auth').flush({ success: true, data: { uuid: 'member' } });
+ });
  it('preserves network_meta from the points users endpoint including zero', () => {
   api.getPointListUser().subscribe(response => expect(response.data.network_meta.total_active).toBe(0));
   const request = http.expectOne(url + '/points/users');

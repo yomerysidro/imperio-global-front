@@ -68,25 +68,6 @@ $text-muted: #8c8c8c;
       &.active-color { color: #047857; }
     }
 
-    .stat-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      color: #52647c;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .stat-spinner {
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba($primary-blue, 0.24);
-      border-top-color: $primary-blue;
-      border-radius: 50%;
-      animation: indicator-spin 0.8s linear infinite;
-    }
-
     .stat-retry {
       padding: 0;
       border: 0;
@@ -111,12 +92,31 @@ $text-muted: #8c8c8c;
   }
 }
 
+.stat-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: #52647c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stat-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba($primary-blue, 0.24);
+  border-top-color: $primary-blue;
+  border-radius: 50%;
+  animation: indicator-spin 0.8s linear infinite;
+}
+
 @keyframes indicator-spin {
   to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stats-card .stat-spinner { animation: none; }
+  .stat-spinner { animation: none; }
 }
 
 /* ── 2. TREE CARD & VIEWPORT ──────────────────────────── */
@@ -294,6 +294,22 @@ $text-muted: #8c8c8c;
         }
       }
     }
+  }
+
+  .tree-content { position: relative; }
+
+  .tree-load-status {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    z-index: 21;
+    margin: 0;
+    max-width: calc(100% - 40px);
+    white-space: normal;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f5f8ff;
+    pointer-events: none;
   }
 
   .tree-viewport {
