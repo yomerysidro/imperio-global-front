@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CONSTANTS } from '@shared/constants/constants';
@@ -6,6 +6,7 @@ import { ApiService } from '@shared/services/api.service';
 
 import { FormValidator } from '@shared/utilities/form-validator';
 import { ModalService } from '@shared/utilities/modal-services';
+import { Subscription } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
 // ✅ ELIMINAR ESTA IMPORTACIÓN
 // import { CountryISO, PhoneNumberFormat, SearchCountryField } from 'ngx-intl-tel-input';
@@ -15,9 +16,12 @@ import { NzMessageService } from 'ng-zorro-antd/message';
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
 
     frmRegister!: FormGroup;
+    private readonly subscriptions = new Subscription();
+    private sponsorRequest?: Subscription;
+    private pendingSponsorCode = '';
 
     array = [1, 2, 3, 4];
 
@@ -52,10 +56,11 @@ export class RegisterComponent implements OnInit {
 
     ngOnInit(): void {
         this.initForm();
-        this.frmRegister.get('sponsor_code')?.valueChanges.subscribe(value => {
+        this.subscriptions.add(this.frmRegister.get('sponsor_code')?.valueChanges.subscribe(value => {
             if (this.sponsorFromInvitation) return;
 
             const currentCode = String(value || '').trim();
+            if (currentCode !== this.pendingSponsorCode) this.cancelSponsorSearch();
             // validForm() ejecuta updateValueAndValidity(), que puede volver a
             // emitir el mismo valor. Solo invalidamos si el código realmente
             // cambió respecto al que confirmó sponsor-verify.
@@ -70,9 +75,20 @@ export class RegisterComponent implements OnInit {
             this.sponsorName = '';
             this.sponsorValidated = false;
             this.validatedSponsorCode = '';
-        });
+        }));
         const invitationToken = this.route.snapshot.queryParamMap.get('invitation');
         if (invitationToken) this.verifyInvitation(invitationToken);
+    }
+
+    ngOnDestroy(): void {
+        this.cancelSponsorSearch();
+        this.subscriptions.unsubscribe();
+    }
+
+    private cancelSponsorSearch(): void {
+        this.sponsorRequest?.unsubscribe();
+        this.pendingSponsorCode = '';
+        this.loadingSponsor = false;
     }
 
     initForm(): void {
@@ -127,6 +143,9 @@ export class RegisterComponent implements OnInit {
 
         const sponsorCode = String(this.frmRegister.get('sponsor_code')?.value || '').trim();
 
+        if (sponsorCode && sponsorCode === this.pendingSponsorCode) return;
+        this.cancelSponsorSearch();
+
         // appDelayedInput también puede emitirse al perder el foco cuando el
         // usuario pulsa "Crear cuenta". Si este mismo código ya fue validado,
         // no debemos borrar su estado ni iniciar otra petición.
@@ -144,8 +163,10 @@ export class RegisterComponent implements OnInit {
         if (!sponsorCode) return;
 
         this.loadingSponsor = true;
-        this.apiService.getPublicSponsorVerify(sponsorCode).subscribe({
+        this.pendingSponsorCode = sponsorCode;
+        this.sponsorRequest = this.apiService.getPublicSponsorVerify(sponsorCode).subscribe({
             next: response => {
+                this.pendingSponsorCode = '';
                 this.loadingSponsor = false;
                 const payload: any = response?.data || response;
                 const verifiedCode = String(payload?.sponsor_code || payload?.uuid || '').trim();
@@ -167,6 +188,7 @@ export class RegisterComponent implements OnInit {
                 }
             },
             error: () => {
+                this.pendingSponsorCode = '';
                 this.loadingSponsor = false;
                 this.sponsorName = '';
                 this.sponsorValidated = false;

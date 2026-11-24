@@ -12,8 +12,8 @@
     [nzLoading]="tablePaymentProductLoading"
     [nzData]="tablePaymentProducts"
     [nzTotal]="totalRecord"
-    [(nzPageIndex)]="pageIndex"
-    [(nzPageSize)]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzPageSize]="pageSize"
     (nzQueryParams)="onQueryParamsChange($event)"
   >
     <thead>
@@ -30,7 +30,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let item of tablePaymentProducts">
+      <tr *ngFor="let item of tablePaymentProducts; trackBy: trackOrder">
         <td nzAlign="center">
           <ng-container *ngIf="item.plan == 1">
             <i nz-icon nzType="credit-card" nzTheme="outline"></i>
@@ -40,7 +40,7 @@
           </ng-container>
         </td>
         <td nzAlign="center">
-          <img [src]="item?.user?.file != null ? environment.hostUrl + '/storage/' + item?.user?.file?.path : CONSTANTS.IMAGE.FALLBACK" alt="" class="rounded-circle" style="width: 50px;">
+          <img loading="lazy" decoding="async" [src]="item?.user?.file != null ? environment.hostUrl + '/storage/' + item?.user?.file?.path : CONSTANTS.IMAGE.FALLBACK" alt="" class="rounded-circle" style="width: 50px;">
         </td>
         <td nzAlign="center">{{ item?.user?.name }}</td>
         <td nzAlign="center">

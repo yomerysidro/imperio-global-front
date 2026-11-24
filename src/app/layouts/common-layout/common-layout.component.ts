@@ -1,4 +1,5 @@
-import { Component, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, ViewContainerRef , DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { ApiService } from '@shared/services/api.service';
 import { AuthenticationService } from '@shared/services/authentication.service';
@@ -14,6 +15,7 @@ import { Observable } from "rxjs";
 })
 
 export class CommonLayoutComponent implements OnInit {
+    private readonly destroyRef = inject(DestroyRef);
   @ViewChild('confirmInitedModal', { static: true, read: TemplateRef }) confirmInitedModal:TemplateRef<any>;
   
     breadcrumbs$: Observable<any> | undefined;
@@ -36,12 +38,12 @@ export class CommonLayoutComponent implements OnInit {
     }
 
     ngOnInit() {
-      this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
-      this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
-      this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
-      this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+      this.themeService.isMenuFoldedChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isFolded => this.isFolded = isFolded);
+      this.themeService.isSideNavDarkChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isDark => this.isSideNavDark = isDark);
+      this.themeService.selectedHeaderColor.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(color => this.selectedHeaderColor = color);
+      this.themeService.isExpandChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isExpand => this.isExpand = isExpand);
 
-      this.authenticationService.currentCodeInivited.subscribe( token => {
+      this.authenticationService.currentCodeInivited.pipe(takeUntilDestroyed(this.destroyRef)).subscribe( token => {
 
           if(token){
             localStorage.setItem("guest", token);

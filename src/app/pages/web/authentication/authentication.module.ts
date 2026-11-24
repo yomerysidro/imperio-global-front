@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from "@angular/common";
-import { SharedModule } from '@shared/shared.module';
+import { DelayedInputDirective } from '@shared/directives/delayed-input.directive';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthenticationWebRoutingModule } from './authentication-routing.module';
 
@@ -16,8 +17,6 @@ import { Error1Component } from './error-1/error-1.component';
 import { RegisterComponent } from './register/register.component';
 import { ValidateConfirmationComponent } from './validate-confirmation/validate-confirmation.component';
 import { ConfirmationComponent } from './confirmation/confirmation.component';
-import { BrowserModule } from '@angular/platform-browser';
-import { TemplateWebModule } from '@shared/template-web/template-web.module';
 import { RecoverPasswordComponent } from './recover-password/recover-password.component';
 
 const antdModule = [
@@ -31,7 +30,8 @@ const antdModule = [
 @NgModule({
     imports: [
         CommonModule,
-        SharedModule,
+        DelayedInputDirective,
+        NzIconModule,
         ReactiveFormsModule,
         AuthenticationWebRoutingModule,
         ...antdModule,  // <--- AGREGA ESTA LÍNEA AQUÍ

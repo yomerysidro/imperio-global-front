@@ -8,12 +8,13 @@ describe('CardServiceComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CardServiceComponent ]
+      imports: [ CardServiceComponent ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(CardServiceComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('service', { name: 'Service' });
     fixture.detectChanges();
   });
 

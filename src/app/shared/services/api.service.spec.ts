@@ -1,3 +1,5 @@
+import { Observable, Subject } from 'rxjs';
+import { AuthenticationService } from './authentication.service';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiService } from './api.service';
@@ -35,4 +37,61 @@ describe('Network API contract', () => {
   api.getNetworkAccounts(1).subscribe(); const request = http.expectOne(url + '/admin/network/genealogy?perPage=100&page=1'); expect(request.request.method).toBe('GET'); request.flush({ data: [], current_page: 1, last_page: 1 }); http.expectNone(r => r.url.includes('/admin/network/target-line'));
  });
 
+});
+
+describe('ApiService authentication requests', () => {
+  let api: ApiService;
+  let session: { currentUserValue: object; currentTokenValue: string };
+  let get: jasmine.Spy;
+  let responses: Subject<any>[];
+  let cancellations: number;
+
+  beforeEach(() => {
+    session = { currentUserValue: {}, currentTokenValue: 'first' };
+    responses = [];
+    cancellations = 0;
+    const httpService = jasmine.createSpyObj<HttpService>('HttpService', ['get']);
+    get = httpService.get.and.callFake(() => new Observable(subscriber => {
+      const response = new Subject();
+      responses.push(response);
+      const subscription = response.subscribe(subscriber);
+      return () => {
+        subscription.unsubscribe();
+        cancellations++;
+      };
+    }));
+    api = new ApiService(httpService, session as AuthenticationService);
+  });
+
+  it('shares pending reads and makes a fresh request after the response', () => {
+    const first = jasmine.createSpy('first');
+    const second = jasmine.createSpy('second');
+    api.getAuthenticationUser().subscribe(first);
+    api.getAuthenticationUser().subscribe(second);
+    expect(get).toHaveBeenCalledOnceWith('/auth');
+    const result = { success: true, data: { uuid: 'member' } };
+    responses[0].next(result);
+    responses[0].complete();
+    expect(first).toHaveBeenCalledOnceWith(result);
+    expect(second).toHaveBeenCalledOnceWith(result);
+
+    api.getAuthenticationUser().subscribe().unsubscribe();
+    expect(get).toHaveBeenCalledTimes(2);
+  });
+
+  it('isolates sessions and releases a request when its last subscriber leaves', () => {
+    const first = api.getAuthenticationUser().subscribe();
+    const second = api.getAuthenticationUser().subscribe();
+    session.currentTokenValue = 'second';
+    const otherSession = api.getAuthenticationUser().subscribe();
+    expect(get).toHaveBeenCalledTimes(2);
+
+    first.unsubscribe();
+    expect(cancellations).toBe(0);
+    second.unsubscribe();
+    expect(cancellations).toBe(1);
+    otherSession.unsubscribe();
+    api.getAuthenticationUser().subscribe().unsubscribe();
+    expect(get).toHaveBeenCalledTimes(3);
+  });
 });

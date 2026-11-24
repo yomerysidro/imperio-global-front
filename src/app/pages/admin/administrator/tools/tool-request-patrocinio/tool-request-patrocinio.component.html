@@ -21,17 +21,17 @@
         </div>
         <div class="search-fields">
         <nz-input-group [nzPrefix]="suffixTemplateInfo" class="search-control">
-          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar usuario por ID" appDelayedInput (delayedInput)="onSearch()"/>
+          <input type="text" [(ngModel)]="codeUser" nz-input placeholder="Buscar usuario por ID" appDelayedInput (delayedInput)="onFilterSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfo><i nz-icon nzType="search"></i></ng-template>
 
         <nz-input-group [nzPrefix]="suffixTemplateInfoName" class="search-control">
-          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por nombre" appDelayedInput (delayedInput)="onSearch()"/>
+          <input type="text" [(ngModel)]="nameUser" nz-input placeholder="Buscar usuario por nombre" appDelayedInput (delayedInput)="onFilterSearch()"/>
         </nz-input-group>
         <ng-template #suffixTemplateInfoName><i nz-icon nzType="search"></i></ng-template>
         <nz-select [(ngModel)]="filterMonth" nzAllowClear nzPlaceHolder="Mes" class="search-control"><nz-option *ngFor="let month of months" [nzValue]="month.value" [nzLabel]="month.label"></nz-option></nz-select>
         <nz-select [(ngModel)]="filterYear" nzAllowClear nzPlaceHolder="Año" class="search-control"><nz-option *ngFor="let year of years" [nzValue]="year" [nzLabel]="year"></nz-option></nz-select>
-        <button nz-button nzType="primary" (click)="onSearch()">Consultar</button>
+        <button nz-button nzType="primary" (click)="onFilterSearch()">Consultar</button>
         </div>
       </div>
     </nz-col>
@@ -46,8 +46,8 @@
         [nzLoading]="tableProductLoading"
         [nzData]="tableProducts"
         [nzTotal]="totalRecord"
-        [(nzPageIndex)]="pageIndex"
-        [(nzPageSize)]="pageSize"
+        [nzPageIndex]="pageIndex"
+        [nzPageSize]="pageSize"
         (nzQueryParams)="onQueryParamsChange($event)"
       >
         <thead>
@@ -69,7 +69,7 @@
         <tbody>
           <tr *ngFor="let item of tableProducts">
             <td nzAlign="center">
-              <img [src]="item.user.file != null ? environment.hostUrl + '/storage/' + item.user.file.path  :CONSTANTS.IMAGE.FALLBACK" [alt]="item.user.name" class="user-avatar">
+              <img loading="lazy" decoding="async" [src]="item.user.file != null ? environment.hostUrl + '/storage/' + item.user.file.path  :CONSTANTS.IMAGE.FALLBACK" [alt]="item.user.name" class="user-avatar">
             </td>
             <td nzAlign="center"><strong class="user-name">{{ item.user.name }}</strong></td>
             <td nzAlign="center">

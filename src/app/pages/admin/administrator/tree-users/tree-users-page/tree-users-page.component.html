@@ -71,9 +71,8 @@
 
       <div class="sponsor-box">
         <div class="sponsor-info">
-          <span class="label">Tu patrocinador es</span>
-          <strong class="name">{{ userSponsor }}</strong>
-          <span class="id-tag">ID: {{ codeSponsor }}</span>
+          <span class="label">Tu código de patrocinio</span>
+          <strong class="id-tag">{{ ownSponsorCode }}</strong>
         </div>
         <div class="tree-legend">
           <div class="legend-item">
@@ -91,13 +90,17 @@
     </nz-col>
 
     <nz-col [nzSpan]="24" class="tree-content">
-      <div #treeViewport class="tree-viewport">
+      <div #treeViewport class="tree-viewport" [attr.aria-busy]="treeLoading">
+        <div *ngIf="treeLoading" class="text-center" role="status">
+          <nz-spin nzSimple></nz-spin>
+          <span class="visually-hidden">Cargando la red</span>
+        </div>
         <ng-container *ngIf="isChart">
           <div class="tree-stage"
             [style.width.px]="treeCanvasWidth"
             [style.height.px]="treeCanvasHeight">
             <div class="tree-canvas" [style.transform]="'scale(' + treeZoom + ')'">
-              <app-tree-view #treeView [data]="data" [template]="treeTemplate"></app-tree-view>
+              <app-tree-view #treeView [data]="data" [template]="treeTemplate" [viewport]="treeViewport" [zoom]="treeZoom"></app-tree-view>
             </div>
           </div>
 
@@ -109,7 +112,7 @@
               (click)="onSeletedUser(node.data.id)">
 
               <div class="node-avatar" [class.is-active]="node.isActive">
-                <img *ngIf="node.data.photo" [src]="node.data.photo" class="avatar-img" alt="avatar" (error)="node.data.photo = null" />
+                <img decoding="async" *ngIf="node.data.photo" [src]="node.data.photo" class="avatar-img" alt="avatar" (error)="node.data.photo = null" />
                 <div *ngIf="!node.data.photo" class="node-placeholder">
                   <i nz-icon nzType="user"></i>
                 </div>

@@ -60,13 +60,11 @@ const MODULES = [
 const COMPONENTS = [
     LoadingSpinerComponent,
     // ❌ COMENTADO: CarouselImagesComponent,
-    CardServiceComponent,
     PaymentReservationModalComponent,
     TreeViewComponent,
     // ❌ COMENTADO: ImageCropperUploadComponent,
     UserTreeDetailComponent,
     PaymentProductsModalComponent,
-    DelayedInputDirective,
     TablePaymentProductOrderComponent,
     PaymentViewVoucherModalComponent,
     PaymentOfflineEfectivoComponent,
@@ -81,10 +79,12 @@ const COMPONENTS = [
         ReactiveFormsModule,
         HttpClientModule,
         HttpClientJsonpModule,
+        SearchPipe,
+        CardServiceComponent,
+        DelayedInputDirective,
         ...MODULES
     ],
     declarations: [
-        SearchPipe,
         ...COMPONENTS
     ],
     exports: [
@@ -95,6 +95,8 @@ const COMPONENTS = [
         HttpClientJsonpModule,
         ...MODULES,
         SearchPipe,
+        CardServiceComponent,
+        DelayedInputDirective,
         ...COMPONENTS,
     ],
     providers: [

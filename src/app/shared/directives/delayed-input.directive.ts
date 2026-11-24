@@ -4,7 +4,8 @@ import {fromEvent, Subject, timer} from 'rxjs';
 import {debounce, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 
 @Directive({
-selector: '[appDelayedInput]'
+  selector: '[appDelayedInput]',
+  standalone: true
 })
 export class DelayedInputDirective implements OnInit, OnDestroy {
 

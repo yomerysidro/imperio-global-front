@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NzImageModule } from 'ng-zorro-antd/image';
 import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
 import { ServiceModel } from '@shared/services/models/service.interface';
@@ -6,6 +8,9 @@ import { ServiceModel } from '@shared/services/models/service.interface';
 
 @Component({
   selector: 'app-card-service',
+  standalone: true,
+  imports: [CommonModule, NzImageModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './card-service.component.html',
   styleUrls: ['./card-service.component.scss']
 })

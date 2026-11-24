@@ -31,6 +31,7 @@ interface ReactivationCategory {
 export class ToolsUsersReactiveModalComponent implements OnInit {
 
   @Input() userModel: UserModel;
+  @Output() reactivated = new EventEmitter<void>();
   @Output() back: EventEmitter<number> = new EventEmitter<number>();
 
   avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
@@ -152,6 +153,7 @@ export class ToolsUsersReactiveModalComponent implements OnInit {
           (response) => {
             this.loadingDesactive = false;
             if (response?.success) {
+              this.reactivated.emit();
               this.modalRef.closeAll();
               const successMessage = response.message || 'Puntos reactivados correctamente.';
               this.modalService.success(`✓ ${successMessage}`);

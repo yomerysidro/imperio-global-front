@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CONSTANTS } from '@shared/constants/constants';
 import { ApiService } from '@shared/services/api.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -9,7 +10,7 @@ import { finalize } from 'rxjs/operators';
   templateUrl: './finance.component.html',
   styleUrls: ['./finance.component.scss']
 })
-export class FinanceComponent implements OnInit {
+export class FinanceComponent implements OnInit, OnDestroy {
 
   currentDate: Date = new Date();
 
@@ -27,6 +28,7 @@ export class FinanceComponent implements OnInit {
   financeRows: any[] = [];
   selectedPeriod: string = '';
   loadingSummary: boolean = false;
+  private summaryRequest?: Subscription;
 
   oneMonthAgo: Date;
   isGeneratingCurrentMonthExcel: boolean = false;
@@ -55,6 +57,10 @@ export class FinanceComponent implements OnInit {
     this.loadCommissionSummary();
   }
 
+  ngOnDestroy(): void {
+    this.summaryRequest?.unsubscribe();
+  }
+
   private refreshCurrentPeriod(): void {
     this.currentDate = new Date();
     this.selectedPeriod = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}`;
@@ -72,8 +78,9 @@ export class FinanceComponent implements OnInit {
 
   public loadCommissionSummary(): void {
     const { month, year } = this.getSelectedPeriod();
+    this.summaryRequest?.unsubscribe();
     this.loadingSummary = true;
-    this.apiService.getCommissionSummary(month, year)
+    this.summaryRequest = this.apiService.getCommissionSummary(month, year)
       .pipe(finalize(() => this.loadingSummary = false))
       .subscribe({
         next: response => {
