@@ -35,9 +35,7 @@ export class TreeUsersPageComponent implements OnInit {
   usuarioActivos: number | null = null;
   usuarioTotal: number | null = null;
 
-  // Info del Patrocinador
-  userSponsor: string = "--";
-  codeSponsor: string = "--";
+  ownSponsorCode = '--';
 
   // Variables para puntos del usuario principal
   puntosPersonales: number = 0;
@@ -146,6 +144,7 @@ export class TreeUsersPageComponent implements OnInit {
             ...pointsUserProps
           };
           this.currentUser = user;
+          this.ownSponsorCode = authUser?.uuid || getCodeUuid() || user?.uuid || '--';
           this.usuarioTotal = this.readNetworkCount(pointsData?.network_meta?.total_network);
           this.usuarioDirectos = this.readNetworkCount(pointsData?.network_meta?.total_directs);
           this.usuarioActivos = this.readNetworkCount(pointsData?.network_meta?.total_active);
@@ -188,17 +187,6 @@ export class TreeUsersPageComponent implements OnInit {
             this.puntosTotales = 0;
             this.puntosPatrocinio = 0;
             this.puntosResidual = 0;
-          }
-
-          this.userSponsor = user?.sponsor_name || "Sistema";
-          this.codeSponsor = user?.sponsor_uuid || "--";
-
-          if (this.userSponsor === "Sistema" && this.codeSponsor === "--") {
-            const myPoint = this.listPoints.find(p => p.user_code?.toLowerCase() === myId?.toLowerCase());
-            if (myPoint?.sponsor) {
-              this.userSponsor = myPoint.sponsor.name || "Sistema";
-              this.codeSponsor = myPoint.sponsor.uuid || "--";
-            }
           }
 
           const image = user?.file?.path
@@ -260,8 +248,6 @@ export class TreeUsersPageComponent implements OnInit {
                 };
                 try {
                   this.data = node(detail);
-                  this.userSponsor = detail.sponsor?.name || 'Raíz corporativa';
-                  this.codeSponsor = detail.sponsor?.uuid || '--';
                   this.isChart = true;
                   this.scheduleInitialTreeCenter();
                 } catch (error) { this.branchMoveError = error.message; }
