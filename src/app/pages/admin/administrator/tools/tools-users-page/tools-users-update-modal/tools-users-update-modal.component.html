@@ -122,7 +122,7 @@
                 <div class="plan-meta">
                   <span class="plan-name">{{ getPackName() || 'Sin plan' }}</span>
                   <span class="plan-badge" [ngClass]="{'active': productActive, 'inactive': !productActive}">
-                    <i nz-icon [nzType]="productActive ? 'check-circle' : 'stop'" nzTheme="outline"></i>{{ productActive ? 'ACTIVO' : 'INACTIVO' }}
+                    <i nz-icon [nzType]="productActive ? 'check-circle' : 'stop'" nzTheme="outline"></i>{{ (assignedPack && productOwned) ? 'ASIGNADO' : (productActive ? 'ACTIVO' : 'INACTIVO') }}
                   </span>
                 </div>
               </div>
@@ -161,7 +161,7 @@
                 <div class="plan-meta">
                   <span class="plan-name">{{ getServiceName() || 'Ninguno' }}</span>
                   <span class="plan-badge" [ngClass]="{'active': serviceActive, 'inactive': !serviceActive}">
-                    <i nz-icon [nzType]="serviceActive ? 'check-circle' : 'stop'" nzTheme="outline"></i>{{ serviceActive ? 'ACTIVO' : 'INACTIVO' }}
+                    <i nz-icon [nzType]="serviceActive ? 'check-circle' : 'stop'" nzTheme="outline"></i>{{ (assignedPack && serviceOwned) ? 'ASIGNADO' : (serviceActive ? 'ACTIVO' : 'INACTIVO') }}
                   </span>
                 </div>
               </div>

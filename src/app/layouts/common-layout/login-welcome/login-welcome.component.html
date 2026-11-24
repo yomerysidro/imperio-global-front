@@ -1,0 +1,17 @@
+<div class="welcome-card" [class.welcome-card--closing]="closing" (keydown.escape)="close()">
+  <header class="welcome-header">
+    <img class="welcome-logo" src="favicon.ico" alt="" width="60" height="60">
+    <h2 id="login-welcome-title">¡Bienvenido a Imperio Global!</h2>
+    <p>Transforma tu vida con nosotros.</p>
+  </header>
+  <div class="welcome-body" id="login-welcome-description">
+    <h3>Tu próximo gran paso comienza aquí.</h3>
+    <p>Transforma tus metas en oportunidades. Hoy es un buen día para avanzar hacia tus sueños.</p>
+    <p class="welcome-signoff">Tu espacio de crecimiento te espera.</p>
+  </div>
+  <footer class="welcome-footer">
+    <button class="welcome-action" type="button" (click)="close()" [attr.aria-disabled]="closing">
+      ¡Comenzar mi experiencia!
+    </button>
+  </footer>
+</div>

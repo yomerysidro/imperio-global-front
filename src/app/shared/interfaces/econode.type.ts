@@ -71,6 +71,8 @@ export class ECONode {
   rightNeighbor = null;
   nodeParent:ECONode = null;
   nodeChildren:ECONode[] = [];
+  paths: string[] = [];
+  branchPath = '';
 
   isCollapsed = false;
   canCollapse = false;
@@ -213,9 +215,8 @@ export class ECONode {
         ya = this.YPosition + this.h / 2;
         break;
     }
-    const nodesSorted=this.nodeChildren.sort((a,b)=>a.isSelected && !b.isSelected?1:-1);
-    for (let k = 0; k < nodesSorted.length; k++) {
-      node1 = nodesSorted[k];
+    for (const child of this.nodeChildren) {
+      node1 = child;
 
       switch (tree.config.iRootOrientation) {
         case Orientation.RO_TOP:
@@ -728,17 +729,7 @@ export class ECOTree {
     const border = bc || this.config.nodeBorderColor;
     const metadata = typeof meta != "undefined" ? meta : "";
 
-    let pnode = null; //Search for parent node in database
-    if (pid == -1) {
-      pnode = this.root;
-    } else {
-      for (let k = 0; k < this.nDatabaseNodes.length; k++) {
-        if (this.nDatabaseNodes[k].id == pid) {
-          pnode = this.nDatabaseNodes[k];
-          break;
-        }
-      }
-    }
+    const pnode = pid == -1 ? this.root : this.nDatabaseNodes[this.mapIDs[pid]];
 
     const node = new ECONode(id, pid, dsc, nw, nh, color, border, lc, metadata);
     node.isSelected=selected;//New node creation...

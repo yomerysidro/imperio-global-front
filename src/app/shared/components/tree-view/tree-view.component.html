@@ -1,9 +1,10 @@
 <div class="tree" *ngIf="tree.width && tree.height">
-  <div class="wrapper">
+  <div class="wrapper" [style.width.px]="tree.width" [style.height.px]="tree.height">
     <svg class="treeLink" [style.width]="tree.width + 'px'" [style.height]="tree.height + 'px'">
       <ng-container *ngFor="let node of tree.nDatabaseNodes">
+        <path *ngIf="node.branchPath" [attr.stroke]="node.linkColor" [attr.d]="node.branchPath" />
         <ng-container *ngFor="let path of node.paths; let i = index">
-          <path 
+          <path class="tree-child-link"
             [attr.stroke]="node.nodeChildren[i].isSelected ? (node.linkColor || '#d1d9e2') : '#d1d9e2'"
             [attr.d]="path" />
         </ng-container>

@@ -3,26 +3,49 @@
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item">
       <div class="stat-icon network-icon"><i class="fa-solid fa-network-wired"></i></div>
       <div class="stat-data">
-        <h1 class="stat-number">{{ usuarioTotal ?? 'No informado' }}</h1>
+        <h1 class="stat-number" aria-live="polite">
+          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioTotal, retry: indicatorsLoadFailed }"></ng-container>
+        </h1>
         <p class="stat-label">Red Total</p>
       </div>
     </nz-col>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
       <div class="stat-icon direct-icon"><i class="fa-solid fa-user-plus"></i></div>
       <div class="stat-data">
-        <h1 class="stat-number">{{ usuarioDirectos ?? 'No informado' }}</h1>
+        <h1 class="stat-number" aria-live="polite">
+          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioDirectos }"></ng-container>
+        </h1>
         <p class="stat-label">Directos</p>
       </div>
     </nz-col>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
       <div class="stat-icon active-icon"><i class="fa-solid fa-user-check"></i></div>
       <div class="stat-data">
-        <h1 class="stat-number active-color">{{ usuarioActivos ?? 'No informado' }}</h1>
+        <h1 class="stat-number active-color" aria-live="polite">
+          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioActivos }"></ng-container>
+        </h1>
         <p class="stat-label">Activos</p>
       </div>
     </nz-col>
   </nz-row>
 </nz-card>
+
+<ng-template #indicatorValue let-value let-retry="retry">
+  <span *ngIf="areIndicatorsLoading; else loadedIndicator" class="stat-status">
+    <span class="stat-spinner" aria-hidden="true"></span> Cargando...
+  </span>
+  <ng-template #loadedIndicator>
+    <ng-container *ngIf="value !== null; else unavailableIndicator">{{ value }}</ng-container>
+  </ng-template>
+  <ng-template #unavailableIndicator>
+    <button *ngIf="retry; else unavailableText" type="button" class="stat-status stat-retry"
+      aria-label="No disponible. Reintentar consulta de indicadores" title="Reintentar consulta"
+      (click)="loadData()">
+      No disponible <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+    </button>
+    <ng-template #unavailableText><span class="stat-status">No disponible</span></ng-template>
+  </ng-template>
+</ng-template>
 
 <div #treeContainer class="tree-shell" [class.is-fullscreen]="isFullScreen">
 <nz-card class="tree-main-card">
@@ -91,14 +114,12 @@
 
     <nz-col [nzSpan]="24" class="tree-content">
       <div #treeViewport class="tree-viewport">
-        <ng-container *ngIf="isChart">
-          <div class="tree-stage"
-            [style.width.px]="treeCanvasWidth"
-            [style.height.px]="treeCanvasHeight">
-            <div class="tree-canvas" [style.transform]="'scale(' + treeZoom + ')'">
-              <app-tree-view #treeView [data]="data" [template]="treeTemplate"></app-tree-view>
-            </div>
+        <div class="tree-stage">
+          <div #treeCanvas class="tree-canvas" [style.zoom]="treeZoom">
+            <app-tree-view *ngIf="isChart" [data]="data" [template]="treeTemplate"
+              [nodeHeight]="treeNodeHeight"></app-tree-view>
           </div>
+        </div>
 
           <ng-template #treeTemplate let-node>
             <div class="node-wrapper"
@@ -116,7 +137,7 @@
               </div>
 
               <div class="node-label">
-                <span class="node-id">{{ node.data.id }}</span>
+                <span class="node-id" [title]="node.data.id">{{ node.data.id }}</span>
                 <div class="node-status-bar">
                   <div class="bar-fill" [class.active]="node.isActive"></div>
                 </div>
@@ -130,7 +151,6 @@
 
             </div>
           </ng-template>
-        </ng-container>
       </div>
     </nz-col>
   </nz-row>

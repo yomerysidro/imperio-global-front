@@ -118,6 +118,8 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
   }
 
   // Carga los planes y parcha el formulario
+  public assignedPack = false;
+
   public loadPlansAndPatch(): void {
     this.apiService.getPlansSearch({}).subscribe(
       (planList) => {
@@ -141,6 +143,7 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         const productData = packsByCategory.product;
         const serviceData = packsByCategory.service;
 
+        this.assignedPack = productData?.assigned === true || serviceData?.assigned === true;
         this.productOwned = productData?.owned === true;
         this.productActive = productData?.active === true;
         this.serviceOwned = serviceData?.owned === true;
@@ -346,14 +349,16 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
       }
     }
 
+    const assigningStarter = this.productPlans.some(pack => pack.id === packValue && pack.title === 'Kit de Inicio');
+    const administrativeAssignment = this.assignedPack || assigningStarter;
     this.loadingSave = true;
 
     const payload = {
       userCode: this.userModel.uuid,
       userFullName: this.validateForm.get('fullname')?.value,
       userEmail: this.validateForm.get('email')?.value,
-      packId: packValue,
-      serviceId: serviceValue,
+      packId: administrativeAssignment && packValue === this.previousPackId ? null : packValue,
+      serviceId: administrativeAssignment && serviceValue === this.previousServiceId ? null : serviceValue,
       sponsorNew: sponsorValue || ""
     };
 
@@ -372,7 +377,9 @@ export class ToolsUsersUpdateModalComponent implements OnInit {
         const packChanged = packValue !== null && packValue !== this.previousPackId;
         const serviceChanged = serviceValue !== null && serviceValue !== this.previousServiceId;
 
-        if (packChanged && serviceChanged) {
+        if (administrativeAssignment && (packChanged || serviceChanged)) {
+          successMessage = response.message || 'Paquete asignado.';
+        } else if (packChanged && serviceChanged) {
           successMessage = "Producto y Servicio actualizados y activados correctamente.";
         } else if (packChanged) {
           successMessage = "Producto activado correctamente.";

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { FormBuilder, FormGroup, UntypedFormBuilder, UntypedFormGroup,  Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CONSTANTS } from '@shared/constants/constants';
+import { LOGIN_WELCOME_NAVIGATION } from '@shared/constants/login-welcome';
 import { ApiService } from '@shared/services/api.service';
 import { AuthenticationService } from '@shared/services/authentication.service';
 import { IResponse } from '@shared/services/interfaces/response.interface';
@@ -82,18 +83,21 @@ export class Login1Component implements OnInit{
 
           this.authenticationService.setCurrentUser(authenticatedUser);
           this.themeConstantService.changeAdminUser(authenticatedUser.admin)
+          const navigation = response.success !== false && authenticatedUser.token
+            ? { info: LOGIN_WELCOME_NAVIGATION }
+            : undefined;
           const pendingCart = sessionStorage.getItem('pendingProductCart');
           if (pendingCart) {
             try {
               this.themeConstantService.changeCurrentCartList(JSON.parse(pendingCart));
               sessionStorage.removeItem('pendingProductCart');
-              this.router.navigate(['/admin/marketplace']);
+              this.router.navigate(['/admin/marketplace'], navigation);
             } catch {
               sessionStorage.removeItem('pendingProductCart');
-              this.router.navigate(['/admin/profile']);
+              this.router.navigate(['/admin/profile'], navigation);
             }
           } else {
-            this.router.navigate(['/admin/profile']);
+            this.router.navigate(['/admin/profile'], navigation);
           }
           this.loadingSubmit = false;
         },(error) => {
