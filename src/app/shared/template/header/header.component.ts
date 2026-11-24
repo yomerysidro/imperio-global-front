@@ -1,8 +1,7 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ThemeConstantService } from '@shared/services/theme-constant.service';
 import { AuthenticationService } from '@shared/services/authentication.service';
 import { ApiService } from '@shared/services/api.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { removeSessionLocalAll } from '@shared/utilities/functions';
 
@@ -13,7 +12,6 @@ import { removeSessionLocalAll } from '@shared/utilities/functions';
 })
 
 export class HeaderComponent{
-    private readonly destroyRef = inject(DestroyRef);
 
     searchVisible : boolean = false;
     quickViewVisible : boolean = false;
@@ -30,12 +28,12 @@ export class HeaderComponent{
     ) {}
 
     ngOnInit(): void {
-        this.themeService.isMenuFoldedChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isFolded => this.isFolded = isFolded);
-        this.themeService.isExpandChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isExpand => this.isExpand = isExpand);
-        this.authenticationService.currentUser.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(user => {
+        this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
+        this.themeService.isExpandChanges.subscribe(isExpand => this.isExpand = isExpand);
+        this.authenticationService.currentUser.subscribe(user => {
             this.userName = user?.name || 'Usuario';
         });
-        this.apiService.getAuthenticationUser().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        this.apiService.getAuthenticationUser().subscribe({
             next: response => {
                 this.userName = response?.data?.name || this.userName;
                 this.userEmail = response?.data?.email || this.userEmail;

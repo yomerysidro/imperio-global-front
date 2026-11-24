@@ -21,7 +21,7 @@
       <nz-col *ngFor="let plan of planList; let i = index" [nzLg]="8" [nzMd]="12" [nzXs]="24">
         <article class="plan-card">
           <div class="plan-image">
-            <img loading="lazy" decoding="async" [src]="env.hostUrl + '/storage/' + plan.file.path" [alt]="'Pack ' + plan.title">
+            <img [src]="env.hostUrl + '/storage/' + plan.file.path" [alt]="'Pack ' + plan.title">
           </div>
           <div class="plan-details">
             <div class="plan-heading">

@@ -41,7 +41,7 @@
       <i nz-icon nzType="team" nzTheme="outline"></i>
       <div><strong>Invitar usuarios</strong><small>También puedes seleccionar usuarios y enviarles la invitación.</small></div>
     </div>
-    <nz-select [(ngModel)]="multipleUsers" nzMode="multiple" nzPlaceHolder="Seleccionar usuarios" class="users-select" [nzLoading]="loadingUsers" (nzOpenChange)="loadUsers($event)">
+    <nz-select [(ngModel)]="multipleUsers" nzMode="multiple" nzPlaceHolder="Seleccionar usuarios" class="users-select">
       <nz-option *ngFor="let option of listUsers" [nzLabel]="option.name + ' · ' + option.uuid" [nzValue]="option.uuid"></nz-option>
     </nz-select>
     <button nz-button nzType="primary" class="send-button" type="button" (click)="onSendEmail()" [nzLoading]="loading" [disabled]="multipleUsers.length === 0">

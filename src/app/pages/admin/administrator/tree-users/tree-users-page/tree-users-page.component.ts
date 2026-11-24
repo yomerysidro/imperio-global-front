@@ -1,6 +1,5 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { forkJoin, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
 import { ECONode, IECONode, Orientation } from '@shared/interfaces/econode.type';
 import { ApiService } from '@shared/services/api.service';
@@ -19,7 +18,7 @@ import { ToolsUsersSponsorModalComponent } from '../../tools/tools-users-page/to
   templateUrl: './tree-users-page.component.html',
   styleUrls: ['./tree-users-page.component.scss']
 })
-export class TreeUsersPageComponent implements OnInit, OnDestroy {
+export class TreeUsersPageComponent implements OnInit {
   @ViewChild('treeViewport') treeViewport?: ElementRef<HTMLElement>;
   @ViewChild('treeContainer') treeContainer?: ElementRef<HTMLElement>;
   @ViewChild('treeView') treeView?: TreeViewComponent;
@@ -27,9 +26,6 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   Orientation = Orientation;
   nodeSelected: ECONode | null = null;
   isChart: boolean = false;
-  treeLoading = false;
-  private readonly cancelTreeLoad = new Subject<void>();
-  private centerFrame?: number;
   data!: IECONode;
   environment = environment;
   fallback = CONSTANTS.IMAGE.FALLBACK;
@@ -39,9 +35,9 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   usuarioActivos: number | null = null;
   usuarioTotal: number | null = null;
 
-  get ownSponsorCode(): string {
-    return this.currentUser?.uuid || getCodeUuid() || '--';
-  }
+  // Info del Patrocinador
+  userSponsor: string = "--";
+  codeSponsor: string = "--";
 
   // Variables para puntos del usuario principal
   puntosPersonales: number = 0;
@@ -129,16 +125,13 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
    * Carga la red completa desde el Backend
    */
   public loadData(): void {
-    this.cancelTreeLoad.next();
     this.isChart = false;
-    this.treeLoading = true;
-    this.branchMoveError = '';
     this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
 
     forkJoin({
       pointsRes: this.apiService.getPointListUser(),
       authRes: this.apiService.getAuthenticationUser()
-    }).pipe(takeUntil(this.cancelTreeLoad)).subscribe({
+    }).subscribe({
       next: ({ pointsRes, authRes }) => {
         if (pointsRes.success) {
           const authUser = authRes.success ? authRes.data : null;
@@ -178,14 +171,9 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
           const myId = user?.uuid || getCodeUuid() || '';
           
           // 🔥 Construir árbol REAL (sin placeholders para los contadores)
-          const pointsBySponsor = new Map<string, any[]>();
-          for (const point of this.listPoints) {
-            const sponsor = point.sponsor_code?.toLowerCase();
-            if (sponsor == null) continue;
-            if (!pointsBySponsor.has(sponsor)) pointsBySponsor.set(sponsor, []);
-            pointsBySponsor.get(sponsor).push(point);
-          }
-          const childrenForDisplay = this.nodeTreeParse(pointsBySponsor, myId, new Set([myId.toLowerCase()]));
+          let realChildren = this.nodeTreeParse(this.listPoints, myId);
+          // Renderizar únicamente cuentas reales; una rama vacía no requiere nodos ficticios.
+          const childrenForDisplay = realChildren;
 
           // 🔥 PUNTOS DEL USUARIO
           if (user?.points) {
@@ -200,6 +188,17 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
             this.puntosTotales = 0;
             this.puntosPatrocinio = 0;
             this.puntosResidual = 0;
+          }
+
+          this.userSponsor = user?.sponsor_name || "Sistema";
+          this.codeSponsor = user?.sponsor_uuid || "--";
+
+          if (this.userSponsor === "Sistema" && this.codeSponsor === "--") {
+            const myPoint = this.listPoints.find(p => p.user_code?.toLowerCase() === myId?.toLowerCase());
+            if (myPoint?.sponsor) {
+              this.userSponsor = myPoint.sponsor.name || "Sistema";
+              this.codeSponsor = myPoint.sponsor.uuid || "--";
+            }
           }
 
           const image = user?.file?.path
@@ -220,14 +219,11 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
           };
 
           this.isChart = true;
-          this.treeLoading = false;
           this.scheduleInitialTreeCenter();
-        } else {
-          this.showTreeError('No se pudo cargar la red.');
         }
       },
       error: (err) => {
-        this.showTreeError(err?.message || 'No se pudo cargar la red.');
+        console.error("Error al cargar la red", err);
       }
     });
   }
@@ -235,25 +231,23 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   /** Administrative relationships come exclusively from sponsor_relations via Laravel. */
   private loadAdministrativeTree(): void {
     this.branchMoveError = '';
-    this.apiService.getNetworkRoot().pipe(takeUntil(this.cancelTreeLoad)).subscribe({
+    this.apiService.getNetworkRoot().subscribe({
       next: root => {
-        this.apiService.getNetworkMember(root.uuid).pipe(takeUntil(this.cancelTreeLoad)).subscribe({
+        this.apiService.getNetworkMember(root.uuid).subscribe({
           next: detail => {
             const accounts: any[] = [];
-            const readPage = (page: number) => this.apiService.getNetworkAccounts(page).pipe(takeUntil(this.cancelTreeLoad)).subscribe({
+            const readPage = (page: number) => this.apiService.getNetworkAccounts(page).subscribe({
               next: response => {
                 if (!Array.isArray(response?.data) || response.current_page !== page || !Number.isInteger(response.last_page) || response.last_page < page) {
-                  this.showTreeError('Contrato inválido al leer el árbol administrativo.');
+                  this.branchMoveError = 'Contrato inválido al leer el árbol administrativo.';
                   return;
                 }
                 accounts.push(...response.data);
                 if (page < response.last_page) { readPage(page + 1); return; }
                 const children = new Map<string, any[]>();
-                accounts.forEach(account => {
-                  if (account.connected !== true) return;
+                accounts.filter(account => account.connected === true).forEach(account => {
                   const key = String(account.sponsor_code ?? '').toUpperCase();
-                  if (!children.has(key)) children.set(key, []);
-                  children.get(key).push(account);
+                  children.set(key, [...(children.get(key) || []), account]);
                 });
                 const visited = new Set<string>();
                 const node = (account: any): IECONode => {
@@ -266,22 +260,18 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
                 };
                 try {
                   this.data = node(detail);
+                  this.userSponsor = detail.sponsor?.name || 'Raíz corporativa';
+                  this.codeSponsor = detail.sponsor?.uuid || '--';
                   this.isChart = true;
-                  this.treeLoading = false;
                   this.scheduleInitialTreeCenter();
-                } catch (error) { this.showTreeError(error.message); }
-              }, error: () => { this.showTreeError('No se pudo leer una página del árbol. Vuelve a actualizar.'); }
+                } catch (error) { this.branchMoveError = error.message; }
+              }, error: () => { this.branchMoveError = 'No se pudo leer una página del árbol. Vuelve a actualizar.'; }
             });
             readPage(1);
-          }, error: () => { this.showTreeError('No se pudo consultar la genealogía de la raíz. Vuelve a actualizar.'); }
+          }, error: () => { this.branchMoveError = 'No se pudo consultar la genealogía de la raíz. Vuelve a actualizar.'; }
         });
-      }, error: () => { this.showTreeError('No se pudo consultar la raíz configurada en Laravel.'); }
+      }, error: () => { this.branchMoveError = 'No se pudo consultar la raíz configurada en Laravel.'; }
     });
-  }
-
-  private showTreeError(message: string): void {
-    this.branchMoveError = message;
-    this.treeLoading = false;
   }
 
   private readNetworkCount(value: unknown): number | null {
@@ -305,7 +295,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
 
     this.highlightedNodeCode = String(node.data.id);
     this.searchMessage = `Afiliado encontrado: ${node.data.email || node.data.id}`;
-    this.centerHighlightedNode();
+    setTimeout(() => this.centerHighlightedNode(), 0);
   }
 
   public clearTreeSearch(): void {
@@ -357,18 +347,55 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
    */
   private scheduleInitialTreeCenter(): void {
     this.treeZoom = 1;
-    if (this.centerFrame !== undefined) cancelAnimationFrame(this.centerFrame);
-    this.centerFrame = requestAnimationFrame(() => {
-      this.centerFrame = undefined;
-      const code = this.data?.data?.id;
-      if (code) this.treeView?.scrollToNode(String(code), true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => this.positionTreeFromLeft());
+    });
+
+    // La librería amplía el lienzo mientras dibuja niveles y conectores.
+    [80, 220, 500].forEach(delay => {
+      setTimeout(() => this.positionTreeFromLeft(), delay);
     });
   }
 
-  ngOnDestroy(): void {
-    this.cancelTreeLoad.next();
-    this.cancelTreeLoad.complete();
-    if (this.centerFrame !== undefined) cancelAnimationFrame(this.centerFrame);
+  private positionTreeFromLeft(): void {
+    const viewport = this.treeViewport?.nativeElement;
+    if (!viewport || !this.data?.data?.id) return;
+
+    const rootCode = String(this.data.data.id);
+    const rootNode = Array.from(
+      viewport.querySelectorAll<HTMLElement>('[data-node-code]')
+    ).find(element => element.dataset.nodeCode === rootCode);
+    if (!rootNode) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const rootRect = rootNode.getBoundingClientRect();
+    const desiredLeft = viewport.scrollLeft + rootRect.left - viewportRect.left - 24;
+
+    viewport.scrollLeft = Math.max(0, desiredLeft);
+    viewport.scrollTop = 0;
+  }
+
+  private centerTreeOnRoot(): void {
+    const viewport = this.treeViewport?.nativeElement;
+    if (!viewport || !this.data?.data?.id) return;
+
+    const rootCode = String(this.data.data.id);
+    const rootNode = Array.from(
+      viewport.querySelectorAll<HTMLElement>('[data-node-code]')
+    ).find(element => element.dataset.nodeCode === rootCode);
+
+    if (!rootNode) return;
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const rootRect = rootNode.getBoundingClientRect();
+    const desiredLeft = viewport.scrollLeft
+      + (rootRect.left - viewportRect.left)
+      + (rootRect.width / 2)
+      - (viewport.clientWidth / 2);
+
+    const maximumLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    viewport.scrollLeft = Math.min(maximumLeft, Math.max(0, desiredLeft));
+    viewport.scrollTop = 0;
   }
 
   private findTreeNodeByTerm(node: IECONode, term: string): IECONode | null {
@@ -385,18 +412,28 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   }
 
   private centerHighlightedNode(): void {
-    this.treeView?.scrollToNode(this.highlightedNodeCode);
+    const viewport = this.treeViewport?.nativeElement;
+    if (!viewport || !this.highlightedNodeCode) return;
+
+    const nodes = Array.from(viewport.querySelectorAll<HTMLElement>('[data-node-code]'));
+    const target = nodes.find(element => element.dataset.nodeCode === this.highlightedNodeCode);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
   }
 
   /** Parsea la lista plana usando la regla mensual común de actividad. */
-private nodeTreeParse(pointsBySponsor: Map<string, any[]>, code: string, ancestors: Set<string>): IECONode[] {
-  const tree: IECONode[] = [];
-  const childrenPoints = pointsBySponsor.get(code.toLowerCase()) ?? [];
-  const processedCodes = new Set<string>();
+private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
+  let tree: Array<IECONode> = [];
+
+  const childrenPoints = listPoints.filter(p => {
+    const isMatch = p.sponsor_code?.toLowerCase() === code.toLowerCase();
+    const isValidType = p.type === 'B' || p.type === 'G' || p.type === 'COMPRA' || p.is_legacy === true;
+    return isMatch && isValidType;
+  });
+  
+  const processedCodes = new Set();
 
   childrenPoints.forEach((point) => {
-    const childCode = point.user_code;
-    if (typeof childCode !== 'string' || ancestors.has(childCode.toLowerCase()) || processedCodes.has(childCode)) return;
+    if (processedCodes.has(point.user_code)) return;
     processedCodes.add(point.user_code);
 
     const uHijo = point.user || point.user_point;
@@ -408,7 +445,6 @@ private nodeTreeParse(pointsBySponsor: Map<string, any[]>, code: string, ancesto
 
     const isNodeActive = isUserMembershipActive(uHijo, point);
 
-    ancestors.add(childCode.toLowerCase());
     tree.push({
       data: {
         id: point.user_code,
@@ -419,10 +455,9 @@ private nodeTreeParse(pointsBySponsor: Map<string, any[]>, code: string, ancesto
       },
       selected: true,
       active: isNodeActive, // ✅ Ahora solo será verde si cumple la condición
-      children: this.nodeTreeParse(pointsBySponsor, childCode, ancestors),
+      children: this.nodeTreeParse(listPoints, point.user_code),
       admin: !!uHijo.is_admin
     });
-    ancestors.delete(childCode.toLowerCase());
   });
 
   return tree;

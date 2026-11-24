@@ -41,8 +41,8 @@
         [nzLoading]="tableProductLoading"
         [nzData]="tableProducts"
         [nzTotal]="totalRecord"
-        [nzPageIndex]="pageIndex"
-        [nzPageSize]="pageSize"
+        [(nzPageIndex)]="pageIndex"
+        [(nzPageSize)]="pageSize"
         (nzQueryParams)="onQueryParamsChange($event)"
         [nzScroll]="{ x: '1280px' }"
       >
@@ -65,42 +65,42 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let row of tableProducts; trackBy: trackUser">
+          <tr *ngFor="let item of tableProducts">
             <td nzAlign="center" class="image-column">
-              <img loading="lazy" decoding="async" [src]="row.user.file != null ? environment.hostUrl + '/storage/' + row.user.file.path  :CONSTANTS.IMAGE.FALLBACK" [alt]="row.user.name" class="user-avatar">
+              <img [src]="item.file != null ? environment.hostUrl + '/storage/' + item.file.path  :CONSTANTS.IMAGE.FALLBACK" [alt]="item.name" class="user-avatar">
             </td>
-            <td nzAlign="left" class="name-column"><strong class="user-name">{{ row.user.name }}</strong></td>
+            <td nzAlign="left" class="name-column"><strong class="user-name">{{ item.name }}</strong></td>
             <td nzAlign="center" class="code-column">
-              <span class="user-code text-uppercase">{{ row.user.uuid }}</span>
+              <span class="user-code text-uppercase">{{ item.uuid }}</span>
             </td>
             <td nzAlign="left" class="plan-column">
               <div class="owned-packs">
                 <span
                   class="plan-name"
-                  *ngFor="let pack of row.packs"
+                  *ngFor="let pack of getOwnedPackList(item)"
                   [title]="pack">
                   {{ pack }}
                 </span>
-                <span class="no-plan" *ngIf="row.packs.length === 0">Sin plan</span>
+                <span class="no-plan" *ngIf="getOwnedPackList(item).length === 0">Sin plan</span>
               </div>
             </td>
             <td nzAlign="center" class="status-column">
-              <span class="user-status" [class.active]="row.active" [class.inactive]="!row.active">{{ row.active ? "Activo" : "Inactivo" }}</span>
+              <span class="user-status" [class.active]="isUserActive(item)" [class.inactive]="!isUserActive(item)">{{ isUserActive(item) ? "Activo" : "Inactivo" }}</span>
             </td>
             <td nzAlign="center" class="range-column">
-              <b>{{ row.user?.range == null ? 'Sin Rango' : row.user?.range.range.title }}</b>
+              <b>{{ item?.range == null ? 'Sin Rango' : item?.range.range.title }}</b>
             </td>
-            <td nzAlign="center" class="points-column">{{ (row.user?.points?.patrocinio ?? 0) | number: '1.1' }}</td>
-            <td nzAlign="center" class="points-column">{{ ((row.user?.points?.residual ?? 0) + (row.user?.points?.pointAfiliado ?? 0) + (row.user?.points?.personalGlobal ?? 0)) | number: '1.1' }}</td>
-            <td nzAlign="center" class="points-column">{{ ((row.user?.points?.compra ?? 0) + (row.user?.points?.personal ?? 0)) | number: '1.1'}}</td>
-            <td nzAlign="center" class="points-column">{{ (row.user?.points?.pointGroup ?? 0)  | number: '1.1' }}</td>
-            <td nzAlign="center" class="points-column">{{ (row.user?.points?.infinito ?? 0)  | number: '1.1'}}</td>
-            <td nzAlign="center" class="points-column total-column">{{ (row.user?.totalPoints ?? 0)  | number: '1.1'}}</td>
+            <td nzAlign="center" class="points-column">{{ (item?.points?.patrocinio ?? 0) | number: '1.1' }}</td>
+            <td nzAlign="center" class="points-column">{{ ((item?.points?.residual ?? 0) + (item?.points?.pointAfiliado ?? 0) + (item?.points?.personalGlobal ?? 0)) | number: '1.1' }}</td>
+            <td nzAlign="center" class="points-column">{{ ((item?.points?.compra ?? 0) + (item?.points?.personal ?? 0)) | number: '1.1'}}</td>
+            <td nzAlign="center" class="points-column">{{ (item?.points?.pointGroup ?? 0)  | number: '1.1' }}</td>
+            <td nzAlign="center" class="points-column">{{ (item?.points?.infinito ?? 0)  | number: '1.1'}}</td>
+            <td nzAlign="center" class="points-column total-column">{{ (item?.totalPoints ?? 0)  | number: '1.1'}}</td>
             <td nzAlign="center" class="view-column" nzRight>
-              <nz-tag class="view-user pointer m-0" (click)="onSeletedUSer(row.user.uuid, row.user)"><i nz-icon [nzType]="loadingUserCode === row.user.uuid ? 'loading' : 'eye'" nzTheme="outline"></i>VER</nz-tag>
+              <nz-tag class="view-user pointer m-0" (click)="onSeletedUSer(item.uuid, item)"><i nz-icon nzType="eye" nzTheme="outline"></i>VER</nz-tag>
             </td>
             <td nzAlign="center" class="action-column" nzRight>
-              <button nz-button (click)="onDetailUser( row.user , tplContent)" [nzSize]="'small'" nzShape="circle">
+              <button nz-button (click)="onDetailUser( item , tplContent)" [nzSize]="'small'" nzShape="circle">
                 <i nz-icon nzType="ellipsis"></i>
               </button>
 
@@ -215,7 +215,7 @@
   </ng-container>
 
   <ng-container *ngIf="tabModal == 4">
-    <app-tools-users-reactive-modal [userModel]="userModel" (back)="onBack($event)" (reactivated)="onSearch()"></app-tools-users-reactive-modal>
+    <app-tools-users-reactive-modal [userModel]="userModel" (back)="onBack($event)"></app-tools-users-reactive-modal>
   </ng-container>
 
   </div>

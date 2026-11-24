@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from '@env/environment';
 import { ImageCropperUploadComponent } from '@shared/components/image-cropper-upload/image-cropper-upload.component';
@@ -12,8 +12,7 @@ import { isUserMembershipActive } from '@shared/utilities/user-activity';
 import { ModalService } from '@shared/utilities/modal-services';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { catchError, finalize, map } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { ToolsUserAddModalComponent } from '../tools-user-add-modal/tools-user-add-modal.component';
 
 const titleModalGeneral = "Selecciona qué deseas modificar";
@@ -23,7 +22,7 @@ const titleModalGeneral = "Selecciona qué deseas modificar";
   templateUrl: './tools-users-page.component.html',
   styleUrls: ['./tools-users-page.component.scss']
 })
-export class ToolsUsersPageComponent implements OnInit, OnDestroy {
+export class ToolsUsersPageComponent implements OnInit {
 
   pageIndex: number = CONSTANTS.PAGINATION.PAGE_INDEX;
   pageSize: number = CONSTANTS.PAGINATION.PAGE_SIZE;
@@ -32,17 +31,13 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
   totalRecord: number = 0;
 
   tableProductLoading: boolean = false;
-  tableProducts: Array<{ user: UserModel; active: boolean; packs: string[] }> = [];
-  private lastListQuery = '';
+  tableProducts: Array<UserModel> = [];
 
   CONSTANTS = CONSTANTS;
   environment = environment;
   codeUser: string = "";
   nameUser: string = "";
-  private usersRequest?: Subscription;
-  private userDetailRequest?: Subscription;
-  loadingUserCode = '';
-  private supportingDataRequest?: Subscription;
+  initLoad: boolean = true;
 
   _listPoints: Array<any> = [];
   userModel: UserModel;
@@ -92,55 +87,26 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
-  ngOnDestroy(): void {
-    this.usersRequest?.unsubscribe();
-    this.supportingDataRequest?.unsubscribe();
-    this.userDetailRequest?.unsubscribe();
-  }
-
   public onSearch(): void {
-    this.requestUsers(true);
-  }
-
-  private requestUsers(refresh = false): void {
-    const filters = { code: this.codeUser.trim(), name: this.nameUser.trim(), plan: this.planSelected ?? '', limit: this.pageSize, page: this.pageIndex };
-    const query = JSON.stringify(filters);
-    if (!refresh && query === this.lastListQuery) return;
-    this.lastListQuery = query;
-    this.usersRequest?.unsubscribe();
     this.tableProductLoading = true;
-    this.usersRequest = this.apiService.getUsersFindAll(filters).subscribe(
+    this.apiService.getUsersFindAll({ code: this.codeUser.trim(), name: this.nameUser.trim(), plan: this.planSelected ?? "", limit: this.pageSize, page: this.pageIndex }).subscribe(
       (response) => {
         if (response.success) {
           this.totalRecord = response.data.pagination.total;
-          this.setUsers(response.data.items);
-        } else {
-          this.lastListQuery = '';
+          this.tableProducts = response.data.items;
         }
         this.tableProductLoading = false;
 
       }, (error) => {
-        this.lastListQuery = '';
-        this.modalService.error(error?.message ?? "")
+        this.modalService.error(error.message ?? "")
         this.tableProductLoading = false;
       }
     )
   }
 
-  private setUsers(users: UserModel[]): void {
-    this.tableProducts = users.map(user => ({
-      user,
-      active: this.isUserActive(user),
-      packs: this.getOwnedPackList(user)
-    }));
-  }
-
-  public trackUser(_index: number, row: { user: UserModel }): string {
-    return row.user.uuid;
-  }
-
   public onNetworkMoveConfirmed(): void {
     this.onSearch();
+    this.loadData();
     this.userOptionsModal?.destroy();
   }
 
@@ -148,61 +114,81 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
     // Un filtro nuevo debe comenzar en la primera pagina. Si conserva una
     // pagina posterior, el total puede ser 1 mientras `items` llega vacio.
     this.pageIndex = 1;
-    this.requestUsers();
+    this.onSearch();
   }
 
   public loadData(): void {
-    this.onSearch();
-    this.supportingDataRequest?.unsubscribe();
-    this.supportingDataRequest = new Subscription();
-    this.supportingDataRequest.add(this.apiService.getPlansSearch({}).subscribe({
-      next: response => this.planList = response.data,
-      error: error => this.modalService.error(error?.message || 'No se pudieron cargar los planes.')
-    }));
-    this.supportingDataRequest.add(this.apiService.getAuthenticationUser().subscribe({
-      next: response => {
-        const user: any = response?.data;
-        this.authUser = user ? {
-          ...user,
-          is_admin: user.is_admin === true || Number(user.is_admin) === 1,
-          admin: user.admin === true || Number(user.admin) === 1
-        } : null;
-      },
-      error: error => this.modalService.error(error?.message || 'No se pudo consultar la sesión.')
-    }));
+    this.tableProductLoading = true;
+    forkJoin(
+      this.apiService.getPointListUser(),
+      this.apiService.getUsersFindAll({ code: this.codeUser.trim(), name: this.nameUser.trim(), plan: this.planSelected ?? "", limit: this.pageSize, page: this.pageIndex }),
+      this.apiService.getPlansSearch({}),
+      this.apiService.getAuthenticationUser()
+    ).subscribe(
+      ([listPoints, usersList, planList, authResponse]) => {
+        this._listPoints = this.extractNetworkRecords(listPoints?.data);
+        const authenticatedUser: any = authResponse?.data;
+        this.authUser = authenticatedUser
+          ? {
+              ...authenticatedUser,
+              is_admin: authenticatedUser?.is_admin === true || Number(authenticatedUser?.is_admin) === 1,
+              admin: authenticatedUser?.admin === true || Number(authenticatedUser?.admin) === 1
+            }
+          : null;
+
+        if (usersList.success) {
+          this.totalRecord = usersList.data.pagination.total;
+          // FILTRO DE INTEGRIDAD: Limpiamos los puntos fantasma de la tabla
+          this.tableProducts = usersList.data.items;
+        }
+        this.tableProductLoading = false;
+
+        this.planList = planList.data
+
+        this.initLoad = false;
+      }
+    )
   }
 
-  onQueryParamsChange({ pageSize, pageIndex }: NzTableQueryParams): void {
-    if (this.pageIndex === pageIndex && this.pageSize === pageSize) return;
+  onQueryParamsChange(params: NzTableQueryParams): void {
+    const { pageSize, pageIndex, sort, filter } = params;
+    let sortOrder;
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
-    this.requestUsers();
+    if (sort[0]?.value !== null) {
+      if (sort[0]?.value == 'ascend') sortOrder = 'ASC';
+      if (sort[0]?.value == 'descend') sortOrder = 'DESC';
+
+      if (sort[0]?.key === 'name') this.sortProperty = 'name ' + sortOrder;
+
+    }
+
+    console.log(pageSize, pageIndex, sort, filter)
+
+    if (!this.initLoad) this.onSearch();
   }
 
-  public onSeletedUSer(usercode: string, userModel: UserModel): void {
-    if (usercode === '-1' || this.loadingUserCode === usercode) return;
+  public onSeletedUSer(usercode: string, userModel: any): void {
+    if (usercode == "-1") return;
 
-    this.userDetailRequest?.unsubscribe();
-    this.loadingUserCode = usercode;
-    const userId = Number(userModel.id);
-    const detail = Number.isInteger(userId) && userId > 0
-      ? this.apiService.getUserById(userId).pipe(
-        map(response => response?.success && response.data ? { ...userModel, ...response.data } : userModel),
-        catchError(() => of(userModel))
-      )
-      : of(userModel);
-    const points = this.apiService.getPointListUser().pipe(
-      catchError(error => {
-        this.modalService.error(error?.message || 'No se pudo cargar la información de red.');
-        return of(null);
-      })
-    );
-    this.userDetailRequest = forkJoin({ detail, points }).pipe(
-      finalize(() => this.loadingUserCode = '')
-    ).subscribe(result => {
-      this._listPoints = this.extractNetworkRecords(result.points?.data);
-      this.openUserDetailModal(usercode, result.detail);
-    });
+    // La fila de /users/find-all es un resumen y puede no contener puntos ni
+    // contadores de red. Cargamos el mismo detalle que utiliza el modal del
+    // arbol antes de mostrarlo.
+    const userId = Number(userModel?.id);
+    if (Number.isInteger(userId) && userId > 0) {
+      this.apiService.getUserById(userId).subscribe({
+        next: response => {
+          const detail = response?.success && response?.data
+            ? { ...userModel, ...response.data }
+            : userModel;
+          this.openUserDetailModal(usercode, detail);
+        },
+        error: () => this.openUserDetailModal(usercode, userModel)
+      });
+      return;
+    }
+
+    this.openUserDetailModal(usercode, userModel);
   }
 
   private openUserDetailModal(usercode: string, userModel: any): void {
@@ -343,6 +329,7 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
       this.canDeactivatePoints = false;
       this.resetInitialActivationActions();
       this.deactivatingInitialActivation = null;
+      this.onSearch();
     })
   }
 
@@ -548,7 +535,7 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
         this._listPoints = this.extractNetworkRecords(points?.data);
         if (users?.success) {
           this.totalRecord = users.data.pagination.total;
-          this.setUsers(users.data.items);
+          this.tableProducts = users.data.items;
         }
         this.deactivatingInitialActivation = null;
         this.modalService.success(message || 'Activación inicial desactivada correctamente.');
@@ -644,7 +631,7 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
       next: ({ users, tree }) => {
         if (users?.success) {
           this.totalRecord = users.data.pagination.total;
-          this.setUsers(users.data.items);
+          this.tableProducts = users.data.items;
         }
         this._listPoints = this.extractNetworkRecords(tree?.data);
         this.tableProductLoading = false;
@@ -696,18 +683,14 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
     const normalizedRoot = String(rootCode || '').toLowerCase();
     if (!normalizedRoot) return { total: 0, direct: 0, active: 0 };
 
-    const recordsBySponsor = new Map<string, any[]>();
-    for (const point of this._listPoints) {
-      const sponsor = String(point?.sponsor_code || '').toLowerCase();
-      if (!recordsBySponsor.has(sponsor)) recordsBySponsor.set(sponsor, []);
-      recordsBySponsor.get(sponsor).push(point);
-    }
     const visited = new Set<string>();
     let direct = 0;
     let active = 0;
 
     const traverse = (sponsorCode: string, firstLevel: boolean): void => {
-      (recordsBySponsor.get(sponsorCode) ?? []).forEach(point => {
+      this._listPoints
+        .filter(point => String(point?.sponsor_code || '').toLowerCase() === sponsorCode)
+        .forEach(point => {
           const childCode = String(point?.user_code || '').toLowerCase();
           if (!childCode || visited.has(childCode) || childCode === normalizedRoot) return;
 
@@ -735,7 +718,6 @@ export class ToolsUsersPageComponent implements OnInit, OnDestroy {
       () => {
         this.apiService.postPaymentConfirmOffline({ sponsorId: uuid }).subscribe(
           (response) => {
-            this.onSearch();
             this.nzModalService.closeAll();
             this.modalService.success("Usuario aceptado");
           },

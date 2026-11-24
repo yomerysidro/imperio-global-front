@@ -2,9 +2,8 @@ import { mapGenealogy } from './models/network-genealogy';
 import { Injectable } from '@angular/core';
 import { HttpService } from './http.service';
 import { environment } from '@env/environment';
-import { defer, Observable } from 'rxjs';
-import { AuthenticationService } from './authentication.service';
-import { finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { removeSessionLocalAll, stringFormat } from '@shared/utilities/functions';
 import { IResponse, IResponsePaginationModel } from './interfaces/response.interface';
 import { AuthModel, PointsUsersResponse, UserModel } from './models/user.interface';
@@ -21,11 +20,8 @@ export class ApiService {
 
   private API:string = "/api/v1";
 
-  private readonly pendingAuth = new Map<string, Observable<IResponse<UserModel>>>();
-
   constructor(
-    private httpService: HttpService,
-    private authentication: AuthenticationService
+    private httpService: HttpService
   ) {
 
   }
@@ -50,26 +46,7 @@ export class ApiService {
   }
 
   public getAuthenticationUser(): Observable<IResponse< UserModel >>{
-    return defer(() => {
-      const token = this.authentication.currentTokenValue;
-      if (!this.authentication.currentUserValue || !token) {
-        return this.httpService.get<IResponse<UserModel>>('/auth');
-      }
-
-      const pending = this.pendingAuth.get(token);
-      if (pending) return pending;
-
-      const clear = () => {
-        if (this.pendingAuth.get(token) === request) this.pendingAuth.delete(token);
-      };
-      const request = this.httpService.get<IResponse<UserModel>>('/auth').pipe(
-        tap({ next: clear, error: clear, complete: clear }),
-        finalize(clear),
-        shareReplay({ bufferSize: 1, refCount: true })
-      );
-      this.pendingAuth.set(token, request);
-      return request;
-    });
+    return this.httpService.get<IResponse<UserModel>>( '/auth' ).pipe(tap( res => res ));
   }
 
   public getPlansSearch(parameters: any = {}): Observable<IResponse< Array<PackModel> >>{

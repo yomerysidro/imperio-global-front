@@ -1,12 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
-import { SearchPipe } from '../pipes/search.pipe';
-import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { NzImageModule } from 'ng-zorro-antd/image';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../shared.module';
 
 import { HeaderComponent } from "./header/header.component";
 import { SearchComponent } from "./search/search.component";
@@ -40,12 +35,7 @@ const antdModule = [
     imports: [
         RouterModule,
         CommonModule,
-        SearchPipe,
-        FormsModule,
-        NzAvatarModule,
-        NzDropDownModule,
-        NzImageModule,
-        NzToolTipModule,
+        SharedModule,
         ...antdModule
     ],
     declarations: [

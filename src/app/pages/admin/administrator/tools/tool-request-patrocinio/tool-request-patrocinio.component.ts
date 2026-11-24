@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
@@ -6,7 +6,7 @@ import { ApiService } from '@shared/services/api.service';
 import { ModalService } from '@shared/utilities/modal-services';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
-import { Subscription } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { ToolRequestPatrocinioApprovedComponent } from './tool-request-patrocinio-approved/tool-request-patrocinio-approved.component';
 import { DownloadFile } from '@shared/utilities/download-file';
 
@@ -15,7 +15,7 @@ import { DownloadFile } from '@shared/utilities/download-file';
   templateUrl: './tool-request-patrocinio.component.html',
   styleUrls: ['./tool-request-patrocinio.component.scss']
 })
-export class ToolRequestPatrocinioComponent implements OnInit, OnDestroy {
+export class ToolRequestPatrocinioComponent implements OnInit {
 
   pageIndex: number = CONSTANTS.PAGINATION.PAGE_INDEX;
   pageSize: number = CONSTANTS.PAGINATION.PAGE_SIZE;
@@ -30,7 +30,7 @@ export class ToolRequestPatrocinioComponent implements OnInit, OnDestroy {
   environment = environment;
   codeUser: string = "";
   nameUser: string = "";
-  private searchRequest?: Subscription;
+  initLoad: boolean = true;
   filterMonth: number | null = null;
   filterYear: number | null = null;
   months = Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: new Intl.DateTimeFormat('es-PE', { month: 'long' }).format(new Date(2026, index, 1)) }));
@@ -58,24 +58,15 @@ export class ToolRequestPatrocinioComponent implements OnInit, OnDestroy {
     this.onSearch();
   }
 
-  ngOnDestroy(): void {
-    this.searchRequest?.unsubscribe();
-  }
-
-  public onFilterSearch(): void {
-    this.pageIndex = 1;
-    this.onSearch();
-  }
-
   public onSearch(): void{
-    this.searchRequest?.unsubscribe();
     this.tableProductLoading = true;
     const filters: any = { code: this.codeUser.trim(), name: this.nameUser.trim(), limit: this.pageSize, page: this.pageIndex };
     if (this.filterMonth) filters.month = this.filterMonth;
     if (this.filterYear) filters.year = this.filterYear;
-    this.searchRequest = this.apiService.getRequestPatrocinioFindAll(filters).subscribe(
+    this.apiService.getRequestPatrocinioFindAll(filters).subscribe(
       (response) =>{
         if( response.success ){
+          console.log(response.data.items);
           this.totalRecord = response.data?.pagination?.total ?? response.data?.length ?? 0;
           this.tableProducts = response.data?.items ?? response.data ?? [];
         }
@@ -88,11 +79,45 @@ export class ToolRequestPatrocinioComponent implements OnInit, OnDestroy {
     )
   }
 
-  onQueryParamsChange({ pageSize, pageIndex }: NzTableQueryParams): void {
-    if (this.pageSize === pageSize && this.pageIndex === pageIndex) return;
+  public loadData(): void{
+    this.tableProductLoading = true;
+    forkJoin(
+      this.apiService.getPointList({}),
+      this.apiService.getUsersFindAll({code: this.codeUser.trim(), name: this.nameUser.trim() , plan: this.planSelected ?? "" , limit: this.pageSize , page: this.pageIndex }),
+      this.apiService.getPlansSearch({}),
+    ).subscribe(
+      ([listPoints, usersList, planList])=>{
+        this._listPoints = listPoints.data;
+
+        if( usersList.success ){
+          this.totalRecord = usersList.data.pagination.total;
+          this.tableProducts = usersList.data.items;
+        }
+        this.tableProductLoading = false;
+
+        this.planList = planList.data
+
+        this.initLoad = false;
+      }
+    )
+  }
+
+  onQueryParamsChange(params: NzTableQueryParams): void {
+    const { pageSize, pageIndex, sort, filter } = params;
+    let sortOrder;
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
-    this.onSearch();
+    if (sort[0]?.value !== null) {
+      if (sort[0]?.value == 'ascend') sortOrder = 'ASC';
+      if (sort[0]?.value == 'descend') sortOrder = 'DESC';
+
+      if (sort[0]?.key === 'name') this.sortProperty = 'name ' + sortOrder;
+
+    }
+
+    console.log( pageSize, pageIndex, sort, filter )
+
+    if( !this.initLoad ) this.onSearch();
   }
 
   public onApproved(item: any): void{
