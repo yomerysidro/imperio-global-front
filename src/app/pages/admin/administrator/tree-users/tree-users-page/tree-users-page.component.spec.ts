@@ -27,7 +27,8 @@ describe('Affiliate tree viewport', () => {
         providers: [
           { provide: ApiService, useValue: {
             getPointListUser: () => of({ success: true, data: {} }),
-            getAuthenticationUser: () => of({ success: true, data: { is_admin: true } }),
+            getAuthenticationUser: () => of({ success: true, data: { uuid: 'DOSB', is_admin: true,
+              network_summary: { total_network: accounts.length, total_directs: 10, total_active: accounts.length - 1 } } }),
             getNetworkRoot: () => of({ uuid: 'DOSB' }),
             getNetworkMember: () => of({ uuid: 'DOSB', active: true }),
             getNetworkAccounts: () => of({ current_page: 1, last_page: 1, data: accounts })
@@ -114,9 +115,9 @@ describe('Affiliate tree viewport', () => {
 describe('Administrative genealogy tree', () => {
  let c: TreeUsersPageComponent; let api: any;
  beforeEach(() => {
-  api = jasmine.createSpyObj('api', ['getNetworkRoot','getNetworkMember','getNetworkAccounts','getPointListUser','getAuthenticationUser']);
+  api = jasmine.createSpyObj('api', ['getNetworkRoot','getNetworkMember','getNetworkAccounts','getPointListUser','getAuthenticationUser','getUsersSearch','getUserById']);
   api.getPointListUser.and.returnValue(of({ success: true, data: { network_meta: { total_network: 2, total_directs: 1 }, point_records: [] } }));
-  api.getAuthenticationUser.and.returnValue(of({ success: true, data: { uuid: 'admin', is_admin: true } }));
+  api.getAuthenticationUser.and.returnValue(of({ success: true, data: { uuid: 'configured-root', is_admin: true } }));
   api.getNetworkRoot.and.returnValue(of({ uuid: 'configured-root', name: 'Company' }));
   api.getNetworkMember.and.returnValue(of({ uuid: 'configured-root', name: 'Company', directos: 1, descendantsCount: 2 }));
   api.getNetworkAccounts.and.callFake((page: number) => of({ current_page: page, last_page: 2, data: page === 1 ? [{ uuid: 'parent', name: 'Parent', sponsor_code: 'configured-root', connected: true }] : [{ uuid: 'child', name: 'Child', sponsor_code: 'parent', connected: true }] }));
@@ -161,6 +162,37 @@ describe('Administrative genealogy tree', () => {
  });
  it('protects the configured corporate root without hardcoded UUIDs', () => {
   c.loadData(); expect(c.canMoveBranch('configured-root')).toBeFalse(); expect(c.canMoveBranch('new-account')).toBeTrue();
+ });
+ it('reuses the authenticated root summary before genealogy and skips the points request', () => {
+  api.getAuthenticationUser.and.returnValue(of({ success: true, data: { uuid: 'CONFIGURED-ROOT', is_admin: true,
+    network_summary: { total_network: 12, total_directs: 3, total_active: 0 } } }));
+  api.getNetworkAccounts.and.returnValue(new Subject());
+  c.loadData();
+  expect(c.isTreeLoading).toBeTrue();
+  expect(c.areIndicatorsLoading).toBeFalse();
+  expect([c.usuarioTotal, c.usuarioDirectos, c.usuarioActivos]).toEqual([12, 3, 0]);
+  expect(api.getPointListUser).not.toHaveBeenCalled();
+  expect(api.getUsersSearch).not.toHaveBeenCalled();
+ });
+ it('reads the official metrics of a different corporate root and retries without reloading genealogy', () => {
+  api.getAuthenticationUser.and.returnValue(of({ success: true, data: { uuid: 'admin', is_admin: true,
+    network_summary: { total_network: 99, total_directs: 99, total_active: 99 } } }));
+  api.getUsersSearch.and.returnValue(of({ success: true, data: [{ id: 42, uuid: 'configured-root' }] }));
+  const retry = new Subject();
+  api.getUserById.and.returnValues(throwError({ status: 503 }), retry);
+  c.loadData();
+  expect(c.isChart).toBeTrue();
+  expect(c.indicatorsLoadFailed).toBeTrue();
+  expect(c.usuarioTotal).toBeNull();
+  c.retryIndicators();
+  c.retryIndicators();
+  retry.next({ success: true, data: { uuid: 'configured-root',
+    network_summary: { total_network: 2, total_directs: 1, total_active: 0 } } });
+  expect([c.usuarioTotal, c.usuarioDirectos, c.usuarioActivos]).toEqual([2, 1, 0]);
+  expect(c.areIndicatorsLoading).toBeFalse();
+  expect(api.getNetworkRoot).toHaveBeenCalledTimes(1);
+  expect(api.getUserById.calls.allArgs()).toEqual([[42], [42]]);
+  expect(api.getPointListUser).not.toHaveBeenCalled();
  });
  describe('backend network indicators', () => {
   beforeEach(() => { api.getAuthenticationUser.and.returnValue(of({ success: true, data: { uuid: 'member', is_admin: false } })); });
@@ -224,6 +256,19 @@ describe('Administrative genealogy tree', () => {
    api.getPointListUser.and.returnValue(of({ success: false, data: { network_meta: { total_active: 7 } } }));
    c.loadData(); expect(c.usuarioActivos).toBeNull();
   });
+  it('publishes the authenticated summary while the single points request is pending', () => {
+   api.getAuthenticationUser.and.returnValue(of({ success: true, data: { uuid: 'member',
+     network_summary: { total_network: 3, total_directs: 2, total_active: 0 } } }));
+   const points = new Subject();
+   api.getPointListUser.and.returnValue(points);
+   c.loadData();
+   expect([c.usuarioTotal, c.usuarioDirectos, c.usuarioActivos]).toEqual([3, 2, 0]);
+   expect(c.areIndicatorsLoading).toBeFalse();
+   expect(c.isTreeLoading).toBeTrue();
+   points.next({ success: true, data: { network_meta: { total_network: 99 }, point_records: [] } });
+   expect(c.isChart).toBeTrue();
+   expect(c.usuarioTotal).toBe(3);
+   expect(api.getPointListUser).toHaveBeenCalledTimes(1);
+  });
  });
-
 });

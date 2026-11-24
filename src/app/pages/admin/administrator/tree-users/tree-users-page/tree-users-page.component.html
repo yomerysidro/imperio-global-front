@@ -13,7 +13,7 @@
       <div class="stat-icon direct-icon"><i class="fa-solid fa-user-plus"></i></div>
       <div class="stat-data">
         <h1 class="stat-number" aria-live="polite">
-          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioDirectos }"></ng-container>
+          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioDirectos, retry: indicatorsLoadFailed }"></ng-container>
         </h1>
         <p class="stat-label">Directos</p>
       </div>
@@ -22,7 +22,7 @@
       <div class="stat-icon active-icon"><i class="fa-solid fa-user-check"></i></div>
       <div class="stat-data">
         <h1 class="stat-number active-color" aria-live="polite">
-          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioActivos }"></ng-container>
+          <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioActivos, retry: indicatorsLoadFailed }"></ng-container>
         </h1>
         <p class="stat-label">Activos</p>
       </div>
@@ -31,16 +31,16 @@
 </nz-card>
 
 <ng-template #indicatorValue let-value let-retry="retry">
-  <span *ngIf="areIndicatorsLoading; else loadedIndicator" class="stat-status">
-    <span class="stat-spinner" aria-hidden="true"></span> Cargando...
-  </span>
-  <ng-template #loadedIndicator>
-    <ng-container *ngIf="value !== null; else unavailableIndicator">{{ value }}</ng-container>
+  <ng-container *ngIf="value !== null; else pendingIndicator">{{ value }}</ng-container>
+  <ng-template #pendingIndicator>
+    <span *ngIf="areIndicatorsLoading; else unavailableIndicator" class="stat-status">
+      <span class="stat-spinner" aria-hidden="true"></span> Cargando...
+    </span>
   </ng-template>
   <ng-template #unavailableIndicator>
     <button *ngIf="retry; else unavailableText" type="button" class="stat-status stat-retry"
       aria-label="No disponible. Reintentar consulta de indicadores" title="Reintentar consulta"
-      (click)="loadData()">
+      (click)="retryIndicators()">
       No disponible <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
     </button>
     <ng-template #unavailableText><span class="stat-status">No disponible</span></ng-template>
