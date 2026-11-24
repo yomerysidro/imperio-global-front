@@ -17,7 +17,7 @@
 
 .welcome-header {
   padding: 30px 24px 26px;
-  background: linear-gradient(135deg, #123478, #1459c7);
+  background: linear-gradient(135deg, #0646bd 0%, #0866ff 55%, #168cff 100%);
   color: #fff;
 
   h2 {
@@ -53,7 +53,7 @@
   }
 
   p { margin: 0; color: #465774; line-height: 1.55; }
-  .welcome-signoff { margin-top: 15px; color: #173c80; font-weight: 700; }
+  .welcome-signoff { margin-top: 15px; color: #0646bd; font-weight: 700; }
 }
 
 .welcome-footer { padding: 21px clamp(18px, 6vw, 40px) 28px; }
@@ -64,13 +64,13 @@
   padding: 10px 14px;
   border: 0;
   border-radius: 12px;
-  background: #154fb5;
+  background: #0866ff;
   color: #fff;
   font-weight: 750;
   cursor: pointer;
 
-  &:hover { background: #103f95; }
-  &:focus-visible { outline: 3px solid #387ad8; outline-offset: 3px; }
+  &:hover { background: #0646bd; }
+  &:focus-visible { outline: 3px solid #0866ff; outline-offset: 3px; }
 }
 
 @keyframes welcome-enter {
