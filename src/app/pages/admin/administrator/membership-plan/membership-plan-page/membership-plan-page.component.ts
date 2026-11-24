@@ -52,7 +52,6 @@ export class MembershipPlanPageComponent implements OnInit {
   }
 
   public onPaymentPlan( plan: PackModel ): void{
-    if (plan.title === 'Kit de Inicio') return;
     if( this.userModel?.payment?.state == CONSTANTS.PAYMENT_ORDER.TERMINADO ){
       this.modalService.confirm(
         "Usted ya tiene un paquete activo. Para cambiar de paquete de afiliación, por favor, póngase en contacto con soporte de Imperio Global.",
