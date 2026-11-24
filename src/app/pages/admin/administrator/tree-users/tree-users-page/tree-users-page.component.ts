@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { defaultIfEmpty, finalize, map, switchMap } from 'rxjs/operators';
+import { forkJoin, of, range, Subscription } from 'rxjs';
+import { catchError, defaultIfEmpty, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
 import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
 import { ECONode, IECONode, Orientation } from '@shared/interfaces/econode.type';
 import { ApiService } from '@shared/services/api.service';
@@ -39,6 +39,9 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   areIndicatorsLoading = true;
   indicatorsLoadFailed = false;
   private indicatorsRequest?: Subscription;
+  private genealogyRequest?: Subscription;
+  isTreeLoading = true;
+  treeLoadError = '';
 
   ownSponsorCode = '--';
 
@@ -122,6 +125,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.initialFrameObserver?.disconnect();
     this.indicatorsRequest?.unsubscribe();
+    this.genealogyRequest?.unsubscribe();
   }
 
   /**
@@ -129,13 +133,28 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
    */
   public loadData(): void {
     this.indicatorsRequest?.unsubscribe();
+    this.genealogyRequest?.unsubscribe();
     this.areIndicatorsLoading = true;
+    this.isTreeLoading = true;
+    this.treeLoadError = '';
     this.indicatorsLoadFailed = false;
     this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
 
+    let administrativeTreeStarted = false;
     this.indicatorsRequest = forkJoin({
-      pointsRes: this.apiService.getPointListUser(),
-      authRes: this.apiService.getAuthenticationUser()
+      pointsRes: this.apiService.getPointListUser().pipe(
+        defaultIfEmpty(null),
+        catchError(() => of(null))
+      ),
+      authRes: this.apiService.getAuthenticationUser().pipe(tap(response => {
+        if (!response?.success || !response.data) return;
+        const user = response.data;
+        this.ownSponsorCode = user.uuid || getCodeUuid() || '--';
+        if (user.is_admin !== true && Number(user.is_admin) !== 1) return;
+        this.currentUser = user;
+        administrativeTreeStarted = true;
+        this.loadAdministrativeTree();
+      }))
     }).pipe(
       defaultIfEmpty(null),
       finalize(() => { this.areIndicatorsLoading = false; })
@@ -154,11 +173,12 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
             ...pointsUser,
             ...pointsUserProps
           };
-          this.currentUser = user;
           this.ownSponsorCode = authUser?.uuid || getCodeUuid() || user?.uuid || '--';
           this.usuarioTotal = this.readNetworkCount(pointsData?.network_meta?.total_network);
           this.usuarioDirectos = this.readNetworkCount(pointsData?.network_meta?.total_directs);
           this.usuarioActivos = this.readNetworkCount(pointsData?.network_meta?.total_active);
+          if (administrativeTreeStarted) return;
+          this.currentUser = user;
           if (this.isAdministrator) {
             this.loadAdministrativeTree();
             return;
@@ -218,10 +238,12 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
           });
         } else {
           this.indicatorsLoadFailed = true;
+          if (!administrativeTreeStarted) this.failTreeLoad();
         }
       },
       error: (err) => {
         this.indicatorsLoadFailed = true;
+        if (!administrativeTreeStarted) this.failTreeLoad();
         console.error("Error al cargar la red", err);
       }
     });
@@ -230,45 +252,67 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   /** Administrative relationships come exclusively from sponsor_relations via Laravel. */
   private loadAdministrativeTree(): void {
     this.branchMoveError = '';
-    this.apiService.getNetworkRoot().subscribe({
-      next: root => {
-        this.apiService.getNetworkMember(root.uuid).subscribe({
-          next: detail => {
-            const accounts: any[] = [];
-            const readPage = (page: number) => this.apiService.getNetworkAccounts(page).subscribe({
-              next: response => {
-                if (!Array.isArray(response?.data) || response.current_page !== page || !Number.isInteger(response.last_page) || response.last_page < page) {
-                  this.branchMoveError = 'Contrato inválido al leer el árbol administrativo.';
-                  return;
-                }
-                accounts.push(...response.data);
-                if (page < response.last_page) { readPage(page + 1); return; }
-                const children = new Map<string, any[]>();
-                accounts.filter(account => account.connected === true).forEach(account => {
-                  const key = String(account.sponsor_code ?? '').toUpperCase();
-                  const sponsored = children.get(key);
-                  if (sponsored) sponsored.push(account);
-                  else children.set(key, [account]);
-                });
-                const visited = new Set<string>();
-                const node = (account: any): IECONode => {
-                  const key = account.uuid.toUpperCase();
-                  if (visited.has(key)) throw new Error('Ciclo o UUID duplicado en la genealogía administrativa.');
-                  visited.add(key);
-                  return { data: { id: account.uuid, name: account.name, email: account.email || '', photo: this.fallback },
-                    active: account.active === true, selected: true,
-                    children: (children.get(key) || []).map(node) };
-                };
-                try {
-                  this.showTree(node(detail));
-                } catch (error) { this.branchMoveError = error.message; }
-              }, error: () => { this.branchMoveError = 'No se pudo leer una página del árbol. Vuelve a actualizar.'; }
-            });
-            readPage(1);
-          }, error: () => { this.branchMoveError = 'No se pudo consultar la genealogía de la raíz. Vuelve a actualizar.'; }
-        });
-      }, error: () => { this.branchMoveError = 'No se pudo consultar la raíz configurada en Laravel.'; }
+    this.genealogyRequest = this.apiService.getNetworkRoot().pipe(
+      switchMap(root => forkJoin({
+        detail: this.apiService.getNetworkMember(root.uuid),
+        accounts: this.readGenealogyPage(1).pipe(
+          switchMap(first => range(2, first.last_page - 1).pipe(
+            mergeMap(page => this.readGenealogyPage(page, first.last_page), 3),
+            toArray(),
+            map(pages => {
+              const accounts = [...first.data];
+              for (const page of pages.sort((a, b) => a.current_page - b.current_page)) {
+                accounts.push(...page.data);
+              }
+              return accounts;
+            })
+          ))
+        )
+      })),
+      map(({ detail, accounts }) => {
+        const children = new Map<string, any[]>();
+        for (const account of accounts) {
+          if (account.connected !== true) continue;
+          const key = String(account.sponsor_code ?? '').toUpperCase();
+          const sponsored = children.get(key);
+          if (sponsored) sponsored.push(account);
+          else children.set(key, [account]);
+        }
+        const visited = new Set<string>();
+        const node = (account: any): IECONode => {
+          const key = account.uuid.toUpperCase();
+          if (visited.has(key)) throw new Error('Ciclo o UUID duplicado en la genealogía administrativa.');
+          visited.add(key);
+          return {
+            data: { id: account.uuid, name: account.name, email: account.email || '', photo: this.fallback },
+            active: account.active === true,
+            selected: true,
+            children: (children.get(key) || []).map(node)
+          };
+        };
+        return node(detail);
+      }),
+      defaultIfEmpty(null)
+    ).subscribe({
+      next: tree => tree ? this.showTree(tree) : this.failTreeLoad(),
+      error: error => this.failTreeLoad(error instanceof Error ? error.message : undefined)
     });
+  }
+
+  private readGenealogyPage(page: number, expectedLastPage?: number) {
+    return this.apiService.getNetworkAccounts(page).pipe(map(response => {
+      if (!Array.isArray(response?.data) || response.current_page !== page
+        || !Number.isSafeInteger(response.last_page) || response.last_page < page
+        || (expectedLastPage !== undefined && response.last_page !== expectedLastPage)) {
+        throw new Error('La paginación de la genealogía cambió o es inválida. Vuelve a actualizar.');
+      }
+      return response as { data: any[]; current_page: number; last_page: number };
+    }));
+  }
+
+  private failTreeLoad(message = 'No se pudo cargar el árbol. Vuelve a actualizar.'): void {
+    this.isTreeLoading = false;
+    this.treeLoadError = message;
   }
 
   private readNetworkCount(value: unknown): number | null {
@@ -341,6 +385,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
     const needsInitialFrame = !this.isChart || this.data.data.id !== data.data.id;
     this.data = data;
     this.isChart = true;
+    this.isTreeLoading = false;
     if (needsInitialFrame) this.scheduleInitialTreeFrame();
   }
 
@@ -388,45 +433,41 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
 
   /** Parsea la lista plana usando la regla mensual común de actividad. */
 private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
-  let tree: Array<IECONode> = [];
+  const pointsBySponsor = new Map<string, any[]>();
+  for (const point of listPoints) {
+    if (point.type !== 'B' && point.type !== 'G' && point.type !== 'COMPRA' && point.is_legacy !== true) continue;
+    const sponsor = point.sponsor_code?.toLowerCase();
+    if (sponsor === undefined) continue;
+    const records = pointsBySponsor.get(sponsor);
+    if (records) records.push(point);
+    else pointsBySponsor.set(sponsor, [point]);
+  }
 
-  const childrenPoints = listPoints.filter(p => {
-    const isMatch = p.sponsor_code?.toLowerCase() === code.toLowerCase();
-    const isValidType = p.type === 'B' || p.type === 'G' || p.type === 'COMPRA' || p.is_legacy === true;
-    return isMatch && isValidType;
-  });
-  
-  const processedCodes = new Set();
-
-  childrenPoints.forEach((point) => {
-    if (processedCodes.has(point.user_code)) return;
-    processedCodes.add(point.user_code);
-
-    const uHijo = point.user || point.user_point;
-    if (!uHijo) return;
-
-    const image = uHijo?.file?.path
-      ? environment.hostUrl + '/storage/' + uHijo.file.path
-      : this.fallback;
-
-    const isNodeActive = isUserMembershipActive(uHijo, point);
-
-    tree.push({
-      data: {
-        id: point.user_code,
-        photo: image,
-        name: uHijo.name,
-        email: uHijo.email,
-        admin: !!uHijo.is_admin
-      },
-      selected: true,
-      active: isNodeActive, // ✅ Ahora solo será verde si cumple la condición
-      children: this.nodeTreeParse(listPoints, point.user_code),
-      admin: !!uHijo.is_admin
-    });
-  });
-
-  return tree;
+  const buildChildren = (sponsor: string): IECONode[] => {
+    const children: IECONode[] = [];
+    const processedCodes = new Set<string>();
+    for (const point of pointsBySponsor.get(sponsor.toLowerCase()) || []) {
+      if (processedCodes.has(point.user_code)) continue;
+      processedCodes.add(point.user_code);
+      const member = point.user || point.user_point;
+      if (!member) continue;
+      children.push({
+        data: {
+          id: point.user_code,
+          photo: member.file?.path ? environment.hostUrl + '/storage/' + member.file.path : this.fallback,
+          name: member.name,
+          email: member.email,
+          admin: !!member.is_admin
+        },
+        selected: true,
+        active: isUserMembershipActive(member, point),
+        children: buildChildren(point.user_code),
+        admin: !!member.is_admin
+      });
+    }
+    return children;
+  };
+  return buildChildren(code);
 }
 
   /**

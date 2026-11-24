@@ -23,6 +23,8 @@ export class TreeViewComponent implements OnChanges {
 
   tree:ECOTree = new ECOTree();
 
+  readonly trackNode = (_index: number, node: ECONode) => node.data?.id ?? node.id;
+
   constructor() { }
 
   ngOnChanges(changes: SimpleChanges): void {
