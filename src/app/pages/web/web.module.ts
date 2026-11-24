@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WebRoutingModule } from './web-routing.module';
-import { BrowserModule } from '@angular/platform-browser'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HomeComponent } from './home/home.component';
 
 /** ================= MODULES ======================== **/
@@ -9,12 +9,16 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 
 import { ServicesComponent } from './services/services.component';
 import { StylistsComponent } from './stylists/stylists.component';
-import { SharedModule } from '@shared/shared.module';
+import { CardServiceComponent } from '@shared/components/card-service/card-service.component';
 import { GuestComponent } from './guest/guest.component';
 
 
@@ -24,8 +28,12 @@ const antdModule = [
   NzInputModule,
   NzButtonModule,
   NzModalModule,
-  NzDatePickerModule,
-  NzTimePickerModule
+  NzFormModule,
+  NzGridModule,
+  NzPaginationModule,
+  NzRadioModule,
+  NzSelectModule,
+  NzSpinModule
 ]
 
 @NgModule({
@@ -37,7 +45,10 @@ const antdModule = [
   ],
   imports: [
     CommonModule,
-    SharedModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CardServiceComponent,
+    ...antdModule,
     WebRoutingModule,
   ]
 })

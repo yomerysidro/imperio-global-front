@@ -1,11 +1,12 @@
-import { Component, Inject, Input, OnInit, Optional } from '@angular/core';
+import { Component, DestroyRef, Inject, Input, OnInit, Optional, inject } from '@angular/core';
 import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
 import { ApiService } from '@shared/services/api.service';
 import { UserModel } from '@shared/services/models/user.interface';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { forkJoin } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile-invited-modal',
@@ -24,6 +25,9 @@ export class ProfileInvitedModalComponent implements OnInit {
   listUsers: any[] = [];
 
   loading: boolean = false;
+  loadingUsers = false;
+  private usersLoaded = false;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     @Optional() @Inject(NZ_MODAL_DATA) private modalData: any,
@@ -42,7 +46,6 @@ export class ProfileInvitedModalComponent implements OnInit {
     this.avatarUrl = this.userModel?.file?.path
       ? environment.hostUrl + '/storage/' + this.userModel.file.path
       : CONSTANTS.IMAGE.FALLBACK;
-    this.loadData();
   }
 
   async copyMessage(val: string, type: 'link' | 'id' = 'link'): Promise<void> {
@@ -74,13 +77,20 @@ export class ProfileInvitedModalComponent implements OnInit {
     document.body.removeChild(selBox);
   }
 
-  loadData(): void{
-    forkJoin(
-      this.apiService.getUsersSearch({})
-    ).subscribe(
-      ([users]) => {
-        this.listUsers = users.data.filter( u => u.payment == null );
-    })
+  loadUsers(open: boolean): void {
+    if (!open || this.usersLoaded || this.loadingUsers) return;
+    this.loadingUsers = true;
+    this.apiService.getUsersSearch({}).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loadingUsers = false)
+    ).subscribe({
+      next: response => {
+        if (!response?.success) return;
+        this.listUsers = (response.data ?? []).filter(user => user.payment == null);
+        this.usersLoaded = true;
+      },
+      error: () => this.messageService.error('No se pudo cargar la lista de usuarios.')
+    });
   }
 
   onSendEmail(): void{

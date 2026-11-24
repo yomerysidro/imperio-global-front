@@ -69,7 +69,7 @@
           </div>
           <div class="plan-body">
             <div class="plan-img-container">
-              <img src="assets/images/planes/PackDiamante.png" alt="Pack Diamante">
+              <img loading="lazy" decoding="async" src="assets/images/planes/PackDiamante.png" alt="Pack Diamante">
             </div>
             <div class="plan-benefits">
               <ul>
@@ -101,7 +101,7 @@
           </div>
           <div class="plan-body">
             <div class="plan-img-container">
-              <img src="assets/images/planes/PackEmpresario.png" alt="Pack Empresario">
+              <img loading="lazy" decoding="async" src="assets/images/planes/PackEmpresario.png" alt="Pack Empresario">
             </div>
             <div class="plan-benefits">
               <ul>
@@ -136,7 +136,7 @@
           <div class="plan-body">
             <!-- NUEVO ICONO: IMAGEN PNG DEL GLOBO DE BANDERAS -->
             <div class="plan-img-container">
-              <img src="assets/images/planes/internacional.png" alt="Globo Internacional" style="max-height: 100px; object-fit: contain;">
+              <img loading="lazy" decoding="async" src="assets/images/planes/internacional.png" alt="Globo Internacional" style="max-height: 100px; object-fit: contain;">
             </div>
             
             <!-- Lista CORTA (Resumen) -->
@@ -242,7 +242,7 @@
                 <h4 class="product-title m-0">{{ product.title }}</h4>
               </div>
               <div class="product-img">
-                <img [src]="getProductImage(product.file_image?.path)" [alt]="product.title">
+                <img loading="lazy" decoding="async" [src]="getProductImage(product.file_image?.path)" [alt]="product.title">
               </div>
               <div class="product-actions">
                 <div class="public-quantity" *ngIf="product.stock > 0">
@@ -269,7 +269,7 @@
       <article class="public-detail-modal" (click)="$event.stopPropagation()">
         <button type="button" class="public-detail-close" (click)="closeProductDetails()" aria-label="Cerrar">&times;</button>
         <div class="public-detail-visual">
-          <img [src]="getProductImage(product.file_image?.path)" [alt]="product.title">
+          <img loading="lazy" decoding="async" [src]="getProductImage(product.file_image?.path)" [alt]="product.title">
         </div>
         <div class="public-detail-content">
           <span class="public-detail-eyebrow">Conoce el producto</span>
@@ -308,7 +308,7 @@
               <h4 class="product-title m-0" style="padding-right: 10px;">BIO IMPERIO</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/bio.png" alt="Bio Imperio">
+              <img loading="lazy" decoding="async" src="assets/images/products/bio.png" alt="Bio Imperio">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Salud Digestiva</span>
@@ -366,7 +366,7 @@
               <h4 class="product-title m-0" style="padding-right: 10px;">MORINGA VIT IMPERIO</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/moringa.png" alt="Moringa Vit Imperio">
+              <img loading="lazy" decoding="async" src="assets/images/products/moringa.png" alt="Moringa Vit Imperio">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Aceite de Moringa</span>
@@ -423,7 +423,7 @@
               <h4 class="product-title m-0">ADELGAZANTE FILTRANTE</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/adelgazante.png" alt="Adelgazante">
+              <img loading="lazy" decoding="async" src="assets/images/products/adelgazante.png" alt="Adelgazante">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Control de peso</span>
@@ -478,7 +478,7 @@
               <h4 class="product-title m-0">LIMPIEZA POTENCIAL (LP)</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/limpieza.png" alt="Limpieza Potencial">
+              <img loading="lazy" decoding="async" src="assets/images/products/limpieza.png" alt="Limpieza Potencial">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Detox</span>
@@ -533,7 +533,7 @@
               <h4 class="product-title m-0">AGUA ALCALINA OZONIZADA</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/agua.png" alt="Agua Alcalina">
+              <img loading="lazy" decoding="async" src="assets/images/products/agua.png" alt="Agua Alcalina">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Hidratación</span>
@@ -590,7 +590,7 @@
               <h4 class="product-title m-0">SACHA JERGÓN</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/sacha.png" alt="Sacha Jergón">
+              <img loading="lazy" decoding="async" src="assets/images/products/sacha.png" alt="Sacha Jergón">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Sistema inmune</span>
@@ -650,7 +650,7 @@
               <h4 class="product-title m-0">POWER ENERGY</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/power.png" alt="Power Energy">
+              <img loading="lazy" decoding="async" src="assets/images/products/power.png" alt="Power Energy">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Energizante</span>
@@ -705,7 +705,7 @@
               <h4 class="product-title m-0">SÚPER OMEGA 3-6-9</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/omega.png" alt="Súper Omega 3-6-9">
+              <img loading="lazy" decoding="async" src="assets/images/products/omega.png" alt="Súper Omega 3-6-9">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Cerebro y corazón</span>
@@ -761,7 +761,7 @@
               <h4 class="product-title m-0">COLÁGENO HIDROLIZADO</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/colagenopote.png" alt="Colágeno Hidrolizado en Pote">
+              <img loading="lazy" decoding="async" src="assets/images/products/colagenopote.png" alt="Colágeno Hidrolizado en Pote">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Belleza · Articulaciones</span>
@@ -814,7 +814,7 @@
               <h4 class="product-title m-0">COLÁGENO HIDROLIZADO</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/colageno-caja.png" alt="Colágeno Hidrolizado en Caja">
+              <img loading="lazy" decoding="async" src="assets/images/products/colageno-caja.png" alt="Colágeno Hidrolizado en Caja">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Belleza · Articulaciones</span>
@@ -870,7 +870,7 @@
               <h4 class="product-title m-0">CAPPUCCINO STAR</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/capuchino.png" alt="Cappuccino Star">
+              <img loading="lazy" decoding="async" src="assets/images/products/capuchino.png" alt="Cappuccino Star">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Nutrición · Café funcional</span>
@@ -924,7 +924,7 @@
               <h4 class="product-title m-0">"ACCCIONA CARAJO"</h4>
             </div>
             <div class="product-img">
-              <img src="assets/images/products/acciona.jpeg" alt="Acciona Carajo">
+              <img loading="lazy" decoding="async" src="assets/images/products/acciona.jpeg" alt="Acciona Carajo">
             </div>
             <div class="product-desc">
               <span class="cat-tag">Educación · Liderazgo</span>

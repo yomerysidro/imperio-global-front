@@ -3,15 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ToolsPageComponent } from './tools-page/tools-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '@shared/shared.module';
-import { ToolsUsersPageComponent } from './tools-users-page/tools-users-page.component';
-import { ToolsOrderPageComponent } from './tools-order-page/tools-order-page.component';
-import { ToolsUsersUpdateModalComponent } from './tools-users-page/tools-users-update-modal/tools-users-update-modal.component';
-import { ToolsUsersResetModalComponent } from './tools-users-page/tools-users-reset-modal/tools-users-reset-modal.component';
-import { ToolsCashPageComponent } from './tools-cash-page/tools-cash-page.component';
-import { ToolsUsersReactiveModalComponent } from './tools-users-page/tools-users-reactive-modal/tools-users-reactive-modal.component';
-import { ToolRequestPatrocinioComponent } from './tool-request-patrocinio/tool-request-patrocinio.component';
-import { ToolRequestPatrocinioApprovedComponent } from './tool-request-patrocinio/tool-request-patrocinio-approved/tool-request-patrocinio-approved.component';
-import { ToolsUserAddModalComponent } from './tools-user-add-modal/tools-user-add-modal.component';
 
 const routes: Routes = [
   {
@@ -24,7 +15,7 @@ const routes: Routes = [
   },
   {
     path: 'users',
-    component: ToolsUsersPageComponent,
+    loadChildren: () => import('./tools-users-page/tools-users-page.module').then(m => m.ToolsUsersPageModule),
     data: {
         title: 'Usuarios Registrados ',
         headerDisplay: "none"
@@ -32,7 +23,7 @@ const routes: Routes = [
   },
   {
     path: 'orders',
-    component: ToolsOrderPageComponent,
+    loadChildren: () => import('./tools-order-page/tools-order-page.module').then(m => m.ToolsOrderPageModule),
     data: {
         title: 'Pedidos Registrados ',
         headerDisplay: "none"
@@ -40,7 +31,7 @@ const routes: Routes = [
   },
   {
     path: 'cash',
-    component: ToolsCashPageComponent,
+    loadChildren: () => import('./tools-cash-page/tools-cash-page.module').then(m => m.ToolsCashPageModule),
     data: {
         title: 'Flujo de Caja ',
         headerDisplay: "none"
@@ -48,7 +39,7 @@ const routes: Routes = [
   },
   {
     path: 'request-patrocinio',
-    component: ToolRequestPatrocinioComponent,
+    loadChildren: () => import('./tool-request-patrocinio/tool-request-patrocinio.module').then(m => m.ToolRequestPatrocinioModule),
     data: {
         title: 'Solicitudes de cobro de Bonos Patrocinio ',
         headerDisplay: "none"
@@ -58,16 +49,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    ToolsPageComponent,
-    ToolsUsersPageComponent,
-    ToolsOrderPageComponent,
-    ToolsUsersUpdateModalComponent,
-    ToolsUsersResetModalComponent,
-    ToolsCashPageComponent,
-    ToolsUsersReactiveModalComponent,
-    ToolRequestPatrocinioComponent,
-    ToolRequestPatrocinioApprovedComponent,
-    ToolsUserAddModalComponent
+    ToolsPageComponent
   ],
   imports: [
     SharedModule,

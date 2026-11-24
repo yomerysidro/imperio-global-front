@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { environment } from '@env/environment';
 import { ApiService } from '@shared/services/api.service';
-import { PackModel } from '@shared/services/models/packs.interface';
 import { IProductModel } from '@shared/services/models/product.interface';
 import { CONSTANTS } from '@shared/constants/constants';
 import { ModalService } from '@shared/utilities/modal-services';
@@ -20,7 +19,6 @@ export class HomeComponent implements OnInit {
 
   windowWidth: number = 0;
   env = environment;
-  planList: Array<PackModel> = [];
   productList: Array<IProductModel> = [];
   detailProduct: IProductModel | null = null;
   loadingProducts: boolean = false;
@@ -62,24 +60,11 @@ export class HomeComponent implements OnInit {
     this.windowWidth = window.innerWidth;
     AOS.init({disable: 'mobile'});
     AOS.refresh();
-    this.loadOptions();
-    this.loadPlans();
     this.loadProducts();
   }
 
   ngOnChanges(): void {
     this.windowWidth = window.innerWidth;
-  }
-
-  public loadOptions(): void{ }
-
-  public loadPlans(): void{
-    this.apiService.getPlansSearch({}).subscribe(
-      (response) =>{
-        this.planList = response.data;
-      },
-      (error) =>{ }
-    )
   }
 
   public loadProducts(): void {

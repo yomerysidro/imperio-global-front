@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component , DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ThemeConstantService } from '../../services/theme-constant.service';
 
 @Component({
@@ -9,6 +10,7 @@ import { ThemeConstantService } from '../../services/theme-constant.service';
 
 
 export class QuickViewComponent {
+    private readonly destroyRef = inject(DestroyRef);
   
     selectedHeaderColor: string;
     isSideNavDark : boolean;
@@ -17,9 +19,9 @@ export class QuickViewComponent {
     constructor( private themeService: ThemeConstantService) {}
 
     ngOnInit(): void {
-        this.themeService.isMenuFoldedChanges.subscribe(isFolded => this.isFolded = isFolded);
-        this.themeService.isSideNavDarkChanges.subscribe(isDark => this.isSideNavDark = isDark);
-        this.themeService.selectedHeaderColor.subscribe(color => this.selectedHeaderColor = color);
+        this.themeService.isMenuFoldedChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isFolded => this.isFolded = isFolded);
+        this.themeService.isSideNavDarkChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isDark => this.isSideNavDark = isDark);
+        this.themeService.selectedHeaderColor.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(color => this.selectedHeaderColor = color);
     }
 
     changeHeaderColor() {

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
@@ -21,7 +21,6 @@ const appRoutes: Routes = [
 @NgModule({
   imports: [
     RouterModule.forRoot(appRoutes, {
-        preloadingStrategy: PreloadAllModules,
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled'
     })

@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from '@env/environment';
 import { ImageCropperUploadComponent } from '@shared/components/image-cropper-upload/image-cropper-upload.component';
@@ -14,14 +14,14 @@ import { ProfileInvitedModalComponent } from './profile-invited-modal/profile-in
 import { Router } from '@angular/router';
 import { ToolsUserAddModalComponent } from '../../tools/tools-user-add-modal/tools-user-add-modal.component';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile-page',
   templateUrl: './profile-page.component.html',
   styleUrls: ['./profile-page.component.scss'],
 })
-export class ProfilePageComponent implements OnInit {
+export class ProfilePageComponent implements OnInit, OnDestroy {
   @ViewChild('templatePointPersonal', { read: TemplateRef }) templatePointPersonal!: TemplateRef<any>;
   @ViewChild('templatePointAfiliado', { read: TemplateRef }) templatePointAfiliado!: TemplateRef<any>;
   @ViewChild('renewModal', { read: TemplateRef }) renewModal!: TemplateRef<any>;
@@ -116,6 +116,10 @@ export class ProfilePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCurrentUser();
+  }
+
+  ngOnDestroy(): void {
+    this.payoutDataRequest?.unsubscribe();
   }
 
   public loadOptions(): void {
@@ -514,13 +518,16 @@ export class ProfilePageComponent implements OnInit {
     )
   }
 
+  private payoutDataRequest?: Subscription;
+
   public onPointPatrocinio(): void {
+    if (this.loadingPayoutBalance) return;
     const now = new Date();
     this.paymentMonth = now.getMonth() + 1;
     this.paymentYear = now.getFullYear();
     this.payoutAmount = 0;
     this.loadingPayoutBalance = true;
-    forkJoin({
+    this.payoutDataRequest = forkJoin({
       balance: this.apiService.getRequestPatrocinioBalance(),
       history: this.apiService.getRequestPatrocinioFindAll()
     }).subscribe({
@@ -598,7 +605,8 @@ export class ProfilePageComponent implements OnInit {
 
   private reloadPaymentData(onComplete?: () => void): void {
     const params = { month: this.paymentMonth, year: this.paymentYear };
-    forkJoin({ balance: this.apiService.getRequestPatrocinioBalance(params), history: this.apiService.getRequestPatrocinioFindAll(params) }).subscribe({
+    this.payoutDataRequest?.unsubscribe();
+    this.payoutDataRequest = forkJoin({ balance: this.apiService.getRequestPatrocinioBalance(params), history: this.apiService.getRequestPatrocinioFindAll(params) }).subscribe({
       next: ({ balance, history }) => { this.setPaymentData(balance, history); onComplete?.(); },
       error: error => { onComplete?.(); this.modalService.error(this.getPayoutError(error, 'No se pudo actualizar la información mensual.')); }
     });
@@ -617,6 +625,8 @@ export class ProfilePageComponent implements OnInit {
   }
 
   public onCancelPatrocinio(): void {
+    this.payoutDataRequest?.unsubscribe();
+    this.loadingPayoutBalance = false;
     this.nzModalService.closeAll();
   }
 

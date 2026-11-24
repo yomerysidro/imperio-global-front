@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { environment } from '@env/environment';
 import { PaymentProductsModalComponent } from '@shared/components/payment/payment-products-modal/payment-products-modal.component';
 import { CONSTANTS } from '@shared/constants/constants';
@@ -9,11 +9,14 @@ import { UserModel } from '@shared/services/models/user.interface';
 import { ThemeConstantService } from '@shared/services/theme-constant.service';
 import { ModalService } from '@shared/utilities/modal-services';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductFormModalComponent } from '../product-form-modal/product-form-modal.component';
 
 @Component({ selector: 'app-marketplace-page', templateUrl: './marketplace-page.component.html', styleUrls: ['./marketplace-page.component.scss'] })
 export class MarketplacePageComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private productsRequest?: Subscription;
   tabIndex = 0;
   productList: Array<IProductModel> = [];
   promotionList: Array<IProductModel> = [];
@@ -29,7 +32,7 @@ export class MarketplacePageComponent implements OnInit {
   CONSTANTS = CONSTANTS;
 
   constructor(private apiService: ApiService, private modal: NzModalService, private modalService: ModalService, private themeConstantService: ThemeConstantService, private authenticationService: AuthenticationService) {
-    this.themeConstantService.selectedCurrentCartList.subscribe(cart => this._cartList = cart);
+    this.themeConstantService.selectedCurrentCartList.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(cart => this._cartList = cart);
   }
 
   ngOnInit(): void { this.loadData(); }
@@ -49,25 +52,44 @@ export class MarketplacePageComponent implements OnInit {
   isUserActive(): boolean { return this.userModel?.payment?.state === CONSTANTS.PAYMENT_ORDER.PAGADO || this.userModel?.active === true; }
 
   loadData(): void {
+    this.productsRequest?.unsubscribe();
     this.loadingProducts = true;
-    forkJoin({ user: this.apiService.getAuthenticationUser(), products: this.apiService.getProducts(), personalPoints: this.apiService.getProductPaymnetPoints(this.getCurrentPeriodParams()) }).subscribe({
-      next: ({ user, products, personalPoints }) => {
+    this.productsRequest = forkJoin({
+      user: this.apiService.getAuthenticationUser(),
+      products: this.apiService.getProducts()
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ user, products }) => {
         this.userModel = user.data;
         if (this.currentUser) {
           localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         }
         this.totalPointsPersonalGlobal = Number(user.data?.points?.personalGlobal ?? 0);
-        this.totalPointsPersonal = personalPoints.success ? personalPoints.data.reduce((sum, item) => sum + Number(item.points ?? 0), 0) : 0;
         this.applyProducts(products.data ?? []);
         this.loadingProducts = false;
       },
-      error: error => { this.loadingProducts = false; this.modalService.error(this.getErrorMessage(error, 'No se pudo cargar la tienda.')); }
+      error: error => {
+        this.loadingProducts = false;
+        this.modalService.error(this.getErrorMessage(error, 'No se pudo cargar la tienda.'));
+      }
+    });
+    this.apiService.getProductPaymnetPoints(this.getCurrentPeriodParams()).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: personalPoints => {
+        this.totalPointsPersonal = personalPoints.success ? personalPoints.data.reduce((sum, item) => sum + Number(item.points ?? 0), 0) : 0;
+      },
+      error: error => this.modalService.error(this.getErrorMessage(error, 'No se pudieron cargar los puntos personales.'))
     });
   }
 
+  trackProduct(_index: number, product: IProductModel): string {
+    return product.id;
+  }
+
   reloadProducts(): void {
+    this.productsRequest?.unsubscribe();
     this.loadingProducts = true;
-    this.apiService.getProducts().subscribe({
+    this.productsRequest = this.apiService.getProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => { this.applyProducts(response.data ?? []); this.loadingProducts = false; },
       error: error => { this.loadingProducts = false; this.modalService.error(this.getErrorMessage(error, 'No se pudieron recargar los productos.')); }
     });

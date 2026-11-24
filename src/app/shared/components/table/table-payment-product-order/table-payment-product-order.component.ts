@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { environment } from '@env/environment';
 import { PaymentViewVoucherModalComponent } from '@shared/components/payment/payment-view-voucher-modal/payment-view-voucher-modal.component';
 import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/user-tree-detail.component';
@@ -9,14 +9,14 @@ import { ThemeConstantService } from '@shared/services/theme-constant.service';
 import { ModalService } from '@shared/utilities/modal-services';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzTableQueryParams } from 'ng-zorro-antd/table';
-import { forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-table-payment-product-order',
   templateUrl: './table-payment-product-order.component.html',
   styleUrls: ['./table-payment-product-order.component.scss']
 })
-export class TablePaymentProductOrderComponent implements OnInit {
+export class TablePaymentProductOrderComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('templateChangeState', { read: TemplateRef }) templateChangeState:TemplateRef<any>;
 
@@ -33,7 +33,8 @@ export class TablePaymentProductOrderComponent implements OnInit {
   sortPropertyName: string = '';
   totalRecord: number = 0;
 
-  initLoad: boolean = true;
+  private readonly subscriptions = new Subscription();
+  private ordersRequest?: Subscription;
 
   environment = environment;
   CONSTANTS = CONSTANTS;
@@ -52,9 +53,7 @@ export class TablePaymentProductOrderComponent implements OnInit {
     private nzModalService: NzModalService,
     private themeConstantService: ThemeConstantService
   ) {
-    this.themeConstantService.isAdminUserChanges.subscribe( (r) => {
-      this.isAdmin = r
-    } );
+    this.subscriptions.add(this.themeConstantService.isAdminUserChanges.subscribe(isAdmin => this.isAdmin = isAdmin));
   }
 
   ngOnInit(): void {
@@ -62,12 +61,21 @@ export class TablePaymentProductOrderComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if( this.searchLoader > 0 ) this.onSearch();
+    if (changes.searchLoader && !changes.searchLoader.firstChange && this.searchLoader > 0) {
+      this.pageIndex = 1;
+      this.onSearch();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.ordersRequest?.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   public onSearch(): void{
+    this.ordersRequest?.unsubscribe();
     this.tablePaymentProductLoading = true;
-    this.apiService.getUsersPaymnetFindAll({
+    this.ordersRequest = this.apiService.getUsersPaymnetFindAll({
       limit: this.pageSize , page: this.pageIndex,
       ...this.queryParams
     }).subscribe(
@@ -77,27 +85,21 @@ export class TablePaymentProductOrderComponent implements OnInit {
           this.totalRecord = response.data.pagination.total;
         }
         this.tablePaymentProductLoading = false;
-        this.initLoad = false;
       },(error) => {
         this.tablePaymentProductLoading = false;
       }
     )
   }
 
-  onQueryParamsChange(params: NzTableQueryParams): void {
-    const { pageSize, pageIndex, sort, filter } = params;
-    let sortOrder;
+  onQueryParamsChange({ pageSize, pageIndex }: NzTableQueryParams): void {
+    if (this.pageIndex === pageIndex && this.pageSize === pageSize) return;
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
-    if (sort[0]?.value !== null) {
-      if (sort[0]?.value == 'ascend') sortOrder = 'ASC';
-      if (sort[0]?.value == 'descend') sortOrder = 'DESC';
+    this.onSearch();
+  }
 
-      if (sort[0]?.key === 'name') this.sortProperty = 'name ' + sortOrder;
-
-    }
-
-    if( !this.initLoad ) this.onSearch();
+  trackOrder(_index: number, order: IProductPaymentOrder): number {
+    return order.id;
   }
 
   public onSeletedUSer(usercode: string, userModel: any): void{
