@@ -54,15 +54,47 @@ $text-muted: #8c8c8c;
       }
     }
 
-    .stat-data { min-width: 86px; }
+    .stat-data { min-width: 112px; }
 
     .stat-number {
+      display: flex;
+      align-items: center;
+      min-height: 30px;
       font-size: 30px;
       line-height: 1;
       font-weight: 900;
       margin: 0;
       color: #15345f;
       &.active-color { color: #047857; }
+    }
+
+    .stat-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      color: #52647c;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .stat-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba($primary-blue, 0.24);
+      border-top-color: $primary-blue;
+      border-radius: 50%;
+      animation: indicator-spin 0.8s linear infinite;
+    }
+
+    .stat-retry {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+
+      i { color: $primary-blue; }
+      &:hover { text-decoration: underline; }
     }
 
     .stat-label {
@@ -77,6 +109,14 @@ $text-muted: #8c8c8c;
     @media (min-width: 992px) { &.border-left { border-left: 1px solid rgba(67, 121, 238, 0.15); } }
     @media (max-width: 991px) { border-bottom: 1px solid rgba(67, 121, 238, 0.12); }
   }
+}
+
+@keyframes indicator-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-card .stat-spinner { animation: none; }
 }
 
 /* ── 2. TREE CARD & VIEWPORT ──────────────────────────── */
@@ -257,36 +297,26 @@ $text-muted: #8c8c8c;
   }
 
   .tree-viewport {
-    padding: 40px 20px;
+    padding: 20px;
     width: 100%;
     overflow: auto; 
     height: clamp(520px, calc(100vh - 300px), 820px);
     min-height: 520px;
     background: #ffffff;
-    scroll-behavior: smooth;
+    overflow-anchor: none;
 
     &::-webkit-scrollbar { width: 6px; height: 6px; }
     &::-webkit-scrollbar-thumb { background: #d1d9e2; border-radius: 10px; }
 
     .tree-stage {
-      position: relative;
-      min-width: 1px;
-      min-height: 1px;
-      margin: 0 auto;
-      transition: width .2s ease, height .2s ease;
+      width: max-content;
     }
 
     .tree-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
       width: max-content;
-      transform-origin: top left;
-      transition: transform 0.2s ease;
     }
 
-    ::ng-deep app-tree-view { display: block; width: max-content; margin: 0 auto; }
-    ::ng-deep .tree { display: flex; justify-content: center; min-width: fit-content; }
+    app-tree-view { display: block; }
 
     /* LÍNEAS CONECTORES OSCURAS */
     ::ng-deep .treeLink {
@@ -312,14 +342,14 @@ $text-muted: #8c8c8c;
     .tree-viewport {
       height: calc(100vh - 285px);
       min-height: 460px;
-      padding: 30px 12px;
+      padding: 16px 12px;
     }
   }
 }
 
 /* ── 3. NODE WRAPPER (ALINEACIÓN PERFECTA) ─────────────── */
 .node-wrapper {
-  width: 50px; /* Área de colisión */
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -410,10 +440,17 @@ $text-muted: #8c8c8c;
 
   .node-id { 
     font-size: 10px; 
+    line-height: 12px;
     font-weight: 700; 
     color: #333; 
     text-align: center;
-    white-space: nowrap;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    pointer-events: auto;
   }
 
   /* BARRA DE ESTADO BAJO EL NOMBRE */
@@ -434,10 +471,10 @@ $text-muted: #8c8c8c;
 }
 
 /* ── 5. COMPATIBILIDAD CON LIBRERÍA ─────────────────────── */
-::ng-deep .wrapper > div {
+.tree-canvas ::ng-deep .wrapper > div {
   display: flex !important;
   justify-content: center !important;
-  align-items: center !important;
+  align-items: flex-start !important;
 }
 .move-branch-action {
   display: inline-flex; align-items: center; justify-content: center; gap: 4px;

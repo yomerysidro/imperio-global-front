@@ -1,5 +1,6 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { forkJoin, of, Subscription } from 'rxjs';
+import { defaultIfEmpty, finalize, map, switchMap } from 'rxjs/operators';
 import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
 import { ECONode, IECONode, Orientation } from '@shared/interfaces/econode.type';
 import { ApiService } from '@shared/services/api.service';
@@ -18,10 +19,11 @@ import { ToolsUsersSponsorModalComponent } from '../../tools/tools-users-page/to
   templateUrl: './tree-users-page.component.html',
   styleUrls: ['./tree-users-page.component.scss']
 })
-export class TreeUsersPageComponent implements OnInit {
-  @ViewChild('treeViewport') treeViewport?: ElementRef<HTMLElement>;
+export class TreeUsersPageComponent implements OnInit, OnDestroy {
+  @ViewChild('treeViewport', { static: true }) treeViewport?: ElementRef<HTMLElement>;
+  @ViewChild('treeCanvas', { static: true }) private treeCanvas?: ElementRef<HTMLElement>;
   @ViewChild('treeContainer') treeContainer?: ElementRef<HTMLElement>;
-  @ViewChild('treeView') treeView?: TreeViewComponent;
+  private initialFrameObserver?: ResizeObserver;
 
   Orientation = Orientation;
   nodeSelected: ECONode | null = null;
@@ -34,6 +36,9 @@ export class TreeUsersPageComponent implements OnInit {
   usuarioDirectos: number | null = null;
   usuarioActivos: number | null = null;
   usuarioTotal: number | null = null;
+  areIndicatorsLoading = true;
+  indicatorsLoadFailed = false;
+  private indicatorsRequest?: Subscription;
 
   ownSponsorCode = '--';
 
@@ -66,6 +71,9 @@ export class TreeUsersPageComponent implements OnInit {
 
     return this.isAdministrator && !!userCode && !isAdminNode && userCode !== this.data?.data?.id;
   }
+
+  readonly treeNodeHeight = (node: ECONode): number =>
+    this.canMoveBranch(node.data.id, node.data.admin) ? 104 : 72;
 
   public openBranchMove(userCode: string, event?: Event): void {
     event?.stopPropagation();
@@ -101,14 +109,6 @@ export class TreeUsersPageComponent implements OnInit {
     });
   }
 
-  get treeCanvasWidth(): number {
-    return Number(this.treeView?.tree?.width || 1) * this.treeZoom;
-  }
-
-  get treeCanvasHeight(): number {
-    return Number(this.treeView?.tree?.height || 1) * this.treeZoom;
-  }
-
   constructor(
     private apiService: ApiService,
     private nzModalService: NzModalService,
@@ -119,19 +119,30 @@ export class TreeUsersPageComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    this.initialFrameObserver?.disconnect();
+    this.indicatorsRequest?.unsubscribe();
+  }
+
   /**
    * Carga la red completa desde el Backend
    */
   public loadData(): void {
-    this.isChart = false;
+    this.indicatorsRequest?.unsubscribe();
+    this.areIndicatorsLoading = true;
+    this.indicatorsLoadFailed = false;
     this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
 
-    forkJoin({
+    this.indicatorsRequest = forkJoin({
       pointsRes: this.apiService.getPointListUser(),
       authRes: this.apiService.getAuthenticationUser()
-    }).subscribe({
-      next: ({ pointsRes, authRes }) => {
-        if (pointsRes.success) {
+    }).pipe(
+      defaultIfEmpty(null),
+      finalize(() => { this.areIndicatorsLoading = false; })
+    ).subscribe({
+      next: response => {
+        if (response?.pointsRes?.success) {
+          const { pointsRes, authRes } = response;
           const authUser = authRes.success ? authRes.data : null;
           const pointsData = pointsRes.data;
           
@@ -193,7 +204,7 @@ export class TreeUsersPageComponent implements OnInit {
             ? environment.hostUrl + '/storage/' + user.file.path
             : this.fallback;
 
-          this.data = {
+          this.showTree({
             data: {
               id: myId,
               photo: image,
@@ -204,13 +215,13 @@ export class TreeUsersPageComponent implements OnInit {
             active: isUserMembershipActive(user),
             selected: true,
             children: childrenForDisplay
-          };
-
-          this.isChart = true;
-          this.scheduleInitialTreeCenter();
+          });
+        } else {
+          this.indicatorsLoadFailed = true;
         }
       },
       error: (err) => {
+        this.indicatorsLoadFailed = true;
         console.error("Error al cargar la red", err);
       }
     });
@@ -235,7 +246,9 @@ export class TreeUsersPageComponent implements OnInit {
                 const children = new Map<string, any[]>();
                 accounts.filter(account => account.connected === true).forEach(account => {
                   const key = String(account.sponsor_code ?? '').toUpperCase();
-                  children.set(key, [...(children.get(key) || []), account]);
+                  const sponsored = children.get(key);
+                  if (sponsored) sponsored.push(account);
+                  else children.set(key, [account]);
                 });
                 const visited = new Set<string>();
                 const node = (account: any): IECONode => {
@@ -247,9 +260,7 @@ export class TreeUsersPageComponent implements OnInit {
                     children: (children.get(key) || []).map(node) };
                 };
                 try {
-                  this.data = node(detail);
-                  this.isChart = true;
-                  this.scheduleInitialTreeCenter();
+                  this.showTree(node(detail));
                 } catch (error) { this.branchMoveError = error.message; }
               }, error: () => { this.branchMoveError = 'No se pudo leer una página del árbol. Vuelve a actualizar.'; }
             });
@@ -301,7 +312,7 @@ export class TreeUsersPageComponent implements OnInit {
   public resetTreeView(): void {
     this.treeZoom = 1;
     this.clearTreeSearch();
-    this.scheduleInitialTreeCenter();
+    if (this.isChart) this.scheduleInitialTreeFrame();
   }
 
   public async toggleFullScreen(): Promise<void> {
@@ -324,64 +335,33 @@ export class TreeUsersPageComponent implements OnInit {
     } else {
       this.restoreOverlayContainer();
     }
-    this.scheduleInitialTreeCenter();
   }
 
-  /**
-   * Espera a que el componente del árbol termine de calcular su ancho y
-   * coloca el nodo raíz en el centro horizontal del área visible.
-   */
-  private scheduleInitialTreeCenter(): void {
-    this.treeZoom = 1;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => this.positionTreeFromLeft());
-    });
-
-    // La librería amplía el lienzo mientras dibuja niveles y conectores.
-    [80, 220, 500].forEach(delay => {
-      setTimeout(() => this.positionTreeFromLeft(), delay);
-    });
+  private showTree(data: IECONode): void {
+    const needsInitialFrame = !this.isChart || this.data.data.id !== data.data.id;
+    this.data = data;
+    this.isChart = true;
+    if (needsInitialFrame) this.scheduleInitialTreeFrame();
   }
 
-  private positionTreeFromLeft(): void {
+  private scheduleInitialTreeFrame(): void {
     const viewport = this.treeViewport?.nativeElement;
-    if (!viewport || !this.data?.data?.id) return;
+    const canvas = this.treeCanvas?.nativeElement;
+    if (!viewport || !canvas) return;
 
-    const rootCode = String(this.data.data.id);
-    const rootNode = Array.from(
-      viewport.querySelectorAll<HTMLElement>('[data-node-code]')
-    ).find(element => element.dataset.nodeCode === rootCode);
-    if (!rootNode) return;
+    this.initialFrameObserver?.disconnect();
+    const observer = new ResizeObserver(() => {
+      // The tree renders its root first, in the same coordinate system as its links.
+      const root = canvas.querySelector<HTMLElement>('[data-node-code]');
+      if (!viewport.clientWidth || !viewport.clientHeight || !root?.offsetWidth || !root.offsetHeight) return;
 
-    const viewportRect = viewport.getBoundingClientRect();
-    const rootRect = rootNode.getBoundingClientRect();
-    const desiredLeft = viewport.scrollLeft + rootRect.left - viewportRect.left - 24;
-
-    viewport.scrollLeft = Math.max(0, desiredLeft);
-    viewport.scrollTop = 0;
-  }
-
-  private centerTreeOnRoot(): void {
-    const viewport = this.treeViewport?.nativeElement;
-    if (!viewport || !this.data?.data?.id) return;
-
-    const rootCode = String(this.data.data.id);
-    const rootNode = Array.from(
-      viewport.querySelectorAll<HTMLElement>('[data-node-code]')
-    ).find(element => element.dataset.nodeCode === rootCode);
-
-    if (!rootNode) return;
-
-    const viewportRect = viewport.getBoundingClientRect();
-    const rootRect = rootNode.getBoundingClientRect();
-    const desiredLeft = viewport.scrollLeft
-      + (rootRect.left - viewportRect.left)
-      + (rootRect.width / 2)
-      - (viewport.clientWidth / 2);
-
-    const maximumLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-    viewport.scrollLeft = Math.min(maximumLeft, Math.max(0, desiredLeft));
-    viewport.scrollTop = 0;
+      viewport.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+      observer.disconnect();
+      this.initialFrameObserver = undefined;
+    });
+    this.initialFrameObserver = observer;
+    observer.observe(viewport);
+    observer.observe(canvas);
   }
 
   private findTreeNodeByTerm(node: IECONode, term: string): IECONode | null {
@@ -518,42 +498,22 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     const codeUuid = getCodeUuid();
     const isSelf = codeUuid ? (codeStr.toLowerCase() === codeUuid.toLowerCase()) : false;
 
-    this.apiService.getUserByCode(codeStr).subscribe({
-      next: searchResponse => {
-        const users = searchResponse?.data?.items || [];
-        const selectedUser = users.find(user =>
+    const detailRequest = this.apiService.getUserByCode(codeStr).pipe(
+      switchMap(response => {
+        const selected = response?.success && response.data?.items?.find(user =>
           String(user?.uuid || '').toLowerCase() === codeStr.toLowerCase()
         );
+        const id = Number(selected ? selected.id : null);
+        return Number.isInteger(id) && id > 0 ? this.apiService.getUserById(id) : of(null);
+      }),
+      map(response => {
+        const user = response?.success ? response.data : null;
+        if (!user || String(user.uuid || '').toLowerCase() !== codeStr.toLowerCase()) return null;
+        return this.buildUserDetail(user, !isSelf);
+      })
+    );
 
-        if (!searchResponse?.success || !selectedUser) {
-          return;
-        }
-
-        const numericId = Number(selectedUser.id);
-        if (!Number.isInteger(numericId) || numericId <= 0) {
-          return;
-        }
-
-        this.apiService.getUserById(numericId).subscribe({
-          next: detailResponse => {
-            if (!detailResponse?.success || !detailResponse.data) {
-              return;
-            }
-
-            const userData = detailResponse.data;
-            const responseCode = String(userData.uuid || '').toLowerCase();
-            if (responseCode !== codeStr.toLowerCase()) {
-              return;
-            }
-
-            const title = isSelf ? 'Tu Detalle' : `Detalle: ${userData.email || userData.name || codeStr}`;
-            this.openModal(userData, title, !isSelf);
-          },
-          error: () => {}
-        });
-      },
-      error: () => {}
-    });
+    this.openModal(isSelf ? 'Tu Detalle' : `Detalle: ${codeStr}`, { detailRequest });
   }
 
   /**
@@ -562,7 +522,10 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
   private fallbackOpenModal(codeStr: string): void {
     const fallbackUser = this.findUserInTree(codeStr) || this.findUserInListPoints(codeStr);
     if (fallbackUser) {
-      this.openModal(fallbackUser, `Detalle: ${fallbackUser.email || fallbackUser.name || codeStr}`, true);
+      this.openModal(
+        `Detalle: ${fallbackUser.email || fallbackUser.name || codeStr}`,
+        this.buildUserDetail(fallbackUser, true)
+      );
     } else {
       console.error('❌ Usuario no encontrado en ninguna fuente:', codeStr);
     }
@@ -570,18 +533,26 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
 
   /**
    * 🔥 CORREGIDO: Abre el modal de detalle
-   * @param user Objeto del usuario
    * @param title Título del modal
-   * @param sendTree Indica si debe enviar el árbol de la red (true para socios, false para perfil propio)
+   * @param data Datos del usuario o consulta pendiente
    */
-  private openModal(user: any, title: string, sendTree: boolean = true) {
+  private openModal(title: string, data: object) {
     if (document.fullscreenElement === this.treeContainer?.nativeElement) {
       this.moveOverlayToFullScreen();
     }
 
+    this.nzModalService.create({
+      nzTitle: title,
+      nzContent: UserTreeDetailComponent,
+      nzFooter: null,
+      nzWidth: '540px',
+      nzClassName: 'user-detail-modal',
+      nzData: data
+    });
+  }
+
+  private buildUserDetail(user: any, sendTree: boolean) {
     const userData = user.data || user;
-    const userCode = userData.uuid || userData.id || '';
-    const userCodeStr = String(userCode);
 
 
     // 🔥 OBTENER PUNTOS DESDE USER_DETAIL (ENVIADO POR EL BACKEND)
@@ -639,20 +610,14 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     // 🔥 DECISIÓN CLAVE: SI ES SOCIO, ENVÍO EL ÁRBOL. SI ES YO, NO LO ENVÍO.
     const treeToSend = sendTree ? this.listPoints : [];
 
-    this.nzModalService.create({
-      nzTitle: title,
-      nzContent: UserTreeDetailComponent,
-      nzFooter: null,
-      nzWidth: '540px',
-      nzClassName: 'user-detail-modal',
-      nzData: {
-        userModel: userForModal,
-        listPoints: treeToSend, // ✅ Ahora el árbol se envía solo cuando es necesario
-        paquetes: packs,
-        paymentOrder: userForModal.payment || userForModal.payment_active
-      }
-    });
+    return {
+      userModel: userForModal,
+      listPoints: treeToSend,
+      paquetes: packs,
+      paymentOrder: userForModal.payment || userForModal.payment_active
+    };
   }
+
 
   private moveOverlayToFullScreen(): void {
     const container = this.treeContainer?.nativeElement;

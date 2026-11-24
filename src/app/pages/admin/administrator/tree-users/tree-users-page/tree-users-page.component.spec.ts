@@ -1,6 +1,110 @@
-import { of, throwError } from 'rxjs';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { EMPTY, of, Subject, throwError } from 'rxjs';
+import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
+import { ApiService } from '@shared/services/api.service';
 import { TreeUsersPageComponent } from './tree-users-page.component';
 import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/user-tree-detail.component';
+
+describe('Affiliate tree viewport', () => {
+  for (const width of [320, 1000]) {
+    it(`frames the root and preserves navigation at ${width}px`, async () => {
+      const account = (uuid: string, sponsor_code: string, active = true) =>
+        ({ uuid, sponsor_code, active, connected: true });
+      let accounts = [
+        account('WAdz', 'DOSB', false),
+        ...Array.from({ length: 9 }, (_, i) => account(`sibling-${i}`, 'DOSB')),
+        account('second-direct', 'WAdz'),
+        ...Array.from({ length: 8 }, (_, i) => account(`descendant-${i}`, i ? `descendant-${i - 1}` : 'WAdz')),
+        ...Array.from({ length: 20 }, (_, i) => account(`deep-direct-${i}`, 'descendant-7'))
+      ];
+      await TestBed.configureTestingModule({
+        imports: [FormsModule],
+        declarations: [TreeUsersPageComponent, TreeViewComponent],
+        providers: [
+          { provide: ApiService, useValue: {
+            getPointListUser: () => of({ success: true, data: {} }),
+            getAuthenticationUser: () => of({ success: true, data: { is_admin: true } }),
+            getNetworkRoot: () => of({ uuid: 'DOSB' }),
+            getNetworkMember: () => of({ uuid: 'DOSB', active: true }),
+            getNetworkAccounts: () => of({ current_page: 1, last_page: 1, data: accounts })
+          } },
+          { provide: NzModalService, useValue: {} },
+          { provide: OverlayContainer, useValue: {} }
+        ],
+        schemas: [NO_ERRORS_SCHEMA]
+      }).compileComponents();
+
+      const fixture = TestBed.createComponent(TreeUsersPageComponent);
+      fixture.nativeElement.style.display = 'block';
+      fixture.nativeElement.style.width = `${width}px`;
+      fixture.detectChanges();
+      const page = fixture.componentInstance;
+      const viewport = page.treeViewport.nativeElement;
+      const root = () => viewport.querySelector<HTMLElement>('[data-node-code="DOSB"]');
+      const nextPaint = () => new Promise<void>(resolve =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      await nextPaint();
+
+      const initialLeft = viewport.scrollLeft;
+      const initialTop = viewport.scrollTop;
+      const initialRootLeft = root().getBoundingClientRect().left - viewport.getBoundingClientRect().left;
+      expect(initialLeft).toBe(0);
+      expect(initialTop).toBe(0);
+      expect(initialRootLeft).toBeGreaterThanOrEqual(10);
+      expect(initialRootLeft).toBeLessThanOrEqual(22);
+      const rootTop = root().getBoundingClientRect().top;
+      expect(rootTop - viewport.getBoundingClientRect().top).toBeGreaterThanOrEqual(14);
+      expect(rootTop - viewport.getBoundingClientRect().top).toBeLessThanOrEqual(22);
+      const child = viewport.querySelector<HTMLElement>('[data-node-code="WAdz"]');
+      expect(child.getBoundingClientRect().top).toBeGreaterThan(rootTop);
+      expect(child.getBoundingClientRect().left).toBeCloseTo(root().getBoundingClientRect().left, 0);
+      expect(child.classList.contains('is-active')).toBeFalse();
+      const nextRootDirect = viewport.querySelector('[data-node-code="sibling-0"]').getBoundingClientRect();
+      expect(nextRootDirect.top).toBe(child.getBoundingClientRect().top);
+      expect(nextRootDirect.right).toBeLessThan(viewport.getBoundingClientRect().right);
+      const firstDirect = viewport.querySelector('[data-node-code="second-direct"]').getBoundingClientRect();
+      const secondDirect = viewport.querySelector('[data-node-code="descendant-0"]').getBoundingClientRect();
+      expect(firstDirect.top).toBe(secondDirect.top);
+      expect(secondDirect.left).toBeGreaterThan(firstDirect.right);
+      expect(secondDirect.right).toBeLessThan(viewport.getBoundingClientRect().right);
+      expect(viewport.querySelectorAll('svg.treeLink .tree-child-link').length).toBe(accounts.length);
+      expect(child.getBoundingClientRect().top - rootTop).toBeLessThan(100);
+      const branchButton = child.querySelector('.move-branch-action').getBoundingClientRect();
+      expect(firstDirect.top).toBeGreaterThan(branchButton.bottom);
+
+      const originalWidth = root().getBoundingClientRect().width;
+      page.zoomIn();
+      fixture.detectChanges();
+      expect(root().getBoundingClientRect().width).toBeGreaterThan(originalWidth);
+      viewport.scrollTo(30, 100);
+      const navigatedTop = viewport.scrollTop;
+      expect(navigatedTop).toBeGreaterThan(0);
+
+      accounts = [...accounts, account('new-descendant', 'descendant-7')];
+      page.loadData();
+      fixture.detectChanges();
+      await nextPaint();
+      expect(viewport.scrollLeft).toBe(30);
+      expect(viewport.scrollTop).toBe(navigatedTop);
+      expect(page.zoomPercent).toBe(110);
+      expect(viewport.querySelector('[data-node-code="new-descendant"]')).toBeTruthy();
+
+      page.resetTreeView();
+      fixture.detectChanges();
+      await nextPaint();
+      expect(page.zoomPercent).toBe(100);
+      expect(viewport.scrollLeft).toBe(initialLeft);
+      expect(viewport.scrollTop).toBe(initialTop);
+      expect(root().getBoundingClientRect().left - viewport.getBoundingClientRect().left)
+        .toBeCloseTo(initialRootLeft, 0);
+    });
+  }
+});
+
 describe('Administrative genealogy tree', () => {
  let c: TreeUsersPageComponent; let api: any;
  beforeEach(() => {
@@ -10,7 +114,7 @@ describe('Administrative genealogy tree', () => {
   api.getNetworkRoot.and.returnValue(of({ uuid: 'configured-root', name: 'Company' }));
   api.getNetworkMember.and.returnValue(of({ uuid: 'configured-root', name: 'Company', directos: 1, descendantsCount: 2 }));
   api.getNetworkAccounts.and.callFake((page: number) => of({ current_page: page, last_page: 2, data: page === 1 ? [{ uuid: 'parent', name: 'Parent', sponsor_code: 'configured-root', connected: true }] : [{ uuid: 'child', name: 'Child', sponsor_code: 'parent', connected: true }] }));
-  c = new TreeUsersPageComponent(api, {} as any, {} as any); spyOn<any>(c, 'scheduleInitialTreeCenter');
+  c = new TreeUsersPageComponent(api, {} as any, {} as any);
  });
  it('reads all pages and preserves direct sponsorship independent of purchases', () => {
   c.loadData(); expect(api.getNetworkAccounts).toHaveBeenCalledWith(2);
@@ -47,6 +151,23 @@ describe('Administrative genealogy tree', () => {
    c.usuarioActivos = 7;
    api.getPointListUser.and.returnValue(throwError({ status: 500 })); c.loadData();
    expect(c.usuarioActivos).toBeNull(); expect(c.usuarioTotal).toBeNull(); expect(c.usuarioDirectos).toBeNull();
+   expect(c.areIndicatorsLoading).toBeFalse();
+   expect(c.indicatorsLoadFailed).toBeTrue();
+  });
+  it('shows loading during a retry and finishes with the returned zero counts', () => {
+   const response = new Subject();
+   api.getPointListUser.and.returnValues(EMPTY, response);
+   c.loadData();
+   expect(c.areIndicatorsLoading).toBeFalse();
+   expect(c.indicatorsLoadFailed).toBeTrue();
+
+   c.loadData();
+   expect(c.areIndicatorsLoading).toBeTrue();
+   expect(c.indicatorsLoadFailed).toBeFalse();
+   response.next({ success: true, data: { network_meta: { total_network: 0, total_directs: 0, total_active: 0 } } });
+   response.complete();
+   expect(c.areIndicatorsLoading).toBeFalse();
+   expect([c.usuarioTotal, c.usuarioDirectos, c.usuarioActivos]).toEqual([0, 0, 0]);
   });
   it('refreshes official counters on initialization and every reload', () => {
    api.getPointListUser.and.returnValues(

@@ -1,11 +1,17 @@
-import { Component, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
+import { Component, DestroyRef, inject, OnInit, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { LOGIN_WELCOME_NAVIGATION } from '@shared/constants/login-welcome';
 import { ApiService } from '@shared/services/api.service';
 import { AuthenticationService } from '@shared/services/authentication.service';
 import { ThemeConstantService } from '@shared/services/theme-constant.service';
+import { getAccesToken } from '@shared/utilities/functions';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { Observable } from "rxjs";
+import { animationFrameScheduler, Observable } from "rxjs";
+import { filter, observeOn, switchMap, take } from 'rxjs/operators';
+import { LoginWelcomeComponent } from './login-welcome/login-welcome.component';
 
 @Component({
     selector: 'app-common-layout',
@@ -14,6 +20,8 @@ import { Observable } from "rxjs";
 })
 
 export class CommonLayoutComponent implements OnInit {
+  private readonly dialog = inject(Dialog);
+  private readonly destroyRef = inject(DestroyRef);
   @ViewChild('confirmInitedModal', { static: true, read: TemplateRef }) confirmInitedModal:TemplateRef<any>;
   
     breadcrumbs$: Observable<any> | undefined;
@@ -32,7 +40,7 @@ export class CommonLayoutComponent implements OnInit {
       private authenticationService: AuthenticationService,
       private nzModal: NzModalService,
       private apiService: ApiService,) {
-        
+      this.queueLoginWelcome();
     }
 
     ngOnInit() {
@@ -54,6 +62,30 @@ export class CommonLayoutComponent implements OnInit {
             })
           }
         } )
+    }
+
+    private queueLoginWelcome(): void {
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd &&
+          this.router.getCurrentNavigation()?.extras.info === LOGIN_WELCOME_NAVIGATION),
+        take(1),
+        observeOn(animationFrameScheduler),
+        switchMap(() => this.nzModal.afterAllClose.pipe(take(1))),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe(() => {
+        if (!getAccesToken()) return;
+
+        const welcome = this.dialog.open(LoginWelcomeComponent, {
+          width: 'min(500px, calc(100vw - 32px))',
+          hasBackdrop: true,
+          disableClose: true,
+          autoFocus: '.welcome-action',
+          ariaLabelledBy: 'login-welcome-title',
+          ariaDescribedBy: 'login-welcome-description',
+          ariaModal: true
+        });
+        this.destroyRef.onDestroy(() => welcome.close());
+      });
     }
 
     onConfirm(confirm: boolean): void{

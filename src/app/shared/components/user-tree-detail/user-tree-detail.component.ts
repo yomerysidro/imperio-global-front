@@ -1,15 +1,17 @@
-import { Component, Inject, Input, OnInit, Optional } from '@angular/core';
+import { Component, Inject, Input, OnDestroy, OnInit, Optional } from '@angular/core';
 import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
+import { Observable, Subscription } from 'rxjs';
+import { defaultIfEmpty, finalize, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-tree-detail',
   templateUrl: './user-tree-detail.component.html',
   styleUrls: ['./user-tree-detail.component.scss']
 })
-export class UserTreeDetailComponent implements OnInit {
+export class UserTreeDetailComponent implements OnInit, OnDestroy {
   @Input() userModel: any;
   @Input() listPoints: any;
   @Input() paymentOrder: any;
@@ -17,6 +19,10 @@ export class UserTreeDetailComponent implements OnInit {
   @Input() pointRed: number = 0;        // Puntos de equipo (pointGroup)
   @Input() granTotalPuntos: number = 0; // Suma total
   @Input() paquetes: any[] = [];
+  detailRequest?: Observable<Pick<UserTreeDetailComponent, 'userModel' | 'listPoints' | 'paymentOrder' | 'paquetes'> | null>;
+  isDetailLoading = false;
+  detailLoadFailed = false;
+  private detailSubscription?: Subscription;
 
   fallback: string = CONSTANTS.IMAGE.FALLBACK;
   avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
@@ -41,6 +47,34 @@ export class UserTreeDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.detailRequest) {
+      this.initializeDetails();
+      return;
+    }
+
+    this.isDetailLoading = true;
+    this.detailSubscription = this.detailRequest.pipe(
+      take(1),
+      defaultIfEmpty(null),
+      finalize(() => { this.isDetailLoading = false; })
+    ).subscribe({
+      next: detail => {
+        if (detail) {
+          Object.assign(this, detail);
+          this.initializeDetails();
+        } else {
+          this.detailLoadFailed = true;
+        }
+      },
+      error: () => { this.detailLoadFailed = true; }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.detailSubscription?.unsubscribe();
+  }
+
+  private initializeDetails(): void {
     if (this.userModel) {
       // 1. Avatar
       this.avatarUrl = this.userModel.file?.path

@@ -35,7 +35,7 @@
               <button class="detail-button" type="button" (click)="showPlanDetail(plan)">
                 <i nz-icon nzType="eye"></i> Detalles
               </button>
-              <button class="buy-button" type="button" (click)="onPaymentPlan(plan)">
+              <button class="buy-button" type="button" (click)="onPaymentPlan(plan)" *ngIf="plan.title !== 'Kit de Inicio'">
                 Comprar <i nz-icon nzType="shopping-cart"></i>
               </button>
             </div>
@@ -82,13 +82,16 @@
         </div>
         <div class="detail-benefits">
           <h3>Beneficios incluidos</h3>
-          <p *ngFor="let benefit of getPlanBenefits(plan)">
-            <i nz-icon nzType="check-circle" nzTheme="fill"></i> {{ benefit }}
-          </p>
+          <ul>
+            <li *ngFor="let benefit of getPlanBenefits(plan)">
+              <i nz-icon nzType="check-circle" nzTheme="fill" aria-hidden="true"></i>
+              <span>{{ benefit }}</span>
+            </li>
+          </ul>
         </div>
         <div class="detail-actions">
           <button type="button" class="detail-close" (click)="closePlanDetail()">Cerrar</button>
-          <button type="button" class="detail-buy" (click)="buySelectedPlan()">
+          <button type="button" class="detail-buy" (click)="buySelectedPlan()" *ngIf="plan.title !== 'Kit de Inicio'">
             Comprar este pack <i nz-icon nzType="arrow-right"></i>
           </button>
         </div>

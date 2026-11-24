@@ -10,6 +10,7 @@
         <div class="profile-label-row">
           <span class="detail-label">Perfil del usuario</span>
           <button
+            *ngIf="!detailRequest || userModel"
             type="button"
             class="earnings-info-button"
             nz-popover
@@ -34,6 +35,8 @@
   </section>
 
   <div class="details-body">
+    <p *ngIf="detailLoadFailed" role="alert">No se pudo cargar el detalle del socio.</p>
+    <ng-container *ngIf="!detailRequest || userModel">
     <div class="packages-list">
       <ng-container *ngFor="let item of paquetes">
         <span class="package-badge" [class.inactive]="item.active === false">
@@ -51,13 +54,21 @@
       <article class="metric-card personal"><span class="metric-icon"><i nz-icon nzType="user"></i></span><div><strong>{{ pointTotal || 0 }}</strong><span>Puntos personales</span></div></article>
       <article class="metric-card network"><span class="metric-icon"><i nz-icon nzType="team"></i></span><div><strong>{{ pointRed || 0 }}</strong><span>Puntos de red</span></div></article>
     </div>
-    <div class="network-stats">
-      <article class="network-stat"><span class="stat-icon blue"><i nz-icon nzType="apartment"></i></span><strong>{{ usuarioTotal ?? 'No informado' }}</strong><span>Red total</span></article>
-      <article class="network-stat"><span class="stat-icon purple"><i nz-icon nzType="share-alt"></i></span><strong>{{ usuarioDirectos ?? 'No informado' }}</strong><span>Directos</span></article>
-      <article class="network-stat"><span class="stat-icon green"><i nz-icon nzType="check-circle"></i></span><strong>{{ usuarioActivos ?? 'No informado' }}</strong><span>Activos</span></article>
+    </ng-container>
+    <div class="network-stats" aria-live="polite">
+      <article class="network-stat"><span class="stat-icon blue"><i nz-icon nzType="apartment"></i></span><ng-container *ngTemplateOutlet="networkValue; context: { $implicit: usuarioTotal }"></ng-container><span>Red total</span></article>
+      <article class="network-stat"><span class="stat-icon purple"><i nz-icon nzType="share-alt"></i></span><ng-container *ngTemplateOutlet="networkValue; context: { $implicit: usuarioDirectos }"></ng-container><span>Directos</span></article>
+      <article class="network-stat"><span class="stat-icon green"><i nz-icon nzType="check-circle"></i></span><ng-container *ngTemplateOutlet="networkValue; context: { $implicit: usuarioActivos }"></ng-container><span>Activos</span></article>
     </div>
   </div>
 </div>
+
+<ng-template #networkValue let-value>
+  <strong *ngIf="isDetailLoading; else loadedValue" class="network-loading">
+    <span class="network-spinner" aria-hidden="true"></span> Cargando...
+  </strong>
+  <ng-template #loadedValue><strong>{{ value ?? '—' }}</strong></ng-template>
+</ng-template>
 
 <ng-template #earningsDetail>
   <div class="earnings-popover">

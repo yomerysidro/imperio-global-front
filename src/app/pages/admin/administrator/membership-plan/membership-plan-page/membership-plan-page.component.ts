@@ -52,6 +52,7 @@ export class MembershipPlanPageComponent implements OnInit {
   }
 
   public onPaymentPlan( plan: PackModel ): void{
+    if (plan.title === 'Kit de Inicio') return;
     if( this.userModel?.payment?.state == CONSTANTS.PAYMENT_ORDER.TERMINADO ){
       this.modalService.confirm(
         "Usted ya tiene un paquete activo. Para cambiar de paquete de afiliación, por favor, póngase en contacto con soporte de Imperio Global.",
@@ -97,6 +98,16 @@ export class MembershipPlanPageComponent implements OnInit {
 
   public getPlanBenefits(plan: PackModel): string[] {
     const title = (plan?.title || '').toLowerCase();
+
+    if (title.trim().replace(/\s+/g, ' ') === 'kit de inicio') {
+      return [
+        '35% de descuento en la tienda de productos.',
+        'Incluye sachets de productos para degustación.',
+        'Acceso a la oficina virtual.',
+        'Catálogo de productos.',
+        'Manual de cómo empezar tu negocio.'
+      ];
+    }
 
     if (title.includes('diamante')) {
       return [
