@@ -5,34 +5,6 @@ $inactive-red: #FF4D4F;    /* ROJO ORIGINAL */
 $text-main: #1a1a1a;
 $text-muted: #8c8c8c;
 
-:host {
-  display: block;
-  position: relative;
-}
-
-.network-awaiting { visibility: hidden; }
-
-.initial-network-loading {
-  position: absolute;
-  inset: 0 0 auto;
-  min-height: 240px;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 14px;
-  padding: 24px;
-  color: #15345f;
-  text-align: center;
-  font-weight: 700;
-
-  .stat-spinner {
-    width: 32px;
-    height: 32px;
-    border-width: 3px;
-    border-top-color: #0866ff;
-  }
-}
-
 /* ── 1. STATS CARD ─────────────────────────────────────── */
 .stats-card {
   border: 1px solid rgba(67, 121, 238, 0.18) !important;
