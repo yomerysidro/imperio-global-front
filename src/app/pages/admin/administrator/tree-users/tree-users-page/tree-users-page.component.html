@@ -1,4 +1,9 @@
-<nz-card class="stats-card">
+<div *ngIf="isInitialPresentationPending" class="initial-network-loading" role="status">
+  <span class="stat-spinner" aria-hidden="true"></span>
+  <span>Preparando tu red de afiliados...</span>
+</div>
+
+<nz-card class="stats-card" [class.network-awaiting]="isInitialPresentationPending">
   <nz-row>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item">
       <div class="stat-icon network-icon"><i class="fa-solid fa-network-wired"></i></div>
@@ -47,7 +52,8 @@
   </ng-template>
 </ng-template>
 
-<div #treeContainer class="tree-shell" [class.is-fullscreen]="isFullScreen">
+<div #treeContainer class="tree-shell" [class.is-fullscreen]="isFullScreen"
+  [class.network-awaiting]="isInitialPresentationPending">
 <nz-card class="tree-main-card">
   <nz-row>
     <nz-col [nzSpan]="24" class="tree-header">
@@ -116,7 +122,7 @@
       <p *ngIf="isTreeLoading" class="tree-load-status stat-status" role="status">
         <span class="stat-spinner" aria-hidden="true"></span> Cargando árbol de afiliados…
       </p>
-      <p *ngIf="treeLoadError" class="tree-load-status search-message not-found" role="alert">{{ treeLoadError }}</p>
+      <p *ngIf="treeLoadError" class="tree-load-status search-message not-found" role="alert">No disponible. {{ treeLoadError }}</p>
       <p *ngIf="!isTreeLoading && !treeLoadError && isChart && !data.children?.length"
         class="tree-load-status stat-status" role="status">No hay afiliados en esta red.</p>
       <div #treeViewport class="tree-viewport">

@@ -43,6 +43,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   private genealogyRequest?: Subscription;
   private indicatorsRootCode = '';
   isTreeLoading = true;
+  isInitialPresentationPending = true;
   treeLoadError = '';
 
   ownSponsorCode = '--';
@@ -325,6 +326,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   private failTreeLoad(message = 'No se pudo cargar el árbol. Vuelve a actualizar.'): void {
     this.isTreeLoading = false;
     this.treeLoadError = message;
+    this.finishInitialPresentation();
   }
 
   private failAdministrativeTree(message?: string): void {
@@ -375,18 +377,22 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
     this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
   }
 
-  private setIndicators(metrics?: NetworkMetrics | null, preserveAvailable = false): void {
+  private setIndicators(metrics?: NetworkMetrics | null, preserveAvailable = false, waitForMissing = false): void {
     this.usuarioTotal = this.readNetworkCount(metrics?.total_network) ?? (preserveAvailable ? this.usuarioTotal : null);
     this.usuarioDirectos = this.readNetworkCount(metrics?.total_directs) ?? (preserveAvailable ? this.usuarioDirectos : null);
     this.usuarioActivos = this.readNetworkCount(metrics?.total_active) ?? (preserveAvailable ? this.usuarioActivos : null);
-    this.indicatorsLoadFailed = [this.usuarioTotal, this.usuarioDirectos, this.usuarioActivos].includes(null);
-    this.areIndicatorsLoading = false;
+    const hasMissingCounts = [this.usuarioTotal, this.usuarioDirectos, this.usuarioActivos].includes(null);
+    this.areIndicatorsLoading = waitForMissing && hasMissingCounts;
+    this.indicatorsLoadFailed = hasMissingCounts && !this.areIndicatorsLoading;
+    this.finishInitialPresentation();
   }
 
   private showAvailableIndicators(metrics?: NetworkMetrics | null): void {
-    this.setIndicators(metrics);
-    this.areIndicatorsLoading = this.indicatorsLoadFailed;
-    this.indicatorsLoadFailed = false;
+    this.setIndicators(metrics, false, true);
+  }
+
+  private finishInitialPresentation(): void {
+    if (!this.isTreeLoading && !this.areIndicatorsLoading) this.isInitialPresentationPending = false;
   }
 
   private readNetworkCount(value: unknown): number | null {
@@ -460,6 +466,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
     this.data = data;
     this.isChart = true;
     this.isTreeLoading = false;
+    this.finishInitialPresentation();
     if (needsInitialFrame) this.scheduleInitialTreeFrame();
   }
 
