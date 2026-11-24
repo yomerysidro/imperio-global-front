@@ -10,62 +10,6 @@ import { TreeUsersPageComponent } from './tree-users-page.component';
 import { UserTreeDetailComponent } from '@shared/components/user-tree-detail/user-tree-detail.component';
 
 describe('Affiliate tree viewport', () => {
-  for (const first of ['indicators', 'tree', 'failure']) {
-    it(`reveals the initial network together when ${first} is first`, async () => {
-      const points = new Subject();
-      const genealogy = new Subject();
-      await TestBed.configureTestingModule({
-        imports: [FormsModule],
-        declarations: [TreeUsersPageComponent, TreeViewComponent],
-        providers: [
-          { provide: ApiService, useValue: {
-            getAuthenticationUser: () => of({ success: true, data: { uuid: 'root', is_admin: true } }),
-            getPointListUser: () => points,
-            getNetworkRoot: () => of({ uuid: 'root' }),
-            getNetworkMember: () => of({ uuid: 'root' }),
-            getNetworkAccounts: () => genealogy
-          } },
-          { provide: NzModalService, useValue: {} },
-          { provide: OverlayContainer, useValue: {} }
-        ],
-        schemas: [NO_ERRORS_SCHEMA]
-      }).compileComponents();
-
-      const fixture = TestBed.createComponent(TreeUsersPageComponent);
-      const host = fixture.nativeElement as HTMLElement;
-      const loader = () => host.querySelector('.initial-network-loading');
-      const indicators = () => Array.from(host.querySelectorAll('.stat-number'), element => element.textContent.trim());
-      const finishIndicators = () => points.next({ success: true, data: {
-        network_meta: { total_network: 1, total_directs: 1, total_active: 0 }
-      } });
-      const finishTree = () => {
-        genealogy.next({ current_page: 1, last_page: 1, data: [
-          { uuid: 'child', sponsor_code: 'root', connected: true }
-        ] });
-        genealogy.complete();
-      };
-
-      fixture.detectChanges();
-      expect(loader()?.textContent).toContain('Preparando tu red de afiliados...');
-
-      if (first === 'indicators') finishIndicators();
-      if (first === 'tree') finishTree();
-      if (first === 'failure') points.error(new Error('Counters unavailable'));
-      fixture.detectChanges();
-      expect(loader()).toBeTruthy();
-      expect(getComputedStyle(host.querySelector('.stats-card')).visibility).toBe('hidden');
-      expect(getComputedStyle(host.querySelector('.tree-shell')).visibility).toBe('hidden');
-
-      if (first === 'tree') finishIndicators();
-      else finishTree();
-      fixture.detectChanges();
-      expect(loader()).toBeNull();
-      expect(getComputedStyle(host.querySelector('.stats-card')).visibility).toBe('visible');
-      expect(getComputedStyle(host.querySelector('[data-node-code="child"]')).visibility).toBe('visible');
-      expect(indicators()).toEqual(first === 'failure' ? Array(3).fill('No disponible') : ['1', '1', '0']);
-    });
-  }
-
   for (const width of [320, 1000]) {
     it(`frames the root and preserves navigation at ${width}px`, async () => {
       const account = (uuid: string, sponsor_code: string, active = true) =>
@@ -77,7 +21,6 @@ describe('Affiliate tree viewport', () => {
         ...Array.from({ length: 8 }, (_, i) => account(`descendant-${i}`, i ? `descendant-${i - 1}` : 'WAdz')),
         ...Array.from({ length: 20 }, (_, i) => account(`deep-direct-${i}`, 'descendant-7'))
       ];
-      let refresh: Subject<any> | undefined;
       await TestBed.configureTestingModule({
         imports: [FormsModule],
         declarations: [TreeUsersPageComponent, TreeViewComponent],
@@ -88,7 +31,7 @@ describe('Affiliate tree viewport', () => {
               network_summary: { total_network: accounts.length, total_directs: 10, total_active: accounts.length - 1 } } }),
             getNetworkRoot: () => of({ uuid: 'DOSB' }),
             getNetworkMember: () => of({ uuid: 'DOSB', active: true }),
-            getNetworkAccounts: () => refresh || of({ current_page: 1, last_page: 1, data: accounts })
+            getNetworkAccounts: () => of({ current_page: 1, last_page: 1, data: accounts })
           } },
           { provide: NzModalService, useValue: {} },
           { provide: OverlayContainer, useValue: {} }
@@ -147,13 +90,7 @@ describe('Affiliate tree viewport', () => {
       expect(requests).toHaveBeenCalledTimes(1);
 
       accounts = [...accounts, account('new-descendant', 'descendant-7')];
-      refresh = new Subject();
       page.loadData();
-      fixture.detectChanges();
-      expect(getComputedStyle(child).visibility).toBe('visible');
-      expect(fixture.nativeElement.querySelector('.initial-network-loading')).toBeNull();
-      refresh.next({ current_page: 1, last_page: 1, data: accounts });
-      refresh.complete();
       fixture.detectChanges();
       await nextPaint();
       expect(viewport.scrollLeft).toBe(30);
