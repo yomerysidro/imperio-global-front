@@ -1,10 +1,10 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { forkJoin, of, range, Subscription } from 'rxjs';
-import { catchError, defaultIfEmpty, finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
+import { catchError, defaultIfEmpty, map, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { TreeViewComponent } from '@shared/components/tree-view/tree-view.component';
 import { ECONode, IECONode, Orientation } from '@shared/interfaces/econode.type';
 import { ApiService } from '@shared/services/api.service';
-import { UserModel } from '@shared/services/models/user.interface';
+import { NetworkMetrics, UserModel } from '@shared/services/models/user.interface';
 import { getCodeUuid } from '@shared/utilities/functions';
 import { environment } from '@env/environment';
 import { CONSTANTS } from '@shared/constants/constants';
@@ -38,8 +38,10 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   usuarioTotal: number | null = null;
   areIndicatorsLoading = true;
   indicatorsLoadFailed = false;
+  private loadRequest?: Subscription;
   private indicatorsRequest?: Subscription;
   private genealogyRequest?: Subscription;
+  private indicatorsRootCode = '';
   isTreeLoading = true;
   treeLoadError = '';
 
@@ -124,6 +126,7 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.initialFrameObserver?.disconnect();
+    this.loadRequest?.unsubscribe();
     this.indicatorsRequest?.unsubscribe();
     this.genealogyRequest?.unsubscribe();
   }
@@ -132,37 +135,39 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
    * Carga la red completa desde el Backend
    */
   public loadData(): void {
+    this.loadRequest?.unsubscribe();
     this.indicatorsRequest?.unsubscribe();
     this.genealogyRequest?.unsubscribe();
-    this.areIndicatorsLoading = true;
+    this.indicatorsRootCode = '';
+    this.startIndicators();
     this.isTreeLoading = true;
     this.treeLoadError = '';
-    this.indicatorsLoadFailed = false;
-    this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
 
-    let administrativeTreeStarted = false;
-    this.indicatorsRequest = forkJoin({
-      pointsRes: this.apiService.getPointListUser().pipe(
-        defaultIfEmpty(null),
-        catchError(() => of(null))
-      ),
-      authRes: this.apiService.getAuthenticationUser().pipe(tap(response => {
-        if (!response?.success || !response.data) return;
-        const user = response.data;
-        this.ownSponsorCode = user.uuid || getCodeUuid() || '--';
-        if (user.is_admin !== true && Number(user.is_admin) !== 1) return;
-        this.currentUser = user;
-        administrativeTreeStarted = true;
-        this.loadAdministrativeTree();
-      }))
-    }).pipe(
+    this.loadRequest = this.apiService.getAuthenticationUser().pipe(
+      take(1),
       defaultIfEmpty(null),
-      finalize(() => { this.areIndicatorsLoading = false; })
+      switchMap(authRes => {
+        const authUser = authRes?.success ? authRes.data : null;
+        this.currentUser = authUser;
+        this.ownSponsorCode = authUser?.uuid || getCodeUuid() || '--';
+        if (this.isAdministrator) {
+          this.loadAdministrativeTree();
+          return of(null);
+        }
+
+        this.showAvailableIndicators(authUser?.network_summary);
+        return this.apiService.getPointListUser().pipe(
+          take(1),
+          defaultIfEmpty(null),
+          catchError(() => of(null)),
+          map(pointsRes => ({ authUser, pointsRes }))
+        );
+      })
     ).subscribe({
       next: response => {
-        if (response?.pointsRes?.success) {
-          const { pointsRes, authRes } = response;
-          const authUser = authRes.success ? authRes.data : null;
+        if (!response) return;
+        if (response.pointsRes?.success) {
+          const { pointsRes, authUser } = response;
           const pointsData = pointsRes.data;
           
           const pointsUser = pointsData?.user || {};
@@ -174,15 +179,13 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
             ...pointsUserProps
           };
           this.ownSponsorCode = authUser?.uuid || getCodeUuid() || user?.uuid || '--';
-          this.usuarioTotal = this.readNetworkCount(pointsData?.network_meta?.total_network);
-          this.usuarioDirectos = this.readNetworkCount(pointsData?.network_meta?.total_directs);
-          this.usuarioActivos = this.readNetworkCount(pointsData?.network_meta?.total_active);
-          if (administrativeTreeStarted) return;
           this.currentUser = user;
           if (this.isAdministrator) {
-            this.loadAdministrativeTree();
+            this.startIndicators();
+            this.loadAdministrativeTree(pointsData?.network_meta);
             return;
           }
+          if (this.areIndicatorsLoading) this.setIndicators(pointsData?.network_meta, true);
 
           // 🔥 FILTRAR SOLO PUNTOS DE TIPO COMPRA (B) Y LEGACY
           const allPoints = Array.isArray(pointsData?.volume_records)
@@ -237,22 +240,28 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
             children: childrenForDisplay
           });
         } else {
-          this.indicatorsLoadFailed = true;
-          if (!administrativeTreeStarted) this.failTreeLoad();
+          if (this.areIndicatorsLoading) this.setIndicators(null, true);
+          this.failTreeLoad();
         }
       },
       error: (err) => {
-        this.indicatorsLoadFailed = true;
-        if (!administrativeTreeStarted) this.failTreeLoad();
+        if (this.areIndicatorsLoading) this.setIndicators();
+        this.failTreeLoad();
         console.error("Error al cargar la red", err);
       }
     });
   }
 
   /** Administrative relationships come exclusively from sponsor_relations via Laravel. */
-  private loadAdministrativeTree(): void {
+  private loadAdministrativeTree(ownMetrics = this.currentUser?.network_summary): void {
     this.branchMoveError = '';
     this.genealogyRequest = this.apiService.getNetworkRoot().pipe(
+      tap(root => {
+        if (!root?.uuid) throw new Error('La respuesta no identifica la raíz del árbol.');
+        this.indicatorsRootCode = root.uuid;
+        if (this.isOwnRoot(root.uuid)) this.showAvailableIndicators(ownMetrics);
+        if (this.areIndicatorsLoading) this.loadRootIndicators(true);
+      }),
       switchMap(root => forkJoin({
         detail: this.apiService.getNetworkMember(root.uuid),
         accounts: this.readGenealogyPage(1).pipe(
@@ -294,8 +303,11 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
       }),
       defaultIfEmpty(null)
     ).subscribe({
-      next: tree => tree ? this.showTree(tree) : this.failTreeLoad(),
-      error: error => this.failTreeLoad(error instanceof Error ? error.message : undefined)
+      next: tree => {
+        if (tree) this.showTree(tree);
+        else this.failAdministrativeTree();
+      },
+      error: error => this.failAdministrativeTree(error instanceof Error ? error.message : undefined)
     });
   }
 
@@ -313,6 +325,68 @@ export class TreeUsersPageComponent implements OnInit, OnDestroy {
   private failTreeLoad(message = 'No se pudo cargar el árbol. Vuelve a actualizar.'): void {
     this.isTreeLoading = false;
     this.treeLoadError = message;
+  }
+
+  private failAdministrativeTree(message?: string): void {
+    if (!this.indicatorsRootCode) this.setIndicators();
+    this.failTreeLoad(message);
+  }
+
+  public retryIndicators(): void {
+    if (this.areIndicatorsLoading) return;
+    if (this.isAdministrator && !this.indicatorsRootCode) {
+      this.loadData();
+      return;
+    }
+    this.areIndicatorsLoading = true;
+    this.loadRootIndicators(true);
+  }
+
+  private loadRootIndicators(preserveAvailable = false): void {
+    const rootCode = this.indicatorsRootCode;
+    const request = !rootCode || this.isOwnRoot(rootCode)
+      ? this.apiService.getPointListUser().pipe(map(response => response?.success ? response.data?.network_meta : null))
+      : this.apiService.getUsersSearch({ code: rootCode }).pipe(
+          switchMap(response => {
+            const root = response?.success && Array.isArray(response.data)
+              ? response.data.find(user => this.sameCode(user.uuid, rootCode)) : null;
+            return root && Number.isSafeInteger(root.id) && root.id > 0 ? this.apiService.getUserById(root.id) : of(null);
+          }),
+          map(response => response?.success && this.sameCode(response.data?.uuid, rootCode)
+            ? response.data.network_summary : null)
+        );
+    this.indicatorsRequest = request.pipe(take(1), defaultIfEmpty(null)).subscribe({
+      next: metrics => this.setIndicators(metrics, preserveAvailable),
+      error: () => this.setIndicators(null, preserveAvailable)
+    });
+  }
+
+  private isOwnRoot(code: string): boolean {
+    return this.sameCode(this.currentUser?.uuid, code);
+  }
+
+  private sameCode(first: string | undefined, second: string): boolean {
+    return !!first && !!second && first.trim().toUpperCase() === second.trim().toUpperCase();
+  }
+
+  private startIndicators(): void {
+    this.areIndicatorsLoading = true;
+    this.indicatorsLoadFailed = false;
+    this.usuarioTotal = this.usuarioDirectos = this.usuarioActivos = null;
+  }
+
+  private setIndicators(metrics?: NetworkMetrics | null, preserveAvailable = false): void {
+    this.usuarioTotal = this.readNetworkCount(metrics?.total_network) ?? (preserveAvailable ? this.usuarioTotal : null);
+    this.usuarioDirectos = this.readNetworkCount(metrics?.total_directs) ?? (preserveAvailable ? this.usuarioDirectos : null);
+    this.usuarioActivos = this.readNetworkCount(metrics?.total_active) ?? (preserveAvailable ? this.usuarioActivos : null);
+    this.indicatorsLoadFailed = [this.usuarioTotal, this.usuarioDirectos, this.usuarioActivos].includes(null);
+    this.areIndicatorsLoading = false;
+  }
+
+  private showAvailableIndicators(metrics?: NetworkMetrics | null): void {
+    this.setIndicators(metrics);
+    this.areIndicatorsLoading = this.indicatorsLoadFailed;
+    this.indicatorsLoadFailed = false;
   }
 
   private readNetworkCount(value: unknown): number | null {
