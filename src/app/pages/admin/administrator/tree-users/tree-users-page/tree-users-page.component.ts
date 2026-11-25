@@ -579,71 +579,33 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     return searchInNode(this.data);
   }
 
-  /**
-   * BUSCA UN USUARIO EN LA LISTA DE PUNTOS LOCAL
-   */
-  private findUserInListPoints(userCode: string): any {
-    if (!this.listPoints || this.listPoints.length === 0) return null;
+  public onSeletedUser(userCode: string): void {
+    if (!userCode || userCode.startsWith('-')) return;
 
-    const searchCode = String(userCode);
-
-    const point = this.listPoints.find(p => {
-      const pCode = p.user_code || '';
-      return String(pCode).toLowerCase() === searchCode.toLowerCase();
-    });
-
-    if (point) {
-      return point.user || point.user_point || point;
-    }
-
-    return null;
-  }
-
-  /**
-   * 🔥 CORREGIDO: Evento al hacer clic en un nodo del árbol
-   */
-  public onSeletedUser(usercode: string): void {
-    this.openSelectedUser(usercode);
-  }
-
-  private openSelectedUser(usercode: string): void {
-    if (!usercode || usercode.startsWith("-")) return;
-
-    const codeStr = String(usercode);
-    const codeUuid = getCodeUuid();
-    const isSelf = codeUuid ? (codeStr.toLowerCase() === codeUuid.toLowerCase()) : false;
-
-    const detailRequest = this.apiService.getUserByCode(codeStr).pipe(
-      switchMap(response => {
-        const selected = response?.success && response.data?.items?.find(user =>
-          String(user?.uuid || '').toLowerCase() === codeStr.toLowerCase()
+    const isSelf = this.isOwnRoot(userCode);
+    const node = this.findUserInTree(userCode);
+    const lookup = this.isAdministrator
+      ? this.apiService.getUsersSearch({ code: userCode }).pipe(
+          map(response => response?.success && Array.isArray(response.data) ? response.data : [])
+        )
+      : this.apiService.getUserByCode(userCode).pipe(
+          map(response => response?.success ? response.data?.items ?? [] : [])
         );
-        const id = Number(selected ? selected.id : null);
-        return Number.isInteger(id) && id > 0 ? this.apiService.getUserById(id) : of(null);
+
+    const detailRequest = lookup.pipe(
+      switchMap(users => {
+        const id = Number(users.find(user => this.sameCode(user?.uuid, userCode))?.id);
+        return Number.isSafeInteger(id) && id > 0 ? this.apiService.getUserById(id) : of(null);
       }),
-      map(response => {
-        const user = response?.success ? response.data : null;
-        if (!user || String(user.uuid || '').toLowerCase() !== codeStr.toLowerCase()) return null;
-        return this.buildUserDetail(user, !isSelf);
-      })
+      map(response => response?.success && this.sameCode(response.data?.uuid, userCode)
+        ? this.buildUserDetail(response.data, !isSelf)
+        : null)
     );
 
-    this.openModal(isSelf ? 'Tu Detalle' : `Detalle: ${codeStr}`, { detailRequest });
-  }
-
-  /**
-   * 🔥 Método fallback: abre el modal con los datos del árbol o la lista de puntos
-   */
-  private fallbackOpenModal(codeStr: string): void {
-    const fallbackUser = this.findUserInTree(codeStr) || this.findUserInListPoints(codeStr);
-    if (fallbackUser) {
-      this.openModal(
-        `Detalle: ${fallbackUser.email || fallbackUser.name || codeStr}`,
-        this.buildUserDetail(fallbackUser, true)
-      );
-    } else {
-      console.error('❌ Usuario no encontrado en ninguna fuente:', codeStr);
-    }
+    this.openModal(isSelf ? 'Tu Detalle' : 'Detalle: ' + userCode, {
+      userModel: node ? { ...node, uuid: userCode, photo: node.photo === this.fallback ? undefined : node.photo } : undefined,
+      detailRequest
+    });
   }
 
   /**
@@ -709,7 +671,7 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
       name: userData.name || 'Usuario',
       uuid: userData.uuid || userData.id || '',
       email: userData.email || '',
-      photo: userData.photo || this.fallback,
+      photo: userData.photo,
       points: pts,
       totalPoints: userData.totalPoints || granTotalPuntos,
       payment: userData.payment || userData.payment_active,

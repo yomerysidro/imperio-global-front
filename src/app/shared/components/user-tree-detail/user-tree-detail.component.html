@@ -3,14 +3,15 @@
     <div class="hero-decoration hero-decoration-one"></div><div class="hero-decoration hero-decoration-two"></div>
     <div class="profile-identity">
       <div class="avatar-wrapper">
-        <img [src]="avatarUrl || fallback" alt="Foto del usuario" class="profile-avatar" (error)="onImgError()">
+        <img [src]="avatarUrl" [alt]="avatarUrl === fallback ? 'Imperio Global' : 'Foto del usuario'" class="profile-avatar"
+          [class.profile-logo]="avatarUrl === fallback" (error)="onImgError()">
         <span class="activity-indicator" [class.active]="isNodeActive" [class.inactive]="!isNodeActive"></span>
       </div>
       <div class="identity-copy">
         <div class="profile-label-row">
           <span class="detail-label">Perfil del usuario</span>
           <button
-            *ngIf="!detailRequest || userModel"
+            *ngIf="!detailRequest || (!isDetailLoading && !detailLoadFailed && userModel)"
             type="button"
             class="earnings-info-button"
             nz-popover
@@ -27,16 +28,16 @@
         <span class="user-id"><i nz-icon nzType="idcard"></i>ID: {{ userModel?.uuid || userModel?.id || '--' }}</span>
         <div class="user-rank">
           <span>Rango:</span>
-          <strong>{{ userModel?.range == null ? 'Sin rango' : userModel?.range.range.title }}</strong>
-          <img *ngIf="userModel?.range != null" [src]="env.hostUrl + '/storage/' + userModel?.range.range.file.path" alt="Rango">
+          <strong>{{ userModel?.range?.range?.title || 'Sin rango' }}</strong>
+          <img *ngIf="userModel?.range?.range?.file?.path" [src]="env.hostUrl + '/storage/' + userModel?.range?.range?.file?.path" alt="Rango">
         </div>
       </div>
     </div>
   </section>
 
   <div class="details-body">
-    <p *ngIf="detailLoadFailed" role="alert">No se pudo cargar el detalle del socio.</p>
-    <ng-container *ngIf="!detailRequest || userModel">
+    <p *ngIf="detailLoadFailed" role="alert">No se pudo actualizar el detalle del usuario.</p>
+    <ng-container *ngIf="!detailRequest || (!isDetailLoading && !detailLoadFailed && userModel)">
     <div class="packages-list">
       <ng-container *ngFor="let item of paquetes">
         <span class="package-badge" [class.inactive]="item.active === false">
