@@ -123,6 +123,33 @@ describe('Administrative genealogy tree', () => {
   api.getNetworkAccounts.and.callFake((page: number) => of({ current_page: page, last_page: 2, data: page === 1 ? [{ uuid: 'parent', name: 'Parent', sponsor_code: 'configured-root', connected: true }] : [{ uuid: 'child', name: 'Child', sponsor_code: 'parent', connected: true }] }));
   c = new TreeUsersPageComponent(api, {} as any, {} as any);
  });
+ it('opens the configured administrator root and loads its photo and profile', () => {
+  const openModal = spyOn<any>(c, 'openModal');
+  const profile = new Subject<any>();
+  api.getUsersSearch.and.returnValue(of({ success: true, data: [{ id: 42, uuid: 'CONFIGURED-ROOT', is_admin: true }] }));
+  api.getUserById.and.returnValue(profile);
+
+  c.loadData();
+  c.onSeletedUser('configured-root');
+  const modal = new UserTreeDetailComponent(openModal.calls.mostRecent().args[1]);
+  modal.ngOnInit();
+
+  expect(api.getUsersSearch).toHaveBeenCalledWith({ code: 'configured-root' });
+  expect(api.getUserById).toHaveBeenCalledWith(42);
+  expect(modal.userModel.name).toBe('Company');
+  expect(modal.avatarUrl).toBe(modal.fallback);
+  expect(modal.isDetailLoading).toBeTrue();
+
+  profile.next({ success: true, data: {
+    id: 42, uuid: 'CONFIGURED-ROOT', name: 'Company', photo: 'https://example.test/profile.png',
+    network_summary: { total_network: 2 }
+  } });
+  expect(modal.avatarUrl).toBe('https://example.test/profile.png');
+  expect(modal.usuarioTotal).toBe(2);
+  expect(modal.detailLoadFailed).toBeFalse();
+  modal.onImgError();
+  expect(modal.avatarUrl).toBe(modal.fallback);
+ });
  it('reads all pages and preserves direct sponsorship independent of purchases', () => {
   c.loadData(); expect(api.getNetworkAccounts).toHaveBeenCalledWith(2);
   expect(c.data.data.id).toBe('configured-root'); expect(c.data.children[0].data.id).toBe('parent'); expect(c.data.children[0].children[0].data.id).toBe('child');

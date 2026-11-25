@@ -1,6 +1,5 @@
 import { Component, Inject, Input, OnDestroy, OnInit, Optional } from '@angular/core';
 import { environment } from '@env/environment';
-import { CONSTANTS } from '@shared/constants/constants';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
 import { Observable, Subscription } from 'rxjs';
@@ -24,8 +23,8 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
   detailLoadFailed = false;
   private detailSubscription?: Subscription;
 
-  fallback: string = CONSTANTS.IMAGE.FALLBACK;
-  avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
+  readonly fallback = 'assets/images/logo/5cd86c5269c85bcc6dfd9d97f1e772ee.png';
+  avatarUrl = this.fallback;
 
   usuarioDirectos: number | null = null;
   usuarioActivos: number | null = null;
@@ -52,6 +51,7 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.initializeDetails();
     this.isDetailLoading = true;
     this.detailSubscription = this.detailRequest.pipe(
       take(1),
@@ -77,9 +77,12 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
   private initializeDetails(): void {
     if (this.userModel) {
       // 1. Avatar
-      this.avatarUrl = this.userModel.file?.path
-        ? environment.hostUrl + '/storage/' + this.userModel.file.path
-        : (this.userModel.photo ? environment.hostUrl + '/storage/' + this.userModel.photo : this.fallback);
+      const photo = this.userModel.file?.path || this.userModel.photo;
+      this.avatarUrl = !photo
+        ? this.fallback
+        : /^(https?:|data:image\/|\/|assets\/)/i.test(photo)
+          ? photo
+          : environment.hostUrl + '/storage/' + photo;
 
       // 2. Obtener el Patrocinador desde el árbol seguro
       if (this.listPoints && Array.isArray(this.listPoints)) {
