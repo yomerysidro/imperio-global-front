@@ -41,7 +41,7 @@
           <div><span>Puntos</span><strong>{{ line.progress.points | number:'1.0-2' }}</strong></div>
         </div>
         <div *ngIf="line.progress.next as next; else maxRank">
-          <p class="progress-label">Siguiente: {{ next.title }} <strong>{{ progress(line.progress.points, next.required_points) }}%</strong></p>
+          <p class="progress-label">Siguiente: {{ next.title }} <strong>{{ progress(line.progress.points, next.required_points) | number:'1.0-2' }}%</strong></p>
           <progress [value]="progress(line.progress.points, next.required_points)" max="100" [attr.aria-label]="'Avance hacia ' + next.title"></progress>
         </div>
         <ng-template #maxRank><span class="badge badge-met">Rango m&aacute;ximo</span></ng-template>
@@ -74,10 +74,10 @@
           </ng-template>
         </div>
       </header>
-      <p class="progress-label"><strong class="rank-points">{{ line.points | number:'1.0-2' }} / {{ rank.required_points | number:'1.0-2' }} pts</strong> <strong>{{ progress(line.points, rank.required_points) }}%</strong></p>
+      <p class="progress-label"><strong class="rank-points">{{ line.points | number:'1.0-2' }} / {{ rank.required_points | number:'1.0-2' }} pts</strong> <strong>{{ progress(line.points, rank.required_points) | number:'1.0-2' }}%</strong></p>
       <progress [value]="progress(line.points, rank.required_points)" max="100" [attr.aria-label]="'Avance de puntos para ' + rank.title"></progress>
       <div class="rank-checks">
-        <span *ngIf="rank.points_met" class="badge badge-met"><i class="fa-solid fa-check" aria-hidden="true"></i> Meta cumplida</span>
+        <span *ngIf="rank.points_met" class="badge badge-met"><i class="fa-solid fa-check" aria-hidden="true"></i> Meta de puntos cumplida</span>
       </div>
       <details class="rank-details">
         <summary>Ver requisitos</summary>
