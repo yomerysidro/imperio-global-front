@@ -267,20 +267,23 @@
               </div>
             </div>
 
-            <div class="grand-total-footer">
+            <div class="grand-total-footer" *ngIf="userModel?.next_range">
               <div class="rank-progress-mini">
                 <span class="rank-progress-label">
-                    <i class="fa-solid fa-bullseye"></i>
-                  Faltan <strong>{{ getPointsToNextRank() }}</strong> puntos para <strong>{{ getNextRank() }}</strong>
+                  <i class="fa-solid fa-bullseye" aria-hidden="true"></i>
+                  <ng-container *ngIf="getPointsToNextRank() > 0; else pointsMet">
+                    Faltan <strong>{{ getPointsToNextRank() | number:'1.0-2' }}</strong> puntos para <strong>{{ getNextRank() }}</strong>
+                  </ng-container>
+                  <ng-template #pointsMet>Meta de puntos para <strong>{{ getNextRank() }}</strong> cumplida</ng-template>
                 </span>
-                <span class="rank-progress-percent">{{ getRankProgress() }}%</span>
+                <span class="rank-progress-percent">{{ getRankProgress() | number:'1.0-2' }}%</span>
               </div>
               <div class="rank-progress-bar-mini">
                 <div class="rank-progress-fill" [style.width.%]="getRankProgress()"></div>
               </div>
               <div class="rank-auto-note">
-                <i class="fa-solid fa-circle-info"></i>
-                Al alcanzar el rango, se activa automáticamente el siguiente (mismo período)
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                Consulta en Mi progreso los requisitos del siguiente rango.
               </div>
             </div>
           </div>

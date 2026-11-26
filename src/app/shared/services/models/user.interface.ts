@@ -49,6 +49,9 @@ export interface UserModel {
   country: string;
   points: UserPoint;
   range?: RangeModel;
+  next_range?: { title: string } | null;
+  range_progress?: number;
+  points_to_next_range?: number;
   creatxlssed: string;
   is_admin?: boolean | number;
   current_sponsor_code?: string | null;
