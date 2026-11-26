@@ -1,0 +1,160 @@
+.rank-page { max-width: 1200px; margin: 0 auto; padding: 4px 0 24px; color: #173555; }
+.rank-card header { display: flex; align-items: center; gap: 14px; }
+.rank-header {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  padding: 30px 34px;
+  border: 1px solid rgba(8, 102, 255, .48);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0646bd 0%, #0866ff 55%, #168cff 100%);
+  box-shadow: 0 14px 34px rgba(8, 102, 255, .25);
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  &::before {
+    width: 260px;
+    height: 260px;
+    top: -166px;
+    right: 28%;
+    background: rgba(255, 255, 255, .12);
+  }
+
+  &::after {
+    width: 210px;
+    height: 210px;
+    bottom: -125px;
+    right: -34px;
+    border: 18px solid rgba(255, 255, 255, .12);
+    background: rgba(8, 67, 196, .22);
+  }
+
+  h1 { margin: 0; color: #fff; font-size: clamp(24px, 3vw, 32px); font-weight: 800; }
+}
+
+.rank-header-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 60px;
+  height: 60px;
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+  color: #fff;
+  font-size: 25px;
+}
+.rank-header p { margin: 3px 0 0; color: #fff; overflow-wrap: anywhere; }
+.rank-header-icon + div { min-width: 0; }
+
+@media (max-width: 480px) {
+  .rank-header { padding: 22px 18px; gap: 14px; }
+  .rank-header-icon { flex-basis: 48px; height: 48px; font-size: 21px; }
+}
+h1, h2, h3, p { margin: 0 0 6px; color: inherit; }
+h2, h3 { font-size: 1rem; }
+.rank-panel { border: 1px solid #dbe5f2; border-radius: 16px; padding: 16px; background: linear-gradient(145deg, #fff, #f5f8ff); box-shadow: 0 5px 18px rgba(24, 109, 255, .09); }
+.overview, .rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 16px; margin: 16px 0; }
+.rank-icon, .rank-card img { display: inline-grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; border-radius: 12px; background: #e8f0ff; color: #205bac; object-fit: contain; }
+.rank-card header { margin-bottom: 12px; }
+.rank-card.current { border-color: #0866ff; background: #edf4ff; box-shadow: 0 8px 22px rgba(8, 102, 255, .16); }
+.rank-card.next { border-color: #3378c6; }
+.badge { display: inline-block; border-radius: 20px; padding: 2px 9px; color: #17478a; background: #e8f0ff; font-size: .78rem; }
+.current .badge { color: #fff; background: #0646bd; }
+.period, .requirements { color: #405872; }
+.requirements { padding-left: 18px; margin: 10px 0 0; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+
+  strong { color: #0646bd; font-size: 1.15rem; }
+  .rank-points { color: #173555; font-size: 1rem; font-weight: 800; }
+}
+progress {
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  border: 0;
+  border-radius: 99px;
+  background: #dce9ff;
+  accent-color: #0866ff;
+
+  &::-webkit-progress-bar { background: #dce9ff; border-radius: inherit; }
+  &::-webkit-progress-value { background: linear-gradient(90deg, #0646bd, #0866ff); border-radius: inherit; }
+  &::-moz-progress-bar { background: linear-gradient(90deg, #0646bd, #0866ff); border-radius: inherit; }
+}
+.search, .members { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.members { list-style: none; padding: 0; margin: 10px 0 0; }
+input, button { border: 1px solid #9eb7d7; border-radius: 8px; padding: 6px 10px; }
+button { background: #edf4ff; color: #17478a; cursor: pointer; }
+button:disabled { opacity: .6; cursor: default; }
+
+.rank-checks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.rank-checks:empty { display: none; }
+.rank-checks .badge-met { color: #065f46; background: #d6f2e7; font-weight: 700; }
+.rank-details { margin-top: 10px; }
+.rank-details summary { width: fit-content; color: #0646bd; cursor: pointer; font-size: .78rem; font-weight: 600; }
+
+.overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.overview .rank-panel { padding: clamp(16px, 2.5vw, 24px); }
+.overview-heading { display: flex; gap: 10px; align-items: center; }
+.overview-heading h2 { margin: 0; font-weight: 700; }
+.overview-heading .rank-icon {
+  color: #fff;
+  background: linear-gradient(135deg, #0646bd, #0866ff);
+}
+.overview-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  margin: 14px 0;
+}
+.overview-values span, .overview-values strong { display: block; }
+.overview-values span { color: #405872; font-size: .8rem; }
+.overview-values strong { font-size: clamp(1rem, 2vw, 1.35rem); line-height: 1.25; overflow-wrap: anywhere; }
+.rank-card { border-top: 3px solid #dbe5f2; }
+.rank-card.current { border-top-color: #0866ff; }
+.rank-card.next { border-top-color: #168cff; }
+.rank-card img { width: 54px; height: 54px; flex-basis: 54px; padding: 5px; }
+.badge-met { color: #065f46; background: #d6f2e7; font-weight: 700; }
+@media (max-width: 560px) {
+  .overview { grid-template-columns: 1fr; }
+}
+
+.rank-name[data-rank='1'] { color: #8a4829; }
+.rank-name[data-rank='2'] { color: #525e72; }
+.rank-name[data-rank='3'] { color: #8a5800; }
+.rank-name[data-rank='4'] { color: #087352; }
+.rank-name[data-rank='5'] { color: #a61f49; }
+.rank-name[data-rank='6'] { color: #116b9c; }
+.rank-name[data-rank='7'] { color: #104fb0; }
+.rank-name[data-rank='8'] { color: #5738a3; }
+.rank-name[data-rank='9'] { color: #785311; }
+
+.requirements-short { margin: 5px 0 0; color: #405872; font-size: .8rem; }
+.rank-loading { display: grid; min-height: 180px; place-items: center; }
+.rank-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #dce9ff;
+  border-top-color: #0866ff;
+  border-radius: 50%;
+  animation: rank-spin .75s linear infinite;
+}
+@keyframes rank-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .rank-spinner { animation: none; }
+}

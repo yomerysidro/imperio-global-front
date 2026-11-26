@@ -1,0 +1,19 @@
+<nz-select [nzId]="inputId" [ngModel]="value" [ngModelOptions]="{ standalone: true }"
+  (ngModelChange)="select($event)" (nzBlur)="onTouched()" [nzDisabled]="disabled || busy"
+  nzPlaceHolder="Selecciona un pa&iacute;s" nzShowSearch nzAllowClear
+  nzNotFoundContent="No se encontraron pa&iacute;ses" [nzFilterOption]="filterCountry" [nzCustomTemplate]="selected">
+  <nz-option *ngFor="let country of options" [nzValue]="country.value" [nzLabel]="country.name" nzCustomContent>
+    <ng-container *ngTemplateOutlet="label; context: { name: country.name, flag: country.flag }"></ng-container>
+  </nz-option>
+</nz-select>
+
+<ng-template #selected let-option>
+  <ng-container *ngTemplateOutlet="label; context: { name: option.nzLabel, flag: flags.get(option.nzValue) }"></ng-container>
+</ng-template>
+
+<ng-template #label let-name="name" let-flag="flag">
+  <span class="country-option">
+    <span *ngIf="flag" class="iti__flag" [ngClass]="flag" aria-hidden="true"></span>
+    <span>{{ name }}</span>
+  </span>
+</ng-template>

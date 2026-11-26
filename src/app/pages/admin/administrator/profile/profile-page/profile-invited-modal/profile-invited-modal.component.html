@@ -36,7 +36,7 @@
     </div>
   </section>
 
-  <section class="users-section">
+  <section class="users-section" *ngIf="userModel?.is_admin">
     <div class="section-title">
       <i nz-icon nzType="team" nzTheme="outline"></i>
       <div><strong>Invitar usuarios</strong><small>También puedes seleccionar usuarios y enviarles la invitación.</small></div>

@@ -1,11 +1,5 @@
 <div class="finance-page">
-  <nav class="finance-tabs" aria-label="Secciones de Finanzas Imperio">
-    <button type="button" [class.active]="activeSection === 'summary'" [attr.aria-current]="activeSection === 'summary' ? 'page' : null" (click)="activeSection = 'summary'">Resumen mensual</button>
-    <button type="button" [class.active]="activeSection === 'inventory'" [attr.aria-current]="activeSection === 'inventory' ? 'page' : null" (click)="activeSection = 'inventory'">Inventario</button>
-  </nav>
-
-  <ng-container *ngIf="activeSection === 'summary'">
-  <header class="finance-header">
+  <header class="finance-header" *ngIf="activeSection === 'summary'">
     <div>
       <span class="section-label">Panel financiero</span>
       <h1>Finanzas Imperio</h1>
@@ -21,7 +15,16 @@
       <strong>{{ formatSoles(totalIncomeAndCommissions) }}</strong>
     </div>
   </header>
+  <header class="finance-header inventory-header" *ngIf="activeSection === 'inventory'">
+    <div><span class="section-label">Control de mercancía</span><h1>Inventario</h1><p>Registra entradas y consulta los importes de las salidas automáticas.</p></div>
+  </header>
 
+  <nav class="finance-tabs" aria-label="Secciones de Finanzas Imperio">
+    <button type="button" [class.active]="activeSection === 'summary'" [attr.aria-current]="activeSection === 'summary' ? 'page' : null" (click)="activeSection = 'summary'">Resumen mensual</button>
+    <button type="button" [class.active]="activeSection === 'inventory'" [attr.aria-current]="activeSection === 'inventory' ? 'page' : null" (click)="activeSection = 'inventory'">Inventario</button>
+  </nav>
+
+  <ng-container *ngIf="activeSection === 'summary'">
   <section class="reports-section report-state" *ngIf="!loading && error" role="alert">
     <div class="state-icon error-icon"><i nz-icon nzType="exclamation-circle" nzTheme="outline"></i></div>
     <div><span class="section-label">Reporte mensual</span><h2>No se pudo mostrar la información</h2><p>{{ error }}</p></div>
@@ -183,10 +186,6 @@
   </ng-container>
 
   <ng-container *ngIf="activeSection === 'inventory'">
-    <header class="finance-header inventory-header">
-      <div><span class="section-label">Control de mercancía</span><h1>Inventario</h1><p>Registra entradas y consulta los importes de las salidas automáticas.</p></div>
-    </header>
-
     <nav class="inventory-tabs" aria-label="Movimientos de inventario">
       <button type="button" [class.active]="inventorySection === 'entries'" [attr.aria-current]="inventorySection === 'entries' ? 'page' : null" (click)="selectInventorySection('entries')">Entradas</button>
       <button type="button" [class.active]="inventorySection === 'exits'" [attr.aria-current]="inventorySection === 'exits' ? 'page' : null" (click)="selectInventorySection('exits')">Salidas</button>

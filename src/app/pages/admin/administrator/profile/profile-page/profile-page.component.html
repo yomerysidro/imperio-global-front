@@ -1,161 +1,33 @@
-<nz-card style="border: 0; background: transparent;">
+<section aria-label="Dashboard">
 
-  <!-- HEADER CON BOTÓN GUARDAR -->
-  <div class="dashboard-header-premium">
-    <div class="d-flex justify-content-between align-items-center flex-wrap">
+  <header class="dashboard-header-premium">
+    <div class="dashboard-header-content">
       <div class="dashboard-heading-group">
         <div class="dashboard-heading-icon">
-          <i class="fa-solid fa-chart-line"></i>
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
         </div>
         <div>
-        <h1 class="dashboard-title-premium">
-          Panel de Control
-          <span class="dashboard-badge-premium">Resumen</span>
-        </h1>
-        <p class="dashboard-subtitle-premium">
-          <i class="fa-regular fa-calendar"></i>
-          {{ currentDate | date: 'dd/MM/yyyy' }} · Actualizado en tiempo real
-        </p>
+          <h1 class="dashboard-title-premium">Panel de Control</h1>
+          <p class="dashboard-subtitle-premium">Consulta tus puntos, tu rango y el avance de tu red.</p>
+          <p class="dashboard-subtitle-premium">
+            <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+            {{ currentDate | date: 'dd/MM/yyyy' }}
+          </p>
         </div>
       </div>
-      <div class="d-flex align-items-center gap-3">
-        <div class="status-indicator">
-          <span class="status-dot active"></span>
-          <span class="status-text">Sistema en línea</span>
+      <div class="dashboard-cycle" *ngIf="cycleRemaining as cycle" role="timer" aria-label="Cierre del ciclo">
+        <i class="fa-regular fa-clock" aria-hidden="true"></i>
+        <div>
+          <span class="dashboard-cycle-label">Pr&oacute;ximo cierre</span>
+          <strong>{{ cycle.days }} d&iacute;as {{ cycle.hours | number:'2.0-0' }} h
+            {{ cycle.minutes | number:'2.0-0' }} min {{ cycle.seconds | number:'2.0-0' }} s</strong>
         </div>
-        <button nz-button [nzType]="'primary'" [nzLoading]="isLoading" (click)="onSubmit()" class="btn-save-premium">
-          <i class="fa-solid fa-floppy-disk"></i>
-          Guardar Cambios
-        </button>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- PERFIL Y DASHBOARD EN DOS COLUMNAS -->
   <nz-row class="m-t-20" [nzGutter]="[24, 24]">
-
-    <!-- COLUMNA IZQUIERDA: PERFIL -->
-    <nz-col [nzLg]="7" [nzMd]="10" [nzSm]="24" [nzXs]="24">
-      <div class="profile-card-premium">
-        <div class="profile-header-premium text-center">
-          <div class="profile-avatar-wrapper">
-            <label for="fileupload" class="profile-avatar-label">
-              <img [src]="avatarUrl" alt="" class="profile-avatar">
-              <input type="file" name="fileupload" id="fileupload" (change)="fileChangeEvent($event)" class="d-none"
-                accept=".png,.jpg,.jpeg" />
-              <div class="profile-avatar-overlay">
-                <i class="fa-solid fa-camera" style="font-size: 24px; color: rgb(242, 239, 239);"></i>
-              </div>
-            </label>
-          </div>
-
-          <h3 class="profile-name-premium">{{ userModel?.name }}</h3>
-
-          <div class="profile-id-premium">
-            <span>ID:</span>
-            <strong class="text-uppercase">{{ userModel?.uuid }}</strong>
-            <a href="javascript: void(0);" (click)="copyMessage(userModel?.uuid)" class="copy-btn">
-              <i class="fa-regular fa-copy"></i>
-            </a>
-          </div>
-
-          <div class="profile-date-premium">
-            <i class="fa-regular fa-calendar"></i>
-            Fecha de registro: {{ userModel?.creatxlssed | date: 'dd/MM/YYYY' }}
-          </div>
-        </div>
-
-        <!-- FORMULARIO DE PERFIL -->
-        <div class="profile-form-premium">
-          <form nz-form [formGroup]="validateForm" [nzLayout]="'vertical'">
-
-            <nz-form-item>
-              <nz-form-label nzFor="address" class="form-label-premium">
-                <span class="field-icon"><i class="fa-solid fa-map-location-dot"></i></span>
-                Dirección de domicilio
-              </nz-form-label>
-              <nz-form-control>
-                <input formControlName="address" id="address" nz-input class="input-premium"
-                  placeholder="Ingresa tu dirección" />
-              </nz-form-control>
-            </nz-form-item>
-
-            <nz-form-item>
-              <nz-form-label nzFor="email" class="form-label-premium">
-                <span class="field-icon"><i class="fa-solid fa-at"></i></span>
-                Correo electrónico <span class="required-mark">*</span>
-              </nz-form-label>
-              <nz-form-control>
-                <nz-input-group [nzSuffix]="emailSuffix" class="input-premium-group">
-                  <ng-template #emailSuffix>
-                  </ng-template>
-                  <input formControlName="email" id="email" nz-input placeholder="ejemplo@correo.com" />
-                </nz-input-group>
-              </nz-form-control>
-            </nz-form-item>
-
-            <nz-row [nzGutter]="[10, 0]" class="profile-fields-row">
-              <nz-col [nzSpan]="12">
-                <nz-form-item>
-                  <nz-form-label nzFor="city" class="form-label-premium">
-                    <span class="field-icon"><i class="fa-solid fa-city"></i></span>
-                    Ciudad
-                  </nz-form-label>
-                  <nz-form-control>
-                    <input formControlName="city" id="city" nz-input class="input-premium" placeholder="Tu ciudad" />
-                  </nz-form-control>
-                </nz-form-item>
-              </nz-col>
-              <nz-col [nzSpan]="12">
-                <nz-form-item>
-                  <nz-form-label nzFor="phoneNumber" class="form-label-premium">
-                    <span class="field-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
-                    Teléfono
-                  </nz-form-label>
-                  <nz-form-control>
-                    <input formControlName="phoneNumber" id="phoneNumber" nz-input class="input-premium"
-                      placeholder="+51 999 999 999" />
-                  </nz-form-control>
-                </nz-form-item>
-              </nz-col>
-            </nz-row>
-
-            <nz-row [nzGutter]="[10, 0]" class="profile-fields-row">
-              <nz-col [nzSpan]="12">
-                <nz-form-item>
-                  <nz-form-label nzFor="country" class="form-label-premium">
-                    <span class="field-icon"><i class="fa-solid fa-earth-americas"></i></span>
-                    País
-                  </nz-form-label>
-                  <nz-form-control>
-                    <input formControlName="country" id="country" nz-input class="input-premium"
-                      placeholder="Tu país" />
-                  </nz-form-control>
-                </nz-form-item>
-              </nz-col>
-              <nz-col [nzSpan]="12">
-                <nz-form-item>
-                  <nz-form-label nzFor="gender" class="form-label-premium">
-                    <span class="field-icon"><i class="fa-solid fa-id-card"></i></span>
-                    Sexo
-                  </nz-form-label>
-                  <nz-form-control>
-                    <nz-select formControlName="gender" class="select-premium" placeholder="Selecciona">
-                      <nz-option nzLabel="Masculino" nzValue="M"></nz-option>
-                      <nz-option nzLabel="Femenino" nzValue="F"></nz-option>
-                    </nz-select>
-                  </nz-form-control>
-                </nz-form-item>
-              </nz-col>
-            </nz-row>
-
-          </form>
-        </div>
-      </div>
-    </nz-col>
-
-    <!-- COLUMNA DERECHA: DASHBOARD -->
-    <nz-col [nzLg]="17" [nzMd]="14" [nzSm]="24" [nzXs]="24">
+    <nz-col [nzSpan]="24">
 
       <!-- FILA 1: 4 Stat Cards -->
       <nz-row [nzGutter]="[16, 16]" class="m-b-16">
@@ -179,7 +51,7 @@
 
         <!-- Rango actual -->
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
-          <div class="stat-card-premium">
+          <a class="stat-card-premium stat-card-link" routerLink="/admin/rank-progress">
             <div class="stat-card-icon">
               <i class="fa-solid fa-chart-simple"></i>
             </div>
@@ -190,12 +62,12 @@
                 Rango actual
               </div>
             </div>
-          </div>
+          </a>
         </nz-col>
 
         <!-- Siguiente Rango -->
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
-          <div class="stat-card-premium">
+          <a class="stat-card-premium stat-card-link" routerLink="/admin/rank-progress">
             <div class="stat-card-icon">
               <i class="fa-solid fa-arrow-trend-up"></i>
             </div>
@@ -206,12 +78,12 @@
                 Proximo Rango
               </div>
             </div>
-          </div>
+          </a>
         </nz-col>
 
         <!-- Personas en red -->
         <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
-          <div class="stat-card-premium">
+          <a class="stat-card-premium stat-card-link" routerLink="/admin/tree-users">
             <div class="stat-card-icon">
               <i class="fa-solid fa-users-rays"></i>
             </div>
@@ -222,7 +94,7 @@
                 Personas en red
               </div>
             </div>
-          </div>
+          </a>
         </nz-col>
 
       </nz-row>
@@ -294,6 +166,53 @@
 
       </nz-row>
 
+      <nz-row [nzGutter]="[16, 16]" class="m-b-16" *ngIf="isCurrentPaymentPeriod && paymentBalance.sponsorship_by_category as sponsorship">
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <button type="button" class="stat-card-premium bono-card" style="width: 100%; cursor: pointer;" (click)="openCategoryCommissions('product', categoryCommissionDetails)">
+            <span class="stat-card-icon" aria-hidden="true"><i class="fa-solid fa-box-open"></i></span>
+            <span class="stat-card-content">
+              <span class="stat-card-value">S/ {{ sponsorship.product.total_commissions | number:'1.2-2' }}</span>
+              <span class="stat-card-badge active">Comisiones por Productos</span>
+              <span class="stat-card-badge" *ngIf="sponsorship.product.pending > 0">
+                <span><i class="fa-solid fa-lock" aria-hidden="true"></i> Patrocinio pendiente <strong>S/ {{ sponsorship.product.pending | number:'1.2-2' }}</strong></span>
+                <small>Adquiere o activa tu pack de Productos para habilitar el cobro.</small>
+              </span>
+            </span>
+          </button>
+        </nz-col>
+        <nz-col [nzXl]="6" [nzLg]="6" [nzMd]="12" [nzSm]="12" [nzXs]="24">
+          <button type="button" class="stat-card-premium bono-card" style="width: 100%; cursor: pointer;" (click)="openCategoryCommissions('service', categoryCommissionDetails)">
+            <span class="stat-card-icon" aria-hidden="true"><i class="fa-solid fa-briefcase"></i></span>
+            <span class="stat-card-content">
+              <span class="stat-card-value">S/ {{ sponsorship.service.total_commissions | number:'1.2-2' }}</span>
+              <span class="stat-card-badge active">Comisiones por Servicios</span>
+              <span class="stat-card-badge" *ngIf="sponsorship.service.pending > 0">
+                <span><i class="fa-solid fa-lock" aria-hidden="true"></i> Patrocinio pendiente <strong>S/ {{ sponsorship.service.pending | number:'1.2-2' }}</strong></span>
+                <small>Adquiere o activa tu pack de Servicios para habilitar el cobro.</small>
+              </span>
+            </span>
+          </button>
+        </nz-col>
+      </nz-row>
+
+      <ng-template #categoryCommissionDetails>
+        <ng-container *ngIf="paymentBalance.sponsorship_by_category?.[selectedCommissionCategory] as details">
+          <p>El total suma el patrocinio y el residual de esta categor&iacute;a.</p>
+          <dl>
+            <dt>Patrocinio generado</dt>
+            <dd>S/ {{ details.generated | number:'1.2-2' }}</dd>
+            <dt>Residual generado</dt>
+            <dd>S/ {{ details.total_commissions - details.generated | number:'1.2-2' }}</dd>
+            <dt>Total generado</dt>
+            <dd><strong>S/ {{ details.total_commissions | number:'1.2-2' }}</strong></dd>
+          </dl>
+          <ng-container *ngIf="details.pending > 0">
+            <p><strong>Patrocinio pendiente de cobro: S/ {{ details.pending | number:'1.2-2' }}</strong></p>
+            <p>Adquiere o activa tu pack de {{ selectedCommissionCategory === 'product' ? 'Productos' : 'Servicios' }} para que este importe pase al saldo disponible.</p>
+          </ng-container>
+        </ng-container>
+      </ng-template>
+
       <!-- FILA 3: Gran Total -->
       <nz-row [nzGutter]="[16, 16]" class="m-b-16">
         <nz-col [nzSpan]="24">
@@ -316,7 +235,7 @@
               </div>
               <!-- 🔥 CORREGIDO: Solo ganancias (Bonos + Residual + Infinito) -->
               <div class="grand-total-amount-premium">
-                S/ {{ (pointPatrocinio + pointResudial + pointInfinity) | number:'1.2-2' }}
+                S/ {{ availableWithdrawalBalance | number:'1.2-2' }}
               </div>
             </div>
 
@@ -397,7 +316,7 @@
     </nz-col>
   </nz-row>
 
-</nz-card>
+</section>
 
 <ng-template #renewPatrocinioModal>
   <div class="payout-modal-content">
@@ -441,7 +360,7 @@
         <article><span>Total generado</span><strong>S/ {{ (isCurrentPaymentPeriod ? (pointPatrocinio + pointResudial + pointInfinity) : paymentBalance.generated) | number:'1.2-2' }}</strong></article>
         <article class="pending"><span>Pago pendiente</span><strong>S/ {{ paymentBalance.pending | number:'1.2-2' }}</strong></article>
         <article class="paid"><span>Total cobrado</span><strong>S/ {{ paymentBalance.paid | number:'1.2-2' }}</strong></article>
-        <article class="available"><span>Disponible para cobrar</span><strong>S/ {{ (isCurrentPaymentPeriod && (userModel?.is_admin || userModel?.uuid === 'DOSB') ? (pointPatrocinio + pointResudial + pointInfinity) - (paymentBalance.generated - paymentBalance.available) : paymentBalance.available) | number:'1.2-2' }}</strong></article>
+        <article class="available"><span>Disponible para cobrar</span><strong>S/ {{ paymentBalance.available | number:'1.2-2' }}</strong></article>
       </div>
       <p class="last-payment">Última fecha de cobro: <strong>{{ paymentBalance.last_paid_at ? (paymentBalance.last_paid_at | date:'dd/MM/yyyy') : 'Sin cobros registrados' }}</strong></p>
       <div class="no-balance" *ngIf="isCurrentPaymentPeriod && paymentBalance.available <= 0">No tiene saldo disponible para cobrar en este período.</div>

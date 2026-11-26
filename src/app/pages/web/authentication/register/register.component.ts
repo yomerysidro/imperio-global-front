@@ -83,6 +83,7 @@ export class RegisterComponent implements OnInit {
             repeatpassword: [null, [Validators.required]],
             terms: [null, [Validators.required]],
             dni: [null, [Validators.required]],
+            country: [null],
             sponsor_code: [null, [Validators.required]],
         }, {
             validator: this.formValidator.confirmationPassword('password', 'repeatpassword')
@@ -90,11 +91,12 @@ export class RegisterComponent implements OnInit {
     }
 
     private setCommad(): any {
-        const { userName, email, password, dni } = this.frmRegister.getRawValue();
+        const { userName, email, password, dni, country } = this.frmRegister.getRawValue();
         return {
             name: userName,
             email: email,
             dni: dni,
+            country,
             password: password,
             sponsor_code: this.validatedSponsorCode
         }
