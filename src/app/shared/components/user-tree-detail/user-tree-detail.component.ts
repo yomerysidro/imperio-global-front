@@ -1,6 +1,6 @@
 import { Component, Inject, Input, OnDestroy, OnInit, Optional } from '@angular/core';
 import { environment } from '@env/environment';
-import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
 import { Observable, Subscription } from 'rxjs';
 import { defaultIfEmpty, finalize, take } from 'rxjs/operators';
@@ -19,6 +19,7 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
   @Input() granTotalPuntos: number = 0; // Suma total
   @Input() paquetes: any[] = [];
   detailRequest?: Observable<Pick<UserTreeDetailComponent, 'userModel' | 'listPoints' | 'paymentOrder' | 'paquetes'> | null>;
+  showEmailInTitle = false;
   isDetailLoading = false;
   detailLoadFailed = false;
   private detailSubscription?: Subscription;
@@ -39,7 +40,10 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
   sponsorName: string = 'Sin patrocinador';
   sponsorCode: string = '';
 
-  constructor(@Optional() @Inject(NZ_MODAL_DATA) private modalData: any) {
+  constructor(
+    @Optional() @Inject(NZ_MODAL_DATA) private modalData: any,
+    @Optional() private modalRef?: NzModalRef<UserTreeDetailComponent>,
+  ) {
     if (this.modalData) {
       Object.assign(this, this.modalData);
     }
@@ -68,6 +72,8 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
         if (detail) {
           Object.assign(this, detail);
           this.initializeDetails();
+          const email = this.userModel?.email?.trim();
+          if (this.showEmailInTitle && email) this.modalRef?.updateConfig({ nzTitle: 'Detalle: ' + email });
         } else {
           this.detailLoadFailed = true;
         }
