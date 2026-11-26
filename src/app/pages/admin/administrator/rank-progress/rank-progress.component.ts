@@ -130,6 +130,8 @@ export class RankProgressComponent implements OnInit {
   }
 
   progress(points: number, target: number): number {
-    return target > 0 ? Math.min(100, Math.max(0, Math.round(100 * points / target))) : 0;
+    if (target <= 0) return 0;
+    if (points >= target) return 100;
+    return Math.min(99.99, Math.max(0, Math.round(10000 * points / target) / 100));
   }
 }
