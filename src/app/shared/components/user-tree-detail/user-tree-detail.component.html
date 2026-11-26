@@ -28,8 +28,8 @@
         <span class="user-id"><i nz-icon nzType="idcard"></i>ID: {{ userModel?.uuid || userModel?.id || '--' }}</span>
         <div class="user-rank">
           <span>Rango:</span>
-          <strong>{{ userModel?.range?.range?.title || 'Sin rango' }}</strong>
-          <img *ngIf="userModel?.range?.range?.file?.path" [src]="env.hostUrl + '/storage/' + userModel?.range?.range?.file?.path" alt="Rango">
+          <strong>{{ currentRange?.title || 'Sin rango' }}</strong>
+          <img *ngIf="currentRange?.file?.path" [src]="env.hostUrl + '/storage/' + currentRange?.file?.path" alt="Rango">
         </div>
       </div>
     </div>
@@ -49,11 +49,11 @@
     </div>
     <section class="total-card">
       <div class="total-icon"><i nz-icon nzType="trophy"></i></div>
-      <div><span class="section-caption">Puntos totales</span><strong>{{ granTotalPuntos | number:'1.0-0' }}</strong><small>Personales y de red</small></div>
+      <div><span class="section-caption">Puntos totales</span><strong>{{ granTotalPuntos | number:'1.0-2' }}</strong><small>Personales y de red</small></div>
     </section>
     <div class="points-grid">
       <article class="metric-card personal"><span class="metric-icon"><i nz-icon nzType="user"></i></span><div><strong>{{ pointTotal || 0 }}</strong><span>Puntos personales</span></div></article>
-      <article class="metric-card network"><span class="metric-icon"><i nz-icon nzType="team"></i></span><div><strong>{{ pointRed || 0 }}</strong><span>Puntos de red</span></div></article>
+      <article class="metric-card network"><span class="metric-icon"><i nz-icon nzType="team"></i></span><div><strong>{{ pointRed | number:'1.0-2' }}</strong><span>Puntos de red</span></div></article>
     </div>
     </ng-container>
     <div class="network-stats" aria-live="polite">
