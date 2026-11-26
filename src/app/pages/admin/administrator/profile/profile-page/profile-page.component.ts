@@ -284,70 +284,15 @@ export class ProfilePageComponent implements OnInit {
   // RANGOS CON ACTIVACIÓN AUTOMÁTICA
   // ============================================
   getNextRank(): string {
-    const currentTitle = this.userModel?.range?.range?.title || 'Sin rango';
-    const ranks = ['Sin rango', 'Bronce', 'Plata', 'Oro', 'Jade', 'Rubí', 'Diamante', 'Doble Diamante', 'Triple Diamante', 'Imperio Global'];
-    const index = ranks.indexOf(currentTitle);
-    if (index !== -1 && index < ranks.length - 1) {
-      return ranks[index + 1];
-    }
-    return 'Máximo alcanzado';
+    return this.userModel?.next_range?.title ?? (this.userModel ? 'M\u00e1ximo alcanzado' : 'Cargando');
   }
 
   getPointsToNextRank(): number {
-    const ranks = [
-      { title: 'Sin rango', points: 0 },
-      { title: 'Bronce', points: 1000 },
-      { title: 'Plata', points: 3600 },
-      { title: 'Oro', points: 9600 },
-      { title: 'Jade', points: 28600 },
-      { title: 'Rubí', points: 78000 },
-      { title: 'Diamante', points: 120000 },
-      { title: 'Doble Diamante', points: 320000 },
-      { title: 'Triple Diamante', points: 600000 },
-      { title: 'Imperio Global', points: 1600000 }
-    ];
-    const currentTitle = this.userModel?.range?.range?.title || 'Sin rango';
-    const currentIndex = ranks.findIndex(r => r.title === currentTitle);
-    const currentPoints = this.totalPoints || 0;
-
-    // Si ya alcanzó el rango actual, apuntar al siguiente automáticamente
-    let targetIndex = currentIndex;
-    if (currentIndex !== -1 && currentIndex < ranks.length - 1 && currentPoints >= ranks[currentIndex].points) {
-      targetIndex = currentIndex + 1;
-    }
-
-    const nextPoints = targetIndex < ranks.length ? ranks[targetIndex].points : 0;
-    if (nextPoints === 0) return 0;
-    return Math.max(nextPoints - currentPoints, 0);
+    return this.userModel?.points_to_next_range ?? 0;
   }
 
   getRankProgress(): number {
-    const ranks = [
-      { title: 'Sin rango', points: 0 },
-      { title: 'Bronce', points: 1000 },
-      { title: 'Plata', points: 3600 },
-      { title: 'Oro', points: 9600 },
-      { title: 'Jade', points: 28600 },
-      { title: 'Rubí', points: 78000 },
-      { title: 'Diamante', points: 120000 },
-      { title: 'Doble Diamante', points: 320000 },
-      { title: 'Triple Diamante', points: 600000 },
-      { title: 'Imperio Global', points: 1600000 }
-    ];
-    const currentTitle = this.userModel?.range?.range?.title || 'Sin rango';
-    const currentIndex = ranks.findIndex(r => r.title === currentTitle);
-    const currentPoints = this.totalPoints || 0;
-
-    let targetPoints: number;
-    if (currentIndex !== -1 && currentIndex < ranks.length - 1 && currentPoints >= ranks[currentIndex].points) {
-      targetPoints = ranks[currentIndex + 1].points;
-    } else {
-      targetPoints = currentIndex !== -1 ? ranks[currentIndex].points : 1000;
-    }
-
-    if (targetPoints === 0) return 100;
-    const progress = (currentPoints / targetPoints) * 100;
-    return Math.min(Math.round(progress), 100);
+    return this.userModel?.range_progress ?? 0;
   }
 
   getPersonalGoal(): number {
