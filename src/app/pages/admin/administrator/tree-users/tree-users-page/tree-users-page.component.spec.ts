@@ -126,11 +126,13 @@ describe('Administrative genealogy tree', () => {
  it('opens the configured administrator root and loads its photo and profile', () => {
   const openModal = spyOn<any>(c, 'openModal');
   const profile = new Subject<any>();
+  api.getNetworkMember.and.returnValue(of({ uuid: 'configured-root', name: 'Company', email: 'empresa@example.test' }));
   api.getUsersSearch.and.returnValue(of({ success: true, data: [{ id: 42, uuid: 'CONFIGURED-ROOT', is_admin: true }] }));
   api.getUserById.and.returnValue(profile);
 
   c.loadData();
   c.onSeletedUser('configured-root');
+  expect(openModal.calls.mostRecent().args[0]).toBe('Detalle: empresa@example.test');
   const modal = new UserTreeDetailComponent(openModal.calls.mostRecent().args[1]);
   modal.ngOnInit();
 
