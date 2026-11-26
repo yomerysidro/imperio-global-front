@@ -1,0 +1,89 @@
+<section class="profile-page" aria-labelledby="my-profile-title">
+  <header class="page-heading">
+    <span class="heading-icon"><i class="fa-regular fa-id-card" aria-hidden="true"></i></span>
+    <div class="heading-copy">
+      <h1 id="my-profile-title">Mi perfil</h1>
+      <p>Consulta y actualiza tus datos de contacto.</p>
+    </div>
+  </header>
+
+  <nz-spin [nzSpinning]="loading">
+    <div class="profile-message" *ngIf="loadError" role="alert">
+      No se pudo cargar tu perfil.
+      <button nz-button type="button" (click)="load()">Reintentar</button>
+    </div>
+
+    <div class="profile-layout" *ngIf="user as member">
+      <section class="identity-card" aria-labelledby="profile-name">
+        <img class="avatar" [src]="avatarUrl" alt="Foto de perfil">
+        <input #photo type="file" hidden accept=".png,.jpg,.jpeg" (change)="changePhoto(photo)">
+        <button nz-button type="button" [nzLoading]="uploading" (click)="photo.click()">
+          <i class="fa-solid fa-camera" aria-hidden="true"></i> Cambiar foto
+        </button>
+
+        <h2 id="profile-name">{{ member.name }}</h2>
+        <div class="member-id">ID <strong>{{ member.uuid }}</strong></div>
+        <p class="registration" *ngIf="member.created_at || member.creatxlssed as registeredAt">
+          <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+          Registro {{ registeredAt | date:'dd/MM/yyyy' }}
+        </p>
+        <button nz-button nzType="link" type="button" [nzLoading]="inviting" (click)="invite()">
+          <i class="fa-solid fa-link" aria-hidden="true"></i> Generar invitaci&oacute;n
+        </button>
+      </section>
+
+      <section class="details-card" aria-labelledby="profile-details-title">
+        <div class="details-heading">
+          <h2 id="profile-details-title">Datos personales</h2>
+          <button *ngIf="!editing" nz-button type="button" class="edit-profile-button" (click)="startEditing()">
+            <i class="fa-solid fa-pencil" aria-hidden="true"></i> Editar
+          </button>
+        </div>
+        <form nz-form nzLayout="vertical" [formGroup]="form" (ngSubmit)="save()">
+          <fieldset [disabled]="!editing || saving">
+            <div class="fields">
+              <nz-form-item class="full-width">
+                <nz-form-label nzFor="profile-address">Direcci&oacute;n de domicilio</nz-form-label>
+                <nz-form-control><input nz-input id="profile-address" formControlName="address" autocomplete="street-address"></nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzFor="profile-email">Correo electr&oacute;nico</nz-form-label>
+                <nz-form-control><input nz-input id="profile-email" formControlName="email" type="email"></nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzFor="profile-phone">Tel&eacute;fono</nz-form-label>
+                <nz-form-control><input nz-input id="profile-phone" formControlName="phone" type="tel" autocomplete="tel"></nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzFor="profile-country">Pa&iacute;s</nz-form-label>
+                <nz-form-control>
+                  <app-country-select inputId="profile-country" formControlName="country" [busy]="!editing || saving"></app-country-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzFor="profile-city">Ciudad</nz-form-label>
+                <nz-form-control><input nz-input id="profile-city" formControlName="city" autocomplete="address-level2"></nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzFor="profile-gender">Sexo</nz-form-label>
+                <nz-form-control>
+                  <select id="profile-gender" formControlName="gender">
+                    <option [ngValue]="null">Selecciona</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                  </select>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </fieldset>
+          <footer class="form-actions" *ngIf="editing">
+            <button nz-button type="button" [disabled]="saving" (click)="cancelEditing()">Cancelar</button>
+            <button nz-button nzType="primary" type="submit" [nzLoading]="saving" [disabled]="!form.dirty || form.invalid">
+              Guardar cambios
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  </nz-spin>
+</section>

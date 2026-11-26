@@ -45,6 +45,9 @@
               "src/assets/js/intlTelInput.js"
             ],
             "allowedCommonJsDependencies": [
+              "@lyracom/embedded-form-glue",
+              "aos",
+              "buffer",
               "ngx-google-places-autocomplete"
             ],
             "vendorChunk": true,

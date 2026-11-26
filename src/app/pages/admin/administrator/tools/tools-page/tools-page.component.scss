@@ -6,7 +6,7 @@
   box-shadow: 0 8px 26px rgba(8, 102, 255, 0.09);
 
   ::ng-deep .ant-card-body {
-    padding: 30px;
+    padding: 22px 30px 30px;
   }
 }
 
@@ -40,6 +40,13 @@
     letter-spacing: -0.35px;
   }
 
+  p {
+    position: relative;
+    z-index: 1;
+    margin: 4px 0 0;
+    color: #fff;
+    font-size: 14px;
+  }
 }
 
 .tools-grid {
@@ -163,7 +170,7 @@
 
 @media (max-width: 767px) {
   .tools-shell ::ng-deep .ant-card-body {
-    padding: 20px;
+    padding: 14px 20px 20px;
   }
 
   .tools-heading h2 {

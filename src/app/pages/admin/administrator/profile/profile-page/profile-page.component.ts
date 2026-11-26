@@ -1,20 +1,23 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, DestroyRef, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '@env/environment';
-import { ImageCropperUploadComponent } from '@shared/components/image-cropper-upload/image-cropper-upload.component';
-import { CONSTANTS } from '@shared/constants/constants';
 import { ApiService } from '@shared/services/api.service';
-import { AuthenticationService } from '@shared/services/authentication.service';
 import { PackModel } from '@shared/services/models/packs.interface';
 import { UserModel } from '@shared/services/models/user.interface';
-import { saveSessionStorage, saveSessionStoraheUser } from '@shared/utilities/functions';
 import { ModalService } from '@shared/utilities/modal-services';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { ProfileInvitedModalComponent } from './profile-invited-modal/profile-invited-modal.component';
 import { Router } from '@angular/router';
 import { ToolsUserAddModalComponent } from '../../tools/tools-user-add-modal/tools-user-add-modal.component';
 import { isUserMembershipActive } from '@shared/utilities/user-activity';
-import { forkJoin } from 'rxjs';
+import { EMPTY, combineLatest, forkJoin, timer } from 'rxjs';
+import { catchError, exhaustMap, map } from 'rxjs/operators';
+import { HttpService } from '@shared/services/http.service';
+import { IResponse } from '@shared/services/interfaces/response.interface';
+
+interface RankCycle {
+  server_time: string;
+  service: { closes_at: string };
+}
 
 @Component({
   selector: 'app-profile-page',
@@ -28,8 +31,6 @@ export class ProfilePageComponent implements OnInit {
   @ViewChild('renewPatrocinioModal', { read: TemplateRef }) renewPatrocinioModal!: TemplateRef<any>;
   @ViewChild('templateHistoryPaymet', { read: TemplateRef }) templateHistoryPaymet!: TemplateRef<any>;
 
-  avatarUrl: string = CONSTANTS.IMAGE.FALLBACK;
-  validateForm: FormGroup;
   userModel!: UserModel;
   isLoading: boolean = false;
 
@@ -49,15 +50,18 @@ export class ProfilePageComponent implements OnInit {
   totalPointsPersonalGlobal: number = 0;
   bonosTotalesHistorico: number = 0;
 
-  CONSTANTS = CONSTANTS;
   env = environment;
   isPointPersonal: boolean = false;
   currentDate: Date = new Date();
+  cycleRemaining?: { days: number; hours: number; minutes: number; seconds: number };
+  private readonly http = inject(HttpService);
+  private readonly destroyRef = inject(DestroyRef);
   oneMonthAgo: Date;
   payoutMode: 'all' | 'partial' = 'all';
   payoutAmount: number = 0;
   loadingPayoutRequest: boolean = false;
   loadingPayoutBalance: boolean = false;
+  selectedCommissionCategory: 'product' | 'service' = 'product';
   paymentBalance: any = { generated: 0, pending: 0, paid: 0, available: 0, last_paid_at: null, period: '' };
   paymentHistory: any[] = [];
   paymentMonth: number = new Date().getMonth() + 1;
@@ -91,22 +95,11 @@ export class ProfilePageComponent implements OnInit {
   }
 
   constructor(
-    private fb: FormBuilder,
     private apiService: ApiService,
     private modalService: ModalService,
     private nzModalService: NzModalService,
-    private authenticationService: AuthenticationService,
     private router: Router
   ) {
-    this.validateForm = this.fb.group({
-      address: [null],
-      email: [{ value: null, disabled: true }, [Validators.required, Validators.required]],
-      phoneNumber: [null],
-      city: [null],
-      country: [null],
-      gender: [null],
-    });
-
     this.oneMonthAgo = new Date(
       this.currentDate.getFullYear(),
       this.currentDate.getMonth() - 1,
@@ -116,6 +109,31 @@ export class ProfilePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCurrentUser();
+    this.startCycleCountdown();
+  }
+
+  private startCycleCountdown(): void {
+    const cycle$ = timer(0, 60000).pipe(
+      exhaustMap(() => this.http.get<IResponse<RankCycle>>('/rank-progress').pipe(
+        map(({ data }) => ({
+          closesAt: Date.parse(data.service.closes_at),
+          clockOffset: Date.parse(data.server_time) - Date.now(),
+        })),
+        catchError(() => EMPTY),
+      )),
+    );
+
+    combineLatest([cycle$, timer(0, 1000)]).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(([{ closesAt, clockOffset }]) => {
+      const remaining = Math.max(0, Math.ceil((closesAt - Date.now() - clockOffset) / 1000));
+      this.cycleRemaining = Number.isFinite(remaining) ? {
+        days: Math.floor(remaining / 86400),
+        hours: Math.floor(remaining / 3600) % 24,
+        minutes: Math.floor(remaining / 60) % 60,
+        seconds: remaining % 60,
+      } : undefined;
+    });
   }
 
   public loadOptions(): void {
@@ -141,20 +159,8 @@ export class ProfilePageComponent implements OnInit {
     this.apiService.getAuthenticationUser().subscribe(
       (response) => {
         this.userModel = response.data;
-        this.avatarUrl = response.data.file?.path
-          ? environment.hostUrl + '/storage/' + response.data.file?.path
-          : CONSTANTS.IMAGE.FALLBACK;
 
         console.log(response.data.points);
-
-        this.validateForm.patchValue({
-          address: response.data.address,
-          email: response.data.email,
-          phoneNumber: response.data.phone,
-          city: response.data.city,
-          gender: response.data.gender,
-          country: response.data.country,
-        });
 
         this.userCode = response.data.uuid;
 
@@ -235,6 +241,17 @@ export class ProfilePageComponent implements OnInit {
   // ============================================
   getTotalEarnings(): number {
     return this.availableWithdrawalBalance;
+  }
+
+  openCategoryCommissions(category: 'product' | 'service', details: TemplateRef<unknown>): void {
+    this.selectedCommissionCategory = category;
+    const label = category === 'product' ? 'Productos' : 'Servicios';
+    this.nzModalService.create({
+      nzTitle: 'Comisiones por ' + label,
+      nzContent: details,
+      nzWidth: 420,
+      nzFooter: null,
+    });
   }
 
   private loadCurrentPaymentBalance(): void {
@@ -375,89 +392,6 @@ export class ProfilePageComponent implements OnInit {
     if (goal === 0) return 0;
     const progress = (this.pointGroup / goal) * 100;
     return Math.min(Math.round(progress), 100);
-  }
-
-  private command(): any {
-    const formValues = this.validateForm.value;
-    return {
-      address: formValues.address,
-      phone: formValues.phoneNumber,
-      city: formValues.city,
-      country: formValues.country,
-      gender: formValues.gender
-    }
-  }
-
-  public onSubmit(): void {
-    this.isLoading = true;
-    this.apiService.putAuthenticationUpdate(this.command()).subscribe(
-      (response) => {
-        this.isLoading = false;
-        this.modalService.success("Se guardo correctamente");
-      }
-    )
-  }
-
-  fileChangeEvent(event: any): void {
-  // 🔥 Obtener el archivo del evento
-  const file = event.target?.files?.[0];
-  if (!file) {
-    this.modalService.error('No se seleccionó ningún archivo');
-    return;
-  }
-
-  let modal = this.nzModalService.create({
-    nzContent: ImageCropperUploadComponent,
-    nzTitle: 'Imagen para cortar',
-    nzMaskClosable: false,
-    nzData: { file: file }, // ✅ Pasamos el archivo, no el evento
-    nzFooter: null
-  });
-
-  modal.afterClose.subscribe((result) => {
-    if (result && result.file != null) {
-      let formData = new FormData();
-      formData.set('file', result.file as any);
-      
-      this.isLoading = true;
-      this.apiService.postAuthenticationAvatar(formData).subscribe(
-        (response) => {
-          this.isLoading = false;
-          saveSessionStoraheUser({ name: response.data.name, photo: response.data?.file?.path ?? "" });
-          if (response.data.photo != null) {
-            this.avatarUrl = environment.hostUrl + '/storage/' + response.data.file.path;
-          } else {
-            this.avatarUrl = CONSTANTS.IMAGE.FALLBACK;
-          }
-          this.modalService.success('Avatar actualizado correctamente');
-          // 🔥 Recargar los datos del usuario para reflejar el cambio
-          this.loadCurrentUser();
-        }, 
-        (error) => {
-          this.isLoading = false;
-          this.modalService.error(error?.message ?? 'Error al subir imagen');
-        }
-      )
-    }
-  });
-}
-
-  copyMessage(val: string) {
-    this.apiService.postGenerateLinkInvited({}).subscribe(
-      (res) => {
-        this.nzModalService.create({
-          nzContent: ProfileInvitedModalComponent,
-          nzTitle: "Invitación",
-          nzFooter: null,
-          nzWidth: '620px',
-          nzClassName: 'invitation-modal-window',
-          nzData: {
-            userModel: this.userModel,
-            codeInvited: res.data.code
-          }
-        })
-      }
-    )
   }
 
   public onInfoPointPresonal(): void {

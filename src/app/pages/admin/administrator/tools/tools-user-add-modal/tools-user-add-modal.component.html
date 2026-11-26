@@ -123,6 +123,13 @@
         </nz-col>
     </nz-row>
 
+    <nz-form-item>
+      <nz-form-label nzFor="tools-register-country">Pa&iacute;s</nz-form-label>
+      <nz-form-control>
+        <app-country-select inputId="tools-register-country" formControlName="country" [busy]="loadingSubmit"></app-country-select>
+      </nz-form-control>
+    </nz-form-item>
+
     <nz-row class="submit-row">
         <nz-col [nzSm]="24" [nzXs]="24">
         <nz-form-control>

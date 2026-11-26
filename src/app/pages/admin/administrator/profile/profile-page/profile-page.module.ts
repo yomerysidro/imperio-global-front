@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfilePageComponent } from './profile-page.component';
+import { MyProfileComponent } from './my-profile/my-profile.component';
 
 /** Import any ng-zorro components as the module required except icon module */
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -20,7 +21,8 @@ const antdModule = [
   declarations: [
 
     ProfilePageComponent,
-     ProfileInvitedModalComponent
+    MyProfileComponent,
+    ProfileInvitedModalComponent
   ],
   imports: [
     SharedModule,

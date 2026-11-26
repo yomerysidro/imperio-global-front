@@ -127,6 +127,13 @@
 
             <!-- Términos y condiciones -->
             <nz-form-item class="mb-3">
+              <nz-form-label nzFor="public-register-country"><span class="text-white">Pa&iacute;s</span></nz-form-label>
+              <nz-form-control>
+                <app-country-select inputId="public-register-country" formControlName="country" [busy]="loadingSubmit"></app-country-select>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item class="mb-3">
               <nz-form-control>
                 <label nz-checkbox formControlName="terms" class="text-white small">
                   <span class="text-white-75">Acepto los <a href="javascript:void(0)" class="text-warning fw-bold text-decoration-none">términos y condiciones</a></span>

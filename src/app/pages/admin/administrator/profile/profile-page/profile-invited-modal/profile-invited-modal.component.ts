@@ -5,7 +5,7 @@ import { ApiService } from '@shared/services/api.service';
 import { UserModel } from '@shared/services/models/user.interface';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile-invited-modal',
@@ -38,11 +38,11 @@ export class ProfileInvitedModalComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.linkInited = environment.serveUrl + "/guest/" + this.codeInvited;
+    this.linkInited = new URL('guest/' + encodeURIComponent(this.codeInvited), document.baseURI).href;
     this.avatarUrl = this.userModel?.file?.path
       ? environment.hostUrl + '/storage/' + this.userModel.file.path
       : CONSTANTS.IMAGE.FALLBACK;
-    this.loadData();
+    if (this.userModel?.is_admin) this.loadData();
   }
 
   async copyMessage(val: string, type: 'link' | 'id' = 'link'): Promise<void> {
@@ -74,23 +74,26 @@ export class ProfileInvitedModalComponent implements OnInit {
     document.body.removeChild(selBox);
   }
 
-  loadData(): void{
-    forkJoin(
-      this.apiService.getUsersSearch({})
-    ).subscribe(
-      ([users]) => {
-        this.listUsers = users.data.filter( u => u.payment == null );
-    })
+  loadData(): void {
+    this.apiService.getUsersSearch({}).subscribe({
+      next: ({ data }) => this.listUsers = data.filter(user => user.payment == null),
+      error: () => this.messageService.error('No se pudo cargar la lista de destinatarios.'),
+    });
   }
 
-  onSendEmail(): void{
+  onSendEmail(): void {
+    if (this.loading || !this.multipleUsers.length) return;
+
     this.loading = true;
-    this.apiService.getUsersSearch({users: this.multipleUsers.map( u => { return {code: u} } )}).subscribe(
-      (res) => {
-        console.log(res);
-        this.loading = false;
+    const users = this.multipleUsers.map(code => ({ code }));
+    this.apiService.postInvitedEmail({ users }).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe({
+      next: () => {
+        this.messageService.success('Invitaciones enviadas.');
         this.modalRef.close();
-      }
-    )
+      },
+      error: () => this.messageService.error('No se pudieron enviar todas las invitaciones.'),
+    });
   }
 }

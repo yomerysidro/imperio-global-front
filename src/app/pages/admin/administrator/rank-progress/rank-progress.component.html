@@ -1,0 +1,111 @@
+<section class="rank-page">
+  <header class="rank-header">
+    <span class="rank-header-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+    <div>
+      <h1>Mi progreso</h1>
+      <p *ngIf="data">{{ data.member.name }} &middot; {{ data.member.uuid }}</p>
+    </div>
+  </header>
+
+  <section class="rank-panel" *ngIf="data?.can_search_members">
+    <h2>Progreso de socios</h2>
+    <form class="search" (ngSubmit)="findMembers()">
+      <label for="rank-member-search">Nombre o c&oacute;digo</label>
+      <input id="rank-member-search" name="search" [(ngModel)]="searchText" minlength="2" maxlength="80">
+      <button type="submit" [disabled]="searching || searchText.trim().length < 2">Buscar</button>
+      <button type="button" [disabled]="loading" (click)="showMyProgress()">Ver mi progreso</button>
+    </form>
+    <p *ngIf="searchError" role="alert">{{ searchError }}</p>
+    <p *ngIf="searched && !members.length">No se encontraron socios.</p>
+    <ul class="members" *ngIf="members.length">
+      <li *ngFor="let member of members">
+        <button type="button" [disabled]="loading" (click)="load(member.id)">{{ member.name }} &middot; {{ member.uuid }}</button>
+      </li>
+    </ul>
+  </section>
+
+  <div *ngIf="loading && !data" class="rank-loading" role="status" aria-label="Cargando progreso">
+    <span class="rank-spinner" aria-hidden="true"></span>
+  </div>
+  <p *ngIf="error" role="alert">{{ error }} <button type="button" (click)="load()">Reintentar</button></p>
+
+  <ng-container *ngIf="data as result">
+    <div class="overview">
+      <article class="rank-panel" *ngFor="let line of [{ title: 'Productos', icon: 'fa-box-open', progress: result.product }, { title: 'Servicios', icon: 'fa-briefcase', progress: result.service }]">
+        <header class="overview-heading">
+          <span class="rank-icon"><i class="fa-solid" [ngClass]="line.icon" aria-hidden="true"></i></span>
+          <h2>{{ line.title }}</h2>
+        </header>
+        <div class="overview-values">
+          <div><span>Rango actual</span><strong class="rank-name" [attr.data-rank]="line.progress.current?.position">{{ line.progress.current?.title || 'SIN RANGO' }}</strong></div>
+          <div><span>Puntos</span><strong>{{ line.progress.points | number:'1.0-2' }}</strong></div>
+        </div>
+        <div *ngIf="line.progress.next as next; else maxRank">
+          <p class="progress-label">Siguiente: {{ next.title }} <strong>{{ progress(line.progress.points, next.required_points) }}%</strong></p>
+          <progress [value]="progress(line.progress.points, next.required_points)" max="100" [attr.aria-label]="'Avance hacia ' + next.title"></progress>
+        </div>
+        <ng-template #maxRank><span class="badge badge-met">Rango m&aacute;ximo</span></ng-template>
+      </article>
+    </div>
+
+    <nz-tabset>
+      <nz-tab nzTitle="Productos">
+        <ng-container *ngTemplateOutlet="route; context: { $implicit: result.product }"></ng-container>
+      </nz-tab>
+      <nz-tab nzTitle="Servicios">
+        <ng-container *ngTemplateOutlet="route; context: { $implicit: result.service }"></ng-container>
+      </nz-tab>
+    </nz-tabset>
+  </ng-container>
+</section>
+
+<ng-template #route let-line>
+  <p class="period">Per&iacute;odo {{ line.period | slice:0:7 }} </p>
+  <div class="rank-grid">
+    <article class="rank-panel rank-card" *ngFor="let rank of line.ranks"
+      [class.current]="rank.id === line.current?.id" [class.next]="rank.id === line.next?.id">
+      <header>
+        <img *ngIf="rank.badge_path; else trophy" [src]="hostUrl + '/storage/' + rank.badge_path" alt="">
+        <ng-template #trophy><span class="rank-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span></ng-template>
+        <div><h3 class="rank-name" [attr.data-rank]="rank.position">{{ rank.title }}</h3>
+          <span class="badge" *ngIf="rank.id === line.current?.id; else otherStatus">Rango actual</span>
+          <ng-template #otherStatus>
+            <span class="badge" *ngIf="rank.id === line.next?.id || rank.qualified">{{ rank.qualified ? 'Rango cumplido' : 'Siguiente rango' }}</span>
+          </ng-template>
+        </div>
+      </header>
+      <p class="progress-label"><strong class="rank-points">{{ line.points | number:'1.0-2' }} / {{ rank.required_points | number:'1.0-2' }} pts</strong> <strong>{{ progress(line.points, rank.required_points) }}%</strong></p>
+      <progress [value]="progress(line.points, rank.required_points)" max="100" [attr.aria-label]="'Avance de puntos para ' + rank.title"></progress>
+      <div class="rank-checks">
+        <span *ngIf="rank.points_met" class="badge badge-met"><i class="fa-solid fa-check" aria-hidden="true"></i> Meta cumplida</span>
+      </div>
+      <details class="rank-details">
+        <summary>Ver requisitos</summary>
+        <ul class="requirements requirements-short">
+          <li>
+            Alcanzar {{ rank.required_points | number:'1.0-2' }} puntos.
+            <span *ngIf="!rank.points_met">
+              Te faltan {{ rank.required_points - line.points | number:'1.0-2' }} puntos.
+            </span>
+          </li>
+          <li *ngIf="rank.activation_met !== undefined">
+            Estar activo en el ciclo. {{ rank.activation_met ? 'Cumplido.' : 'Pendiente.' }}
+          </li>
+          <li *ngIf="rank.required_frontals > 0">
+            Tener al menos {{ rank.required_frontals }} l&iacute;neas directas activas<span
+              *ngIf="rank.required_members_per_branch > 0"> con al menos
+              {{ rank.required_members_per_branch }} socios activos en cada una</span>.
+            <span *ngIf="rank.eligible_branches !== undefined">
+              L&iacute;neas que cumplen: {{ rank.eligible_branches }} de {{ rank.required_frontals }} requeridas.
+            </span>
+          </li>
+          <li *ngFor="let requirement of rank.requirements">
+            Tener al menos {{ requirement.count }} socios activos con rango {{ requirement.title }}
+            o superior, en al menos {{ requirement.distinct_lines }}
+            {{ requirement.distinct_lines === 1 ? 'línea' : 'líneas' }} de la red.
+          </li>
+        </ul>
+      </details>
+    </article>
+  </div>
+</ng-template>

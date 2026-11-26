@@ -3,6 +3,7 @@ import { CommonModule, DecimalPipe } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
 import { RouterModule } from "@angular/router";
+import { CountrySelectComponent } from './components/country-select/country-select.component';
 
 // ✅ PIPES Y COMPONENTES
 import { SearchPipe } from './pipes/search.pipe';
@@ -43,6 +44,7 @@ import { NzCollapseModule } from 'ng-zorro-antd/collapse'; // ✅ AGREGAR PARA n
 
 // ✅ CONSTANTES
 const MODULES = [
+    CountrySelectComponent,
     ReactiveFormsModule,
     NzCarouselModule,
     NzGridModule,

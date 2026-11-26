@@ -2,19 +2,28 @@ import { SideNavInterface } from '../../interfaces/side-nav.type';
 export const ROUTES: SideNavInterface[] = [
     {
         path: '/admin/profile',
-        title: 'Mis Datos',
+        title: 'Dashboard',
         iconType: 'nzIcon',
         iconTheme: 'outline',
-        icon: 'user',
+        icon: 'home',
         submenu: [],
         show: true
+    },
+    {
+      path: '/admin/marketplace',
+      title: 'Tienda de productos',
+      iconType: 'nzIcon',
+      iconTheme: 'outline',
+      icon: 'shop',
+      submenu: [],
+      show: true
     },
     {
       path: '/admin/membership-plan',
       title: 'Planes de afiliación',
       iconType: 'nzIcon',
       iconTheme: 'outline',
-      icon: 'appstore',
+      icon: 'idcard',
       submenu: [],
       show: true
     },
@@ -27,15 +36,7 @@ export const ROUTES: SideNavInterface[] = [
       submenu: [],
       show: true
     },
-    {
-      path: '/admin/marketplace',
-      title: 'Tienda de productos',
-      iconType: 'nzIcon',
-      iconTheme: 'outline',
-      icon: 'shopping',
-      submenu: [],
-      show: true
-    },
+    { path: '/admin/rank-progress', title: 'Mi progreso', iconType: 'nzIcon', iconTheme: 'outline', icon: 'dashboard', submenu: [], show: true },
     {
       path: '/admin/tools',
       title: 'Herramientas',
@@ -62,5 +63,6 @@ export const ROUTES: SideNavInterface[] = [
       icon: 'percentage',
       submenu: [],
       show: true
-    }
+    },
+    { path: '/admin/profile/mi-perfil', title: 'Mi perfil', iconType: 'nzIcon', iconTheme: 'outline', icon: 'user', submenu: [], show: true }
 ]

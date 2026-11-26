@@ -1,29 +1,37 @@
+<header class="tree-page-heading">
+  <span class="tree-page-icon"><i class="fa-solid fa-network-wired" aria-hidden="true"></i></span>
+  <div class="tree-page-copy">
+    <h1>&Aacute;rbol de afiliados</h1>
+    <p>Explora tu red y consulta qui&eacute;n patrocina a cada socio.</p>
+  </div>
+</header>
+
 <nz-card class="stats-card">
   <nz-row>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item">
       <div class="stat-icon network-icon"><i class="fa-solid fa-network-wired"></i></div>
       <div class="stat-data">
-        <h1 class="stat-number" aria-live="polite">
+        <div class="stat-number" aria-live="polite">
           <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioTotal, retry: indicatorsLoadFailed }"></ng-container>
-        </h1>
+        </div>
         <p class="stat-label">Red Total</p>
       </div>
     </nz-col>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
       <div class="stat-icon direct-icon"><i class="fa-solid fa-user-plus"></i></div>
       <div class="stat-data">
-        <h1 class="stat-number" aria-live="polite">
+        <div class="stat-number" aria-live="polite">
           <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioDirectos, retry: indicatorsLoadFailed }"></ng-container>
-        </h1>
+        </div>
         <p class="stat-label">Directos</p>
       </div>
     </nz-col>
     <nz-col [nzLg]="8" [nzXs]="24" class="stat-item border-left">
       <div class="stat-icon active-icon"><i class="fa-solid fa-user-check"></i></div>
       <div class="stat-data">
-        <h1 class="stat-number active-color" aria-live="polite">
+        <div class="stat-number active-color" aria-live="polite">
           <ng-container *ngTemplateOutlet="indicatorValue; context: { $implicit: usuarioActivos, retry: indicatorsLoadFailed }"></ng-container>
-        </h1>
+        </div>
         <p class="stat-label">Activos</p>
       </div>
     </nz-col>

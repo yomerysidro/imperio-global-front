@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const CommonLayout_ROUTES: Routes = [
+    { path: 'rank-progress', loadComponent: () => import('../../pages/admin/administrator/rank-progress/rank-progress.component').then(m => m.RankProgressComponent) },
     {
       path: 'profile',
       loadChildren: () => import(`../../pages/admin/administrator/profile/profile-page/profile-page.module`).then(m => m.ProfilePageModule)
