@@ -45,6 +45,12 @@ export class UserTreeDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  get currentRange() {
+    return this.userModel?.current_range === undefined
+      ? this.userModel?.range?.range
+      : this.userModel.current_range;
+  }
+
   ngOnInit(): void {
     if (!this.detailRequest) {
       this.initializeDetails();
