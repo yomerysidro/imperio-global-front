@@ -603,9 +603,9 @@ private nodeTreeParse(listPoints: any[], code: string): Array<IECONode> {
     );
 
     const email = node?.email?.trim();
-    const title = isSelf ? 'Tu Detalle' : email ? 'Detalle: ' + email : 'Detalle del socio';
+    const title = email ? 'Detalle: ' + email : 'Detalle del socio';
     this.openModal(title, {
-      showEmailInTitle: !isSelf,
+      showEmailInTitle: true,
       userModel: node ? { ...node, uuid: userCode, photo: node.photo === this.fallback ? undefined : node.photo } : undefined,
       detailRequest
     });
